@@ -100,7 +100,13 @@ macos)
   staging=$(mktemp -d)
   cp -R "$app" "$staging/"
   ln -s /Applications "$staging/Applications"
-  hdiutil create -quiet -volname "OpenHane $VERSION" -srcfolder "$staging" -format UDZO -ov "$OUT/$name.dmg"
+  # hdiutil 在 CI 机器上偶尔报 Resource busy，失败时重试
+  for try in 1 2 3 4 5; do
+    hdiutil create -volname "OpenHane $VERSION" -srcfolder "$staging" -format UDZO -ov "$OUT/$name.dmg" >/dev/null && break
+    [ "$try" -lt 5 ] || exit 1
+    echo "创建 dmg 失败，$((try * 10)) 秒后重试" >&2
+    sleep $((try * 10))
+  done
   rm -rf "$staging"
   if [ -n "${HANE_SIGN_IDENTITY:-}" ]; then
     codesign --force --sign "$HANE_SIGN_IDENTITY" --timestamp "$OUT/$name.dmg"
