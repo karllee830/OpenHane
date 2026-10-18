@@ -45,6 +45,18 @@ macos)
     ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO "${sign[@]}" \
     build | tail -3
   app="$DERIVED/Build/Products/Release/OpenHane.app"
+  if [ -n "${HANE_SIGN_IDENTITY:-}" ]; then
+    # Xcode 复制 Sparkle.framework 时只重签框架本身，里面的辅助程序仍是 Sparkle 自带的签名，公证会拒绝。
+    # 按从里到外的顺序用 Developer ID 重签（Downloader.xpc 保留自带的沙盒权限），最后重签整个应用
+    sparkle="$app/Contents/Frameworks/Sparkle.framework"
+    cs=(codesign --force --sign "$HANE_SIGN_IDENTITY" --options runtime --timestamp)
+    "${cs[@]}" "$sparkle/Versions/B/XPCServices/Installer.xpc"
+    "${cs[@]}" --preserve-metadata=entitlements "$sparkle/Versions/B/XPCServices/Downloader.xpc"
+    "${cs[@]}" "$sparkle/Versions/B/Autoupdate"
+    "${cs[@]}" "$sparkle/Versions/B/Updater.app"
+    "${cs[@]}" "$sparkle"
+    "${cs[@]}" --entitlements App-macOS/OpenHane.entitlements "$app"
+  fi
   codesign --verify --deep --strict "$app"
   lipo -archs "$app/Contents/MacOS/OpenHane"
   # 启动检查：签名格式正确不代表能启动（dyld 的库校验只在加载时发生）。启动 5 秒后进程必须还在
