@@ -21,12 +21,12 @@
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",
     "@bufbuild/protoc-gen-es": "2.16.0",
-    "@playwright/test": "1.64.0",
+    "@playwright/test": "1.64.1",
     "@types/node": "^26.6.5",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
     "typescript": "7.0.2",
-    "vitest": "5.0.3"
+    "vitest": "5.0.4"
   },
   "allowScripts": {
     "uiohook-napi": false,
