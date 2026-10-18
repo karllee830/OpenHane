@@ -1,0 +1,67 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/e2ee.proto";
+import "openhane/v1/room.proto";
+import "openhane/v1/session.proto";
+
+// 握手流程：ClientHello → ServerChallenge → ClientAuth → Welcome（或 Goodbye）。
+
+message ClientHello {
+  uint32 protocol_version = 1; // 当前为 1
+  ClientInfo client = 2;
+  Capabilities caps = 3;
+  bytes resume_ticket = 4; // 断线重连时携带
+  string invite_code = 5; // 通过邀请链接进入时携带
+}
+
+message ServerChallenge {
+  uint32 protocol_version = 1; // 服务端选定的版本
+  bytes server_id = 2; // 16 字节，首次启动随机生成并持久化
+  bytes nonce = 3; // 32 字节，30 秒内有效且只能用一次
+  ServerInfo info = 4;
+}
+
+// 签名内容：
+//   "OpenHane-Auth-v1" || 0x00 || server_id(16) || nonce(32) || seen_spki_sha256(32) || timestamp_ms(8，大端序)
+message ClientAuth {
+  bytes public_key = 1; // Ed25519 公钥，32 字节
+  bytes signature = 2; // Ed25519 签名，64 字节
+  bytes seen_spki_sha256 = 3; // 客户端实际看到的证书 SPKI 指纹；拿不到时（浏览器）填 32 个 0
+  int64 timestamp_ms = 4;
+  string nickname = 5;
+  string server_password = 6;
+  SignedPublicKey e2ee_key = 7;
+  bytes pow_nonce = 8; // 服务器要求安全等级 > 0 时提供
+}
+
+message Welcome {
+  string session_id = 1;
+  string uid = 2;
+  string nickname = 3; // 实际分配的昵称（重名时带后缀）
+  Role role = 4;
+  bytes resume_ticket = 5; // 断线 60 秒内凭此恢复会话；每次恢复后换新
+  bool resumed = 6; // 本次是否恢复了原有会话（房间、媒体会话保持不变）
+  Snapshot snapshot = 7; // 总是完整快照（包括恢复会话时），客户端据此重建状态
+  JoinRoomResult auto_join = 8; // 自动加入的房间（通常为主会议）；恢复会话时为当前房间
+}
+
+// 服务器的完整状态快照；之后只推送增量事件。
+message Snapshot {
+  ServerInfo info = 1;
+  repeated Room rooms = 2;
+  repeated Participant participants = 3;
+  uint64 event_seq = 4; // 快照对应的事件序号，之后的事件从 event_seq + 1 开始
+}
+
+message ServerInfo {
+  string name = 1;
+  string version = 2;
+  bool requires_password = 3;
+  uint32 min_security_level = 4;
+  string welcome_message = 5;
+  uint32 protocol_min = 6;
+  uint32 protocol_max = 7;
+  Role room_create_min_role = 8; // 创建临时房间所需的最低角色（客户端据此显示「新建房间」）
+}

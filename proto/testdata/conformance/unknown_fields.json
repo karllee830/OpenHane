@@ -1,0 +1,23 @@
+{
+  "event": {
+    "seq": "7",
+    "participantUpdated": {
+      "participant": {
+        "sessionId": "z",
+        "uid": "copdsqhgjnkjc4rardm2",
+        "nickname": "未来",
+        "role": "ROLE_MEMBER",
+        "roomId": "main",
+        "state": {
+          "micMuted": true,
+          "handRaised": true
+        },
+        "platform": "PLATFORM_MACOS",
+        "mediaConnected": true,
+        "mediaIdentity": "copdsqhgjnkjc4rardm2:z",
+        "cameraOn": true,
+        "screenSharing": true
+      }
+    }
+  }
+}

@@ -1,0 +1,4921 @@
+{
+ "version": 1,
+ "sampleIntervalMs": 500,
+ "vectors": [
+  {
+   "name": "smart：静止文档保持清晰模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 9500,
+     "mode": "text",
+     "level": 0,
+     "height": 1440,
+     "fps": 15
+    }
+   ]
+  },
+  {
+   "name": "smart：持续播放视频 2 秒后切到流畅模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 4000,
+     "mode": "text"
+    },
+    {
+     "t": 5500,
+     "mode": "motion",
+     "height": 1080,
+     "fps": 60
+    }
+   ]
+  },
+  {
+   "name": "smart：采样间隔略大于 500 ms（510 ms）时仍能切到流畅模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 510,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1020,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1530,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2040,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2550,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3060,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3570,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4080,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4590,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5100,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5610,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6120,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6630,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 4590,
+     "mode": "text"
+    },
+    {
+     "t": 5100,
+     "mode": "motion"
+    }
+   ]
+  },
+  {
+   "name": "smart：短暂滚动（1.5 秒）不切换",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 25,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 25,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 25,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 4500,
+     "mode": "text"
+    },
+    {
+     "t": 8000,
+     "mode": "text"
+    }
+   ]
+  },
+  {
+   "name": "smart：滚动文档（帧率低于阈值）不切换",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.8,
+     "changeFps": 15,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 7500,
+     "mode": "text",
+     "height": 1440
+    }
+   ]
+  },
+  {
+   "name": "smart：短视频停止约 3.5 秒后回到清晰模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 3000,
+     "mode": "motion"
+    },
+    {
+     "t": 6000,
+     "mode": "motion"
+    },
+    {
+     "t": 6500,
+     "mode": "motion"
+    },
+    {
+     "t": 7000,
+     "mode": "text",
+     "height": 1440,
+     "fps": 15
+    }
+   ]
+  },
+  {
+   "name": "smart：长视频停止约 5 秒后回到清晰模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 26000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 26500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 27000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 27500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 24500,
+     "mode": "motion"
+    },
+    {
+     "t": 25000,
+     "mode": "text"
+    }
+   ]
+  },
+  {
+   "name": "smart：流畅模式下改为间歇滚动，回到清晰模式且不再来回切换",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 5500,
+     "mode": "motion"
+    },
+    {
+     "t": 21500,
+     "mode": "text"
+    },
+    {
+     "t": 25500,
+     "mode": "text"
+    }
+   ]
+  },
+  {
+   "name": "smart：长时间静止后开始播放视频，切换后不会立刻切回",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 11500,
+     "mode": "text"
+    },
+    {
+     "t": 12000,
+     "mode": "motion"
+    },
+    {
+     "t": 12500,
+     "mode": "motion"
+    },
+    {
+     "t": 14000,
+     "mode": "motion"
+    },
+    {
+     "t": 19500,
+     "mode": "motion"
+    }
+   ]
+  },
+  {
+   "name": "smart：持续播放视频（含少量静止帧）保持流畅模式",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "smart",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 20500,
+     "mode": "motion"
+    }
+   ]
+  },
+  {
+   "name": "清晰优先：即使播放视频也不切换",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "text",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 7500,
+     "mode": "text",
+     "height": 1440,
+     "fps": 15
+    }
+   ]
+  },
+  {
+   "name": "流畅优先：从一开始就是流畅模式，帧率受上限约束",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 30,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 0,
+     "mode": "motion",
+     "height": 1080,
+     "fps": 30
+    }
+   ]
+  },
+  {
+   "name": "清晰模式 CPU 受限：先降帧率 15→10→5，再降分辨率 1440→1080",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "text",
+   "codec": "vp9",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 2500,
+     "level": 0,
+     "fps": 15
+    },
+    {
+     "t": 3000,
+     "level": 1,
+     "fps": 10,
+     "height": 1440
+    },
+    {
+     "t": 6000,
+     "level": 2,
+     "fps": 5,
+     "height": 1440
+    },
+    {
+     "t": 9000,
+     "level": 3,
+     "fps": 5,
+     "height": 1080
+    },
+    {
+     "t": 13500,
+     "level": 3,
+     "fps": 5,
+     "height": 1080
+    }
+   ]
+  },
+  {
+   "name": "流畅模式 CPU 受限：先降分辨率 1080→720，再降帧率 60→30",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 3000,
+     "level": 1,
+     "height": 720,
+     "fps": 60
+    },
+    {
+     "t": 6000,
+     "level": 2,
+     "height": 720,
+     "fps": 30
+    }
+   ]
+  },
+  {
+   "name": "带宽不足 5 秒后降级，恢复稳定 10 秒后逐级回升",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 10500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 11500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 12500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 13500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 14500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 15500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 16500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 17500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 18500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 19500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 20500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 21500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 22500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 23500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 24500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 25500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 26000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 30000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 4500,
+     "level": 0
+    },
+    {
+     "t": 5000,
+     "level": 1,
+     "height": 720
+    },
+    {
+     "t": 14500,
+     "level": 1
+    },
+    {
+     "t": 15000,
+     "level": 0,
+     "height": 1080
+    }
+   ]
+  },
+  {
+   "name": "码率上限：不超过管理员上限，也不超过上行带宽的 85%",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 2000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 2000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 2000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "maxKbps": 1700
+    }
+   ]
+  },
+  {
+   "name": "设备发热：持续 3 秒后降一级",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "text",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "serious"
+    }
+   ],
+   "expect": [
+    {
+     "t": 2500,
+     "level": 0
+    },
+    {
+     "t": 3000,
+     "level": 1,
+     "fps": 10
+    }
+   ]
+  },
+  {
+   "name": "码率表（M2 校准）：AV1 流畅模式 1080p60 为 7000 kbps",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "motion",
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 0,
+     "mode": "motion",
+     "height": 1080,
+     "fps": 60,
+     "maxKbps": 7000
+    }
+   ]
+  },
+  {
+   "name": "码率表（M2 校准）：H.264 流畅模式 1080p60 为 7000 × 1.2 = 8400 kbps，被管理员上限截到 8000",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 0,
+     "mode": "motion",
+     "height": 1080,
+     "fps": 60,
+     "maxKbps": 8000
+    }
+   ]
+  },
+  {
+   "name": "码率表（M2 校准）：H.264 清晰模式 1440p 为 1200 × 1.5 = 1800 kbps",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "text",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 0,
+     "mode": "text",
+     "height": 1440,
+     "fps": 15,
+     "maxKbps": 1800
+    }
+   ]
+  },
+  {
+   "name": "自定义：用户指定 1080p 30 fps 6000 kbps，按动态画面处理；CPU 受限、上行带宽不足时也不降级、不压码率",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "custom",
+   "custom": {
+    "height": 1080,
+    "fps": 30,
+    "kbps": 6000
+   },
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 1000,
+     "qualityLimitation": "cpu",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 0,
+     "mode": "motion",
+     "level": 0,
+     "width": 1920,
+     "height": 1080,
+     "fps": 30,
+     "maxKbps": 6000
+    },
+    {
+     "t": 9500,
+     "mode": "motion",
+     "level": 0,
+     "width": 1920,
+     "height": 1080,
+     "fps": 30,
+     "maxKbps": 6000
+    }
+   ]
+  },
+  {
+   "name": "自定义：超过管理员上限时截到上限，分辨率不超过原始分辨率（不放大）",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "custom",
+   "custom": {
+    "height": 2160,
+    "fps": 120,
+    "kbps": 20000
+   },
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "motion",
+     "width": 1920,
+     "height": 1080,
+     "fps": 60,
+     "maxKbps": 8000
+    }
+   ]
+  },
+  {
+   "name": "自定义：原始分辨率 + 10 fps + 码率自动，按文字处理（H.264 清晰 1440p 为 1200 × 1.5 = 1800 kbps）",
+   "caps": {
+    "maxHeight": 2160,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "custom",
+   "custom": {
+    "height": null,
+    "fps": 10,
+    "kbps": null
+   },
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.5,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.5,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "text",
+     "width": 2560,
+     "height": 1440,
+     "fps": 10,
+     "maxKbps": 1800
+    }
+   ]
+  },
+  {
+   "name": "自定义：码率自动，清晰档帧率高于 15 时按比例放大（AV1 1080p 20 fps：800 × 20 / 15 ≈ 1067 kbps）",
+   "caps": {
+    "maxHeight": 2160,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 1920,
+    "height": 1080
+   },
+   "intent": "custom",
+   "custom": {
+    "height": 1080,
+    "fps": 20,
+    "kbps": null
+   },
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "text",
+     "height": 1080,
+     "fps": 20,
+     "maxKbps": 1067
+    }
+   ]
+  },
+  {
+   "name": "自定义：码率自动，流畅档按参考码率（AV1 720p 60 fps 为 3000 kbps）",
+   "caps": {
+    "maxHeight": 2160,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "custom",
+   "custom": {
+    "height": 720,
+    "fps": 60,
+    "kbps": null
+   },
+   "codec": "av1",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "motion",
+     "width": 1280,
+     "height": 720,
+     "fps": 60,
+     "maxKbps": 3000
+    }
+   ]
+  },
+  {
+   "name": "H.265：自定义原始分辨率 + 10 fps + 码率自动，按文字处理（1440p 为 1200 × 1.2 = 1440 kbps）",
+   "caps": {
+    "maxHeight": 2160,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "custom",
+   "custom": {
+    "height": null,
+    "fps": 10,
+    "kbps": null
+   },
+   "codec": "h265",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "text",
+     "width": 2560,
+     "height": 1440,
+     "fps": 10,
+     "maxKbps": 1440
+    }
+   ]
+  },
+  {
+   "name": "H.265：自定义 1080p 60 fps + 码率自动，按动态画面处理（与 AV1 相同：7000 kbps）",
+   "caps": {
+    "maxHeight": 2160,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "custom",
+   "custom": {
+    "height": 1080,
+    "fps": 60,
+    "kbps": null
+   },
+   "codec": "h265",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.005,
+     "changeFps": 6,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal"
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "mode": "motion",
+     "width": 1920,
+     "height": 1080,
+     "fps": 60,
+     "maxKbps": 7000
+    }
+   ]
+  },
+  {
+   "name": "BBR：往返时间持续 1 秒升高（排队）就降到送达速率放得下的档位（一次降两级）；既不排队也不受限 3 秒后试探着升一级，分辨率由引擎决定",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 6000
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 6000
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 6000
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 6000
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 200,
+     "sentKbps": 2500
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 200,
+     "sentKbps": 2500
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 200,
+     "sentKbps": 2500
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 6000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 6500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 7000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 7500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 8000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 8500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 9000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 9500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    },
+    {
+     "t": 10000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 20000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2300
+    }
+   ],
+   "expect": [
+    {
+     "t": 2500,
+     "level": 0
+    },
+    {
+     "t": 3000,
+     "level": 2,
+     "height": 720,
+     "fps": 30,
+     "maxKbps": 2400,
+     "degradationPreference": "maintain-resolution"
+    },
+    {
+     "t": 6000,
+     "level": 2
+    },
+    {
+     "t": 6500,
+     "level": 1,
+     "height": 720,
+     "fps": 60
+    },
+    {
+     "t": 9000,
+     "level": 1
+    },
+    {
+     "t": 9500,
+     "level": 0,
+     "height": 1080,
+     "fps": 60,
+     "maxKbps": 8000,
+     "degradationPreference": "maintain-resolution"
+    }
+   ]
+  },
+  {
+   "name": "BBR：有往返时间信号时码率上限不按带宽估计的 85% 压（实际码率交给 WebRTC 的拥塞控制）",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2800
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 3000,
+     "qualityLimitation": "none",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 2800
+    }
+   ],
+   "expect": [
+    {
+     "t": 500,
+     "level": 0,
+     "height": 1080,
+     "maxKbps": 8000
+    }
+   ]
+  },
+  {
+   "name": "BBR：WebRTC 报告受带宽限制、估计值不到当前档位的 60% 持续 2 秒，直接降到估计值放得下的档位；仍受限时不往上试探",
+   "caps": {
+    "maxHeight": 1440,
+    "maxFps": 60,
+    "maxKbps": 8000
+   },
+   "source": {
+    "width": 2560,
+    "height": 1440
+   },
+   "intent": "motion",
+   "codec": "h264",
+   "samples": [
+    {
+     "t": 0,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 1000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 1500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 2000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 2500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 3000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 3500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 4000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 4500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 5000,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    },
+    {
+     "t": 5500,
+     "changedAreaRatio": 0.6,
+     "changeFps": 30,
+     "uplinkKbps": 1500,
+     "qualityLimitation": "bandwidth",
+     "thermal": "nominal",
+     "rttMs": 30,
+     "sentKbps": 1400
+    }
+   ],
+   "expect": [
+    {
+     "t": 1500,
+     "level": 0
+    },
+    {
+     "t": 2000,
+     "level": 2,
+     "height": 720,
+     "fps": 30,
+     "maxKbps": 2400,
+     "degradationPreference": "maintain-resolution"
+    },
+    {
+     "t": 5500,
+     "level": 2
+    }
+   ]
+  }
+ ]
+}

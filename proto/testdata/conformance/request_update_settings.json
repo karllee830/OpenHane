@@ -1,0 +1,11 @@
+{
+  "request": {
+    "id": 5,
+    "updateSettings": {
+      "patch": {
+        "audio.preset": "\"hd\"",
+        "server.name": "\"名字\""
+      }
+    }
+  }
+}

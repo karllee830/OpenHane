@@ -1,0 +1,15 @@
+# 不能使用 host 网络时（例如 macOS / Windows 的 Docker Desktop、部分 NAS）：端口映射方式。
+# 客户端按自己填写的服务器地址建立媒体连接，一般不需要设置 HANE_PUBLIC_HOST；宿主机端口必须与容器内相同。
+services:
+  openhane:
+    image: ghcr.io/karllee830/openhane-server:beta   # 或本地构建的 openhane/server
+    container_name: openhane
+    restart: unless-stopped
+    ports:
+      - "9800:9800/tcp"   # HTTPS / WebSocket（网页版、控制连接）
+      - "9800:9800/udp"   # 媒体
+      - "9801:9801/tcp"   # 媒体的 TCP 回退（UDP 被拦截时使用）
+    volumes:
+      - ./data:/data   # 容器以 root 启动，自动把目录交给运行用户后降权运行（PUID / PGID，默认 65532）
+    # environment:
+    #   HANE_PUBLIC_HOST: 203.0.113.10   # 只在信令和媒体走不同地址时设置（例如域名套了 CDN）

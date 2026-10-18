@@ -1,0 +1,27 @@
+# 羽见推荐部署（Linux）。详见 https://github.com/karllee830/OpenHane/wiki/Deployment-Guide。
+#   docker compose up -d && docker compose logs openhane   # 日志里有首个管理员令牌
+#
+# 镜像：ghcr.io/karllee830/openhane-server（Docker Hub 上同名：karllee830/openhane-server）；也可以本地构建：docker build -f server/Dockerfile -t openhane/server .
+services:
+  openhane:
+    image: ghcr.io/karllee830/openhane-server:beta   # 或本地构建的 openhane/server
+    container_name: openhane
+    restart: unless-stopped
+    # host 网络：UDP 性能最好，服务端能看到本机真实的局域网 / 公网地址（只在 Linux 上可用）
+    network_mode: host
+    volumes:
+      - ./data:/data   # 容器以 root 启动，自动把目录交给运行用户后降权运行（PUID / PGID，默认 65532）
+    environment:
+      # 额外公布的媒体地址。客户端默认按自己填写的服务器地址建立媒体连接，只在信令和媒体走不同地址时设置（例如域名套了 CDN）
+      # HANE_PUBLIC_HOST: meet.example.com
+      # 已有证书（例如 certbot 申请的）：证书更新后自动重新加载
+      # HANE_TLS_MODE: file
+      # HANE_TLS_CERT: /data/certs/fullchain.pem
+      # HANE_TLS_KEY: /data/certs/privkey.pem
+      # 开启 Prometheus 指标（/metrics）
+      # HANE_METRICS: "true"
+      # HANE_METRICS_TOKEN: change-me
+      # 让数据文件属于宿主机上的某个用户（例如 NAS 的用户，用 id <用户名> 查看）
+      # PUID: "1026"
+      # PGID: "100"
+      HANE_LOG_FORMAT: text

@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  proto:
+    name: 协议（lint + 生成结果一致）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - run: ./proto/generate.sh
+      - name: 生成结果必须已提交
+        run: git diff --exit-code -- server/internal/pb
+
+  server:
+    name: 服务端（vet + 测试）
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - name: gofmt
+        run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - run: go vet ./...
+      - name: LiveKit replace 指令一致
+        run: ./scripts/check-livekit-replace.sh
+      - run: go test -race ./...
+
+  web:
+    name: Web 客户端（类型检查 + 单元 / 集成测试 + 端到端）
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: clients/web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: clients/web/package-lock.json
+      - uses: actions/setup-go@v6 # 集成测试会编译并启动真实的服务端
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - run: npm ci --no-audit --no-fund
+      - run: npm run typecheck
+      # AI 降噪（DeepFilterNet3）的 WASM 从源码编译；Rust 依赖和编译结果缓存起来
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            clients/deepfilter/target
+            clients/deepfilter/build
+          key: deepfilter-wasm-${{ hashFiles('clients/deepfilter/**') }}
+          restore-keys: deepfilter-wasm-
+      - name: AI 降噪（WASM）
+        run: ../deepfilter/build.sh web
+      # 集成测试要启动真实的服务端：先单独编译（冷缓存时下载依赖 + 编译 LiveKit 超过测试钩子的 2 分钟超时）
+      - name: 编译服务端
+        working-directory: server
+        run: go build -o "$RUNNER_TEMP/openhane" ./cmd/openhane
+      - run: npm test
+        env:
+          HANE_SERVER_BIN: ${{ runner.temp }}/openhane
+          HANE_REQUIRE_DFN: '1' # 没有 AI 降噪的 WASM 时测试失败而不是跳过
+      - name: 首屏 JS（gzip）≤ 300 KB
+        run: npm run build && npm run budget
+      - run: npx playwright install --with-deps chromium
+      - name: 下载 Electron（首次启动时下载会让端到端测试超时）
+        run: node node_modules/electron/install.js
+      - name: 端到端（Web + Electron）
+        run: xvfb-run -a npm run e2e
+        env:
+          # GitHub 的 Ubuntu 镜像限制了非特权用户命名空间，Electron 的 SUID 沙盒无法启动
+          ELECTRON_DISABLE_SANDBOX: '1'
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-results
+          path: clients/web/test-results
+
+  apple:
+    name: 苹果客户端（单元 / 集成测试 + macOS 应用构建）
+    runs-on: xcode-27 # Xcode 27 预览镜像（应用使用 Xcode 27 SDK 构建）
+    defaults:
+      run:
+        working-directory: clients/apple
+    steps:
+      - uses: actions/checkout@v5
+      - name: 选择最新的 Xcode
+        run: |
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
+          xcodebuild -version
+      - uses: actions/setup-go@v6 # 集成测试会编译并启动真实的服务端
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - name: Rust（构建 AI 降噪库）
+        run: |
+          command -v rustup >/dev/null || curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            clients/deepfilter/target
+            clients/deepfilter/build
+          key: deepfilter-apple-macos-${{ hashFiles('clients/deepfilter/**') }}
+          restore-keys: deepfilter-apple-macos-
+      - run: ./scripts/setup.sh
+        env:
+          HANE_REQUIRE_DFN: '1'
+          HANE_DFN_PLATFORMS: macos # 这里只构建、测试 macOS
+      # 串行运行：各集成测试套件共用 LiveKit SDK 的全局音频引擎（AudioManager.shared），同一进程里并行偶发崩溃（信号 11）
+      - run: swift test --package-path Packages/OpenHaneKit --no-parallel
+        env:
+          HANE_REQUIRE_DFN: '1'
+      - run: brew install xcodegen && xcodegen generate
+      - run: xcodebuild -project OpenHane.xcodeproj -scheme OpenHane-macOS -configuration Debug -destination 'platform=macOS' build CODE_SIGNING_ALLOWED=NO
+
+  docker:
+    name: 镜像构建与体积
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      # 网页版带上 AI 降噪的 WASM 和模型（构建上下文里有就会打进镜像），体积检查才符合实际
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            clients/deepfilter/target
+            clients/deepfilter/build
+          key: deepfilter-wasm-${{ hashFiles('clients/deepfilter/**') }}
+          restore-keys: deepfilter-wasm-
+      - run: clients/deepfilter/build.sh web
+      - run: docker build -f server/Dockerfile --build-arg VERSION=ci -t openhane/server:ci .
+      - name: 压缩后体积 ≤ 50 MB
+        run: |
+          size=$(docker save openhane/server:ci | gzip | wc -c)
+          echo "compressed: $((size / 1048576)) MB"
+          test "$size" -le $((50 * 1048576))

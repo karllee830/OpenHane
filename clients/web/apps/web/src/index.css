@@ -1,0 +1,150 @@
+@import 'tailwindcss';
+@source '../../../packages/ui/src';
+
+/* 设计令牌：浅色为默认，深色跟随系统 */
+@theme {
+  --color-bg: #f6f7f9;
+  --color-surface: #ffffff;
+  --color-surface-2: #eef0f3;
+  --color-border: #dfe2e7;
+  --color-text: #1b1f24;
+  --color-muted: #6b7280;
+  /* 品牌色取自应用图标（纸鹤，clients/apple/Shared/OpenHane.icon）：色相约 212° 的天蓝。
+     图标里最深的 #58A9FE 在白底上对比度只有 2.5:1，浅色主题的文字和按钮用同色相加深的 #176BCB（白底 5.3:1） */
+  --color-accent: #176bcb;
+  /* 带白色文字的实心按钮背景：两种主题都用这个蓝色，保证文字对比度 ≥ 4.5:1（深色主题的 accent 更亮，适合文字和描边） */
+  --color-accent-solid: #176bcb;
+  /* 图标的色阶（由深到浅），用于品牌字标等装饰 */
+  --color-brand-500: #58a9fe;
+  --color-brand-400: #79bafb;
+  --color-brand-300: #a5d5fe;
+  --color-brand-200: #cfe8ff;
+  --color-danger: #dc2626;
+  --color-warning: #f59e0b;
+  --color-success: #16a34a;
+  --color-speaking: #22c55e;
+  --font-sans: system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  /* 连接页卡片出现时轻微上浮（只动位置不动透明度：无障碍检查在动画中途取色也不会误报对比度） */
+  --animate-rise: rise 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  @keyframes rise {
+    from {
+      transform: translateY(10px) scale(0.985);
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #111317;
+    --color-surface: #191c21;
+    --color-surface-2: #23272e;
+    --color-border: #2e333b;
+    --color-text: #e6e8eb;
+    --color-muted: #9aa1ab;
+    --color-accent: #58a9fe; /* 图标原色，深色背景上 7.6:1 */
+    --color-danger: #ef4444;
+    --color-warning: #fbbf24;
+    --color-success: #22c55e;
+    --color-speaking: #22c55e;
+  }
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 连接页背景：顶部一层淡淡的品牌色光晕和点阵，向下渐隐 */
+.hane-backdrop {
+  position: relative;
+  isolation: isolate;
+}
+.hane-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(56rem 26rem at 50% -8rem, color-mix(in oklab, var(--color-accent) 22%, transparent), transparent 70%),
+    radial-gradient(color-mix(in oklab, var(--color-text) 10%, transparent) 1px, transparent 1.5px) 0 0 / 22px 22px;
+  mask-image: radial-gradient(ellipse 75% 65% at 50% 0%, #000 35%, transparent 100%);
+}
+
+/*
+ * 桌面版隐藏了系统标题栏（Window Controls Overlay）：顶部各栏兼作标题栏，可以拖动窗口；
+ * 最小化 / 最大化 / 关闭按钮由系统画在右上角（macOS 是左上角的红绿灯），--wco-left / --wco-right 是要让出的宽度。
+ * 浏览器里这些环境变量不存在，取默认值 0，不影响布局。
+ */
+:root {
+  --wco-left: env(titlebar-area-x, 0px);
+  --wco-right: calc(100vw - env(titlebar-area-x, 0px) - env(titlebar-area-width, 100vw));
+  --wco-height: env(titlebar-area-height, 0px);
+}
+.app-drag {
+  -webkit-app-region: drag;
+  app-region: drag;
+}
+.app-drag :is(button, a, input, select, textarea, label, [role='button'], [role='tab']),
+/* 弹出菜单、对话框（渲染在页面最外层）盖住顶部这一行时，点击它们不能变成拖动窗口 */
+[data-radix-popper-content-wrapper],
+[role='menu'],
+[role='dialog'],
+[role='alertdialog'],
+.app-no-drag {
+  -webkit-app-region: no-drag;
+  app-region: no-drag;
+}
+
+/* 品牌字标里的「Hane」：做出图标纸鹤那种通透的玻璃感。
+   底层是按纸鹤折面分段的斜向渐变（相邻的面明暗不同、交界处略带过渡），上面叠一层自上而下的白色高光，都裁剪到文字形状；
+   外面一圈很细的深蓝边（让浅色背景上也看得清）和淡淡的蓝色光晕。 */
+.brand-glass {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.42) 0%, rgb(255 255 255 / 0.08) 50%, rgb(255 255 255 / 0) 56%),
+    linear-gradient(
+      118deg,
+      #2f86e8 0%,
+      #3d93f2 24%,
+      #5aa9fa 27%,
+      #6fb4fb 46%,
+      #88c1fc 49%,
+      #9acdfd 62%,
+      #6db2fa 65%,
+      #4c9ff6 100%
+    );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 0.4px rgb(23 107 203 / 0.6)) drop-shadow(0 5px 12px rgb(88 169 254 / 0.35));
+}
+
+@media (prefers-color-scheme: dark) {
+  .brand-glass {
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.45) 0%, rgb(255 255 255 / 0.08) 50%, rgb(255 255 255 / 0) 56%),
+      linear-gradient(
+        118deg,
+        var(--color-brand-500) 0%,
+        #66b0fd 24%,
+        var(--color-brand-400) 27%,
+        #9dcffd 46%,
+        #c4e2ff 49%,
+        var(--color-brand-200) 62%,
+        #8cc5fc 65%,
+        #6db3fd 100%
+      );
+    -webkit-background-clip: text;
+    background-clip: text;
+    filter: drop-shadow(0 5px 16px rgb(88 169 254 / 0.45));
+  }
+}

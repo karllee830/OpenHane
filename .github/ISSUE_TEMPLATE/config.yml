@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability / 安全漏洞
+    url: https://github.com/karllee830/OpenHane/security/advisories/new
+    about: Please report security issues privately. / 请通过私密漏洞报告提交安全问题。
+  - name: Documentation / 使用文档
+    url: https://github.com/karllee830/OpenHane/wiki
+    about: Deployment guide, admin guide and FAQ. / 部署指南、管理员手册和常见问题。

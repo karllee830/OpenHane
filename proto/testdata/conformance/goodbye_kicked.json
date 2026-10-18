@@ -1,0 +1,9 @@
+{
+  "goodbye": {
+    "error": {
+      "code": "ERROR_CODE_KICKED",
+      "byName": "管理员",
+      "reason": "请注意言行"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "event": {
+    "seq": "1",
+    "participantJoined": {
+      "participant": {
+        "sessionId": "a",
+        "uid": "copdsqhgjnkjc4rardm2",
+        "nickname": "甲",
+        "role": "ROLE_MODERATOR",
+        "roomId": "main",
+        "state": {
+          "micMuted": true,
+          "handRaised": true
+        },
+        "platform": "PLATFORM_MACOS",
+        "mediaConnected": true,
+        "mediaIdentity": "copdsqhgjnkjc4rardm2:a",
+        "cameraOn": true,
+        "screenSharing": true
+      }
+    }
+  }
+}

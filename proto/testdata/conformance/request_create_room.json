@@ -1,0 +1,18 @@
+{
+  "request": {
+    "id": 20,
+    "createRoom": {
+      "name": "设计评审",
+      "password": "pw",
+      "locked": true,
+      "capacity": 8,
+      "overrides": {
+        "screenModeratorOnly": true,
+        "e2ee": true,
+        "audioMaxKbps": 24
+      },
+      "emptyTimeoutSec": 0,
+      "join": true
+    }
+  }
+}

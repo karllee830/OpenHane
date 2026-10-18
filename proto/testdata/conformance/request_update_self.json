@@ -1,0 +1,9 @@
+{
+  "request": {
+    "id": 2,
+    "updateSelf": {
+      "micMuted": false,
+      "nickname": "新名字"
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "request": {
+    "id": 1,
+    "joinRoom": {
+      "roomId": "main"
+    }
+  }
+}

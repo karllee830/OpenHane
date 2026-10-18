@@ -1,0 +1,8 @@
+# Swift 协议代码（苹果客户端）。由 generate.sh 在有 Swift 工具链时调用。
+version: v2
+plugins:
+  - local: .bin/protoc-gen-swift
+    out: ../clients/apple/Packages/OpenHaneKit/Sources/HaneProtocol/Generated
+    opt:
+      - Visibility=Public
+      - FileNaming=PathToUnderscores

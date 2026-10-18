@@ -1,0 +1,11 @@
+# 镜像只需要 server/ 和 clients/web/（不含依赖和构建产物）
+*
+!server/
+!clients/web/
+server/**/*_test.go
+server/**/testdata/
+server/internal/webui/dist/*
+clients/web/node_modules/
+clients/web/**/node_modules/
+clients/web/**/dist/
+clients/web/test-results/

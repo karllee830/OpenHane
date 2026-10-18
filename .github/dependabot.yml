@@ -1,0 +1,56 @@
+# 每月检查一次依赖更新；每个生态的更新合并成一个 PR
+version: 2
+updates:
+  - package-ecosystem: gomod
+    directory: /server
+    schedule:
+      interval: monthly
+    groups:
+      go:
+        patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /clients/web
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: cargo
+    directory: /clients/deepfilter
+    schedule:
+      interval: monthly
+    groups:
+      cargo:
+        patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: docker
+    directory: /server
+    schedule:
+      interval: monthly
+    groups:
+      docker:
+        patterns: ['*']
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci

@@ -1,0 +1,9 @@
+{
+  "request": {
+    "id": 10,
+    "requestScreenShare": {
+      "intent": "SHARE_INTENT_CLARITY",
+      "withAudio": true
+    }
+  }
+}

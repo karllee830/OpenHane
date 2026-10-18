@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "include": [
+    "packages/*/src",
+    "apps/*/src",
+    "apps/*/e2e",
+    "vitest.config.ts"
+  ],
+  "exclude": [
+    "apps/desktop/src/main",
+    "apps/desktop/src/preload",
+    "apps/desktop/src/hotkeys"
+  ]
+}

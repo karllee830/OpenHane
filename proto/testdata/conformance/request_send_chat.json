@@ -1,0 +1,11 @@
+{
+  "request": {
+    "id": 4294967295,
+    "sendChat": {
+      "roomId": "main",
+      "text": "你好 👋",
+      "clientMsgId": "c1",
+      "replyTo": "9"
+    }
+  }
+}

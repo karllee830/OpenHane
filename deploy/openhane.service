@@ -1,0 +1,45 @@
+# 不使用 Docker 时的 systemd 单元。
+#   1. 从 Releases 下载对应平台的 openhane_*.tar.gz，或者自己构建（需要 Go 和 Node）：cd server && make build-full VERSION=x.y.z
+#      sudo install -m 0755 openhane /usr/local/bin/openhane
+#   2. 创建运行用户：sudo useradd --system --no-create-home --shell /usr/sbin/nologin openhane
+#   3. sudo cp deploy/openhane.service /etc/systemd/system/ && sudo systemctl enable --now openhane
+#   4. journalctl -u openhane   # 日志里有首个管理员令牌
+#   管理命令（服务运行或停止时都可以）：sudo -u openhane HANE_DATA_DIR=/var/lib/openhane openhane token list
+[Unit]
+Description=OpenHane server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/openhane serve
+Environment=HANE_DATA_DIR=/var/lib/openhane
+# Environment=HANE_PUBLIC_HOST=meet.example.com
+User=openhane
+Group=openhane
+# 数据目录 /var/lib/openhane 由 systemd 创建并交给上面的用户
+StateDirectory=openhane
+Restart=on-failure
+RestartSec=3
+# 收到 SIGTERM 后通知客户端重连、刷写数据库，10 秒内退出
+TimeoutStopSec=15
+# file 证书模式：systemctl reload openhane 立即重新加载证书
+ExecReload=/bin/kill -HUP $MAINPID
+
+# 加固
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+RestrictNamespaces=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

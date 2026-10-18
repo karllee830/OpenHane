@@ -1,0 +1,49 @@
+# 打包配置。Windows：NSIS；Linux：AppImage + deb。macOS 不发布 Electron 版（用原生客户端）。
+appId: com.0http.openhane
+productName: OpenHane
+directories:
+  output: release
+files:
+  - dist/**
+  - resources/**
+  - package.json
+asar: true
+# 最高压缩（Linux AppImage 用 xz）：AppImage 120 → 96 MB，回到 110 MB 的体积预算内；代价是打包更慢
+compression: maximum
+asarUnpack:
+  - "**/node_modules/uiohook-napi/**"   # 原生扩展不能从 asar 中加载
+electronLanguages: [zh-CN, en-US]       # 只保留需要的语言包，控制安装包体积
+protocols:
+  - name: OpenHane
+    schemes: [openhane]
+# 应用图标：clients/apple/Shared/OpenHane.icon 的渲染图（1024×1024，Windows 的 .ico 由 electron-builder 生成）
+win:
+  target: [nsis]
+  icon: resources/icon.png
+nsis:
+  artifactName: OpenHane-Setup-${version}.${ext}   # 与 latest.yml 里的文件名一致（文件名带空格时上传到 GitHub 会被改名）
+  oneClick: false
+  perMachine: false
+  differentialPackage: true
+linux:
+  target: [AppImage, deb]
+  icon: resources/icon.png
+  category: Network
+  executableName: openhane   # 默认取包名 @hane/desktop，含有不能用于文件名的字符，打包会失败
+  # deb 必须有维护者和项目主页
+  maintainer: Karl Lee <karllee0830@gmail.com>
+deb:
+  packageName: openhane
+  artifactName: openhane_${version}_${arch}.${ext}
+extraMetadata:
+  homepage: https://github.com/karllee830/OpenHane
+mac:
+  target: [dir]   # 仅用于开发调试
+  icon: resources/icon.png
+  extendInfo:
+    NSMicrophoneUsageDescription: 用于在会议中说话
+# 自动更新（electron-updater）从 GitHub Releases 获取；打包时生成 latest.yml / latest-linux.yml（Beta 版为 beta.yml）
+publish:
+  provider: github
+  owner: karllee830
+  repo: OpenHane

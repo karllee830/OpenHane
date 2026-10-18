@@ -1,0 +1,10 @@
+# 生成的文件：GitHub 不计入语言统计，PR 里默认折叠
+server/internal/pb/** linguist-generated
+clients/web/packages/protocol/src/gen/** linguist-generated
+clients/apple/Packages/OpenHaneKit/Sources/HaneProtocol/Generated/** linguist-generated
+clients/web/packages/ui/src/assets/licenses.json linguist-generated
+clients/apple/Shared/Licenses.json linguist-generated
+proto/testdata/conformance/** linguist-generated
+
+# 上游代码
+clients/deepfilter/libdf/** linguist-vendored

@@ -1,0 +1,15 @@
+{
+  "clientAuth": {
+    "publicKey": "Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs7Ozs=",
+    "signature": "RERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERERA==",
+    "seenSpkiSha256": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+    "timestampMs": "1760000000123",
+    "nickname": "小明",
+    "serverPassword": "p@ss 密码",
+    "e2eeKey": {
+      "publicKey": "BQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQU=",
+      "signature": "BgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBg=="
+    },
+    "powNonce": "CQ=="
+  }
+}

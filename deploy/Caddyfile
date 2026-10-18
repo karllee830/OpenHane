@@ -1,0 +1,12 @@
+# 由 Caddy 负责 HTTPS（自动申请 Let's Encrypt 证书），羽见以 HANE_TLS_MODE=off 运行在本机。
+# 媒体（UDP 9800、TCP 9801）不经过 Caddy，仍需在防火墙放行；9800/tcp 只需对本机开放。
+#
+# 羽见的环境变量：
+#   HANE_TLS_MODE=off
+#   HANE_PUBLIC_HOST=<服务器的真实 IP>   # 只在域名套了 CDN 时需要
+#   HANE_TRUSTED_PROXIES=127.0.0.1/32      # 从 X-Forwarded-For 取客户端真实 IP（封禁、限流按它判断）
+#
+# 客户端连接地址：https://meet.example.com（网页版直接打开这个地址）
+meet.example.com {
+	reverse_proxy 127.0.0.1:9800
+}

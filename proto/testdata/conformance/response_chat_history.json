@@ -1,0 +1,25 @@
+{
+  "response": {
+    "id": 8,
+    "getChatHistory": {
+      "messages": [
+        {
+          "id": "1",
+          "roomId": "main",
+          "senderSessionId": "s",
+          "senderUid": "u",
+          "senderName": "A",
+          "text": "第一条",
+          "createdAtMs": "1"
+        },
+        {
+          "id": "2",
+          "roomId": "main",
+          "senderName": "B",
+          "createdAtMs": "-1"
+        }
+      ],
+      "hasMore": true
+    }
+  }
+}

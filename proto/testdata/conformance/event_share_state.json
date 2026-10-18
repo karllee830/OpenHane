@@ -1,0 +1,17 @@
+{
+  "event": {
+    "seq": "8",
+    "shareStateChanged": {
+      "roomId": "main",
+      "shares": [
+        {
+          "grantId": "g_abc",
+          "sessionId": "s1",
+          "intent": "SHARE_INTENT_SMART",
+          "withAudio": true,
+          "startedAtMs": "1760000000000"
+        }
+      ]
+    }
+  }
+}

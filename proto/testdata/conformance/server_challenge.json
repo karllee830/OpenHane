@@ -1,0 +1,16 @@
+{
+  "serverChallenge": {
+    "protocolVersion": 1,
+    "serverId": "EREREREREREREREREREREQ==",
+    "nonce": "IiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI=",
+    "info": {
+      "name": "测试服务器 🎧",
+      "version": "0.1.0",
+      "requiresPassword": true,
+      "minSecurityLevel": 16,
+      "welcomeMessage": "欢迎！\n第二行",
+      "protocolMin": 1,
+      "protocolMax": 1
+    }
+  }
+}

@@ -1,0 +1,15 @@
+# 代码生成：./generate.sh（生成结果提交进仓库）
+# Swift 客户端开工时再在这里追加 protoc-gen-swift。
+version: v2
+managed:
+  enabled: true
+  override:
+    - file_option: go_package
+      value: github.com/karllee830/OpenHane/server/internal/pb;pb
+plugins:
+  - local: .bin/protoc-gen-go
+    out: ../server
+    opt: module=github.com/karllee830/OpenHane/server
+  - local: ../clients/web/node_modules/.bin/protoc-gen-es
+    out: ../clients/web/packages/protocol/src/gen
+    opt: target=ts

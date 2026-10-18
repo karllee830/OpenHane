@@ -1,0 +1,101 @@
+{
+  "suite": "DHKEM(X25519, HKDF-SHA256) / HKDF-SHA256 / AES-128-GCM, base mode",
+  "info": "OpenHane-E2EE-KeyPackage-v1",
+  "hpke": [
+    {
+      "recipientPrivateKey": "76296e1bfe7636356fcd093b358120d9df39217b563188636b2759f970ebe73a",
+      "recipientPublicKey": "a547075ee7143f3e4b1e1087ea787f48e619f63b1ee108fcf7ed8da5b9986a75",
+      "roomId": "r_abc123",
+      "fromSessionId": "s_alice",
+      "toSessionId": "s_bob",
+      "keyIndex": 0,
+      "aad": "725f61626331323300735f616c69636500735f626f620000000000",
+      "enc": "efd5891e50bf29609e3f497679379f207648c6c07c2e7cdc987bed179db6c04a",
+      "ciphertext": "c19f8746db3c4a1493d7876ddeeb1e68d726ee5717d687395108590da6bff2c45d48bab230ab0d76db4e3048516ac790",
+      "plaintext": "782806eba61dd4905c225c23c0e1b8e6ade875a3b35afe962073969ac02373f0"
+    },
+    {
+      "recipientPrivateKey": "233940f56589a10917c9ff793878c87f059ac10d6599c9fa1806979b025ff6cb",
+      "recipientPublicKey": "98d2333f4b600391f05b3a35cc464009f40bff735142894c9143c708e6ad1a2f",
+      "roomId": "main",
+      "fromSessionId": "4qy8nkgc2b",
+      "toSessionId": "7tw3sh8gek",
+      "keyIndex": 5,
+      "aad": "6d61696e00347179386e6b67633262003774773373683867656b0000000005",
+      "enc": "85509d02ca6ba2eb3e444b68b689dd860126ffce4551c5cbeacbceec09c2756e",
+      "ciphertext": "9db04a6fdb11bde8da3c51bf7715a277ad147f859bb48fe3104d431fb88eaef7a2047a7e3c78eec7114f57eb8ca3dcc5",
+      "plaintext": "a162c5b42613c570c15616911f4bf7b104a0884f43f5148ddd0b16ddf93b1881"
+    }
+  ],
+  "safetyCode": [
+    {
+      "members": [
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        },
+        {
+          "uid": "gt7mipd7zk42545tz6fl",
+          "publicKey": "ecc1b58727f3f12b3194881a9ecb9de0b28ce7b207230d8e930fe1bce75e256c"
+        }
+      ],
+      "code": "12182 52286 48365 29063 18134 09400"
+    },
+    {
+      "members": [
+        {
+          "uid": "gt7mipd7zk42545tz6fl",
+          "publicKey": "ecc1b58727f3f12b3194881a9ecb9de0b28ce7b207230d8e930fe1bce75e256c"
+        },
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        }
+      ],
+      "code": "12182 52286 48365 29063 18134 09400"
+    },
+    {
+      "members": [
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        },
+        {
+          "uid": "gt7mipd7zk42545tz6fl",
+          "publicKey": "ecc1b58727f3f12b3194881a9ecb9de0b28ce7b207230d8e930fe1bce75e256c"
+        },
+        {
+          "uid": "mbyj4ljzdbslomvu6d2r",
+          "publicKey": "26b1c72849b93ca53664ca8240643c514c471ca0a4a424e24cf2ccc80a39933e"
+        }
+      ],
+      "code": "77870 43063 14301 13079 56351 47727"
+    },
+    {
+      "members": [
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        },
+        {
+          "uid": "gt7mipd7zk42545tz6fl",
+          "publicKey": "ecc1b58727f3f12b3194881a9ecb9de0b28ce7b207230d8e930fe1bce75e256c"
+        },
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        }
+      ],
+      "code": "12182 52286 48365 29063 18134 09400"
+    },
+    {
+      "members": [
+        {
+          "uid": "dqgesdy3kuunqfz4lxsg",
+          "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
+        }
+      ],
+      "code": "98685 99559 31267 37218 30035 08626"
+    }
+  ]
+}

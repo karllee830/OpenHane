@@ -1,0 +1,361 @@
+# 推送 v* 标签时构建全部产物并创建 GitHub Release；标签带「-」时为预发布，镜像打 :beta 标签。
+# Secrets：MACOS_CERT_P12、MACOS_CERT_PASSWORD、ASC_KEY_P8、ASC_KEY_ID、ASC_ISSUER_ID、SPARKLE_ED_PRIVATE_KEY、DOCKERHUB_TOKEN
+# Variables：DOCKERHUB_USERNAME、DOCKERHUB_IMAGE（不设置时不推送 Docker Hub）
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  version:
+    name: 版本号
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      build: ${{ steps.v.outputs.build }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # 构建号按提交数计算
+      - id: v
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-beta\.[0-9]+)?$ ]] || { echo "::error::标签必须是 vX.Y.Z 或 vX.Y.Z-beta.N"; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "build=$(scripts/build-number.sh "$version")" >> "$GITHUB_OUTPUT"
+
+  # AI 降噪的 WASM 和模型只构建一次，各产物共用
+  deepfilter:
+    name: AI 降噪（WASM）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - run: clients/deepfilter/build.sh web
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deepfilter-web
+          path: clients/web/packages/audio-dsp/dfn/
+          include-hidden-files: true
+
+  binaries:
+    name: 服务端独立二进制（${{ matrix.target }}）
+    needs: [version, deepfilter]
+    # macOS 版需要 cgo，只能在 macOS 上构建；其余平台在 Ubuntu 上交叉编译
+    strategy:
+      matrix:
+        include:
+          - { target: linux/amd64, os: ubuntu-latest }
+          - { target: linux/arm64, os: ubuntu-latest }
+          - { target: windows/amd64, os: ubuntu-latest }
+          - { target: darwin/arm64, os: macos-latest }
+          - { target: darwin/amd64, os: macos-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: clients/web/package-lock.json
+      - uses: actions/download-artifact@v4
+        with:
+          name: deepfilter-web
+          path: clients/web/packages/audio-dsp/dfn
+      - name: 构建
+        working-directory: server
+        run: ./scripts/release.sh ${{ matrix.target }}
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+      - name: 产物名
+        id: artifact
+        run: echo "name=binaries-${TARGET/\//-}" >> "$GITHUB_OUTPUT"
+        env:
+          TARGET: ${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.artifact.outputs.name }}
+          path: server/dist/openhane_*
+
+  docker:
+    name: Docker 镜像（amd64 + arm64）
+    needs: [version, deepfilter]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: deepfilter-web
+          path: clients/web/packages/audio-dsp/dfn
+      - uses: docker/setup-qemu-action@v3
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/login-action@v3
+        if: vars.DOCKERHUB_IMAGE != ''
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: 标签
+        id: tags
+        env:
+          DOCKERHUB_IMAGE: ${{ vars.DOCKERHUB_IMAGE }}
+          version: ${{ needs.version.outputs.version }}
+        run: |
+          images=("ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/openhane-server")
+          [[ -n "$DOCKERHUB_IMAGE" ]] && images+=("docker.io/$DOCKERHUB_IMAGE")
+          tags=()
+          for image in "${images[@]}"; do
+            if [[ "$version" == *-* ]]; then
+              tags+=("$image:$version" "$image:beta")
+            else
+              tags+=("$image:$version" "$image:${version%.*}" "$image:latest")
+            fi
+          done
+          echo "tags=$(IFS=,; echo "${tags[*]}")" >> "$GITHUB_OUTPUT"
+      - uses: docker/build-push-action@v6
+        env:
+          DOCKER_BUILD_RECORD_UPLOAD: false # 不上传构建记录（.dockerbuild），否则最后一步下载全部产物时解压失败
+        with:
+          context: .
+          file: server/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          build-args: |
+            VERSION=${{ needs.version.outputs.version }}
+            BUILD=${{ needs.version.outputs.build }}
+          tags: ${{ steps.tags.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ needs.version.outputs.version }}
+            org.opencontainers.image.description=OpenHane server
+          push: true
+
+  apple:
+    name: 苹果客户端（${{ matrix.platform }}）
+    needs: version
+    strategy:
+      matrix:
+        platform: [macos, ios]
+    runs-on: xcode-27
+    defaults:
+      run:
+        working-directory: clients/apple
+    steps:
+      - uses: actions/checkout@v5
+      - name: 选择最新的 Xcode
+        run: |
+          xcode=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          sudo xcode-select -s "$xcode"
+          xcodebuild -version
+      - run: brew install xcodegen
+      - name: Rust（构建 AI 降噪库）
+        run: |
+          command -v rustup >/dev/null || curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
+      - name: 签名证书和公证密钥
+        if: matrix.platform == 'macos'
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          [[ -n "$MACOS_CERT_P12" && -n "$ASC_KEY_P8" ]] || { echo "::error::缺少 MACOS_CERT_P12 / ASC_KEY_P8，无法签名公证"; exit 1; }
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password=$(openssl rand -hex 16)
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security import "$RUNNER_TEMP/cert.p12" -k "$keychain" -P "$MACOS_CERT_PASSWORD" -T /usr/bin/codesign -T /usr/bin/security
+          curl -fsSL https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer -o "$RUNNER_TEMP/DeveloperIDG2CA.cer"
+          security import "$RUNNER_TEMP/DeveloperIDG2CA.cer" -k "$keychain" || true
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$password" "$keychain" >/dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+          identity=$(security find-identity -v -p codesigning "$keychain" | sed -nE 's/.*"(Developer ID Application: [^"]+)".*/\1/p' | head -1)
+          [[ -n "$identity" ]] || { echo "::error::证书里没有 Developer ID Application 身份"; exit 1; }
+          printf '%s' "$ASC_KEY_P8" > "$RUNNER_TEMP/asc.p8"
+          echo "HANE_SIGN_IDENTITY=$identity" >> "$GITHUB_ENV"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/asc.p8" >> "$GITHUB_ENV"
+      - name: 打包
+        run: ./scripts/package.sh ${{ matrix.platform }} "${{ needs.version.outputs.version }}" "${{ needs.version.outputs.build }}"
+        env:
+          HANE_REQUIRE_DFN: '1'
+          HANE_DFN_PLATFORMS: ${{ matrix.platform }}
+          HANE_REQUIRE_SIGNING: ${{ matrix.platform == 'macos' && '1' || '' }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      - name: 清理签名钥匙串
+        if: always() && matrix.platform == 'macos'
+        run: |
+          security delete-keychain "$RUNNER_TEMP/signing.keychain-db" 2>/dev/null || true
+          rm -f "$RUNNER_TEMP/asc.p8"
+      - name: Sparkle 更新包签名
+        if: matrix.platform == 'macos'
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+          version: ${{ needs.version.outputs.version }}
+          build: ${{ needs.version.outputs.build }}
+        run: |
+          [[ -n "$SPARKLE_ED_PRIVATE_KEY" ]] || { echo "::error::缺少 SPARKLE_ED_PRIVATE_KEY"; exit 1; }
+          zip="dist/OpenHane-$version-macOS.zip"
+          mkdir -p "$RUNNER_TEMP/sparkle"
+          printf '{"version":"%s","build":"%s","length":"%s","signature":"%s"}\n' \
+            "$version" "$build" "$(stat -f %z "$zip")" "$(./scripts/sparkle-sign.sh "$zip")" > "$RUNNER_TEMP/sparkle/sparkle.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: apple-${{ matrix.platform }}
+          path: clients/apple/dist/*
+      - uses: actions/upload-artifact@v4
+        if: matrix.platform == 'macos'
+        with:
+          name: sparkle
+          path: ${{ runner.temp }}/sparkle/sparkle.json
+
+  desktop:
+    name: 桌面版安装包（${{ matrix.os }}）
+    needs: [version, deepfilter]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            args: --win nsis --x64
+          - os: ubuntu-latest
+            args: --linux AppImage deb --x64
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash # Windows 默认的 PowerShell 会把 -c.npmRebuild=false 拆成配置文件路径
+        working-directory: clients/web
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: clients/web/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - uses: actions/download-artifact@v4
+        with:
+          name: deepfilter-web
+          path: clients/web/packages/audio-dsp/dfn
+      - name: 版本号
+        shell: bash
+        run: npm pkg set version="${{ needs.version.outputs.version }}" -w @hane/desktop
+      - run: npm run build -w @hane/desktop
+        env:
+          HANE_BUILD: ${{ needs.version.outputs.build }}
+      - name: 打包（签名证书配置好之前不签名）
+        working-directory: clients/web/apps/desktop
+        # uiohook-napi 是 N-API 模块、自带各平台的预编译文件，不需要重新编译（Linux 上编译还需要额外的 X11 开发库）
+        run: npx electron-builder ${{ matrix.args }} --publish never -c.npmRebuild=false
+        env:
+          BUILD_NUMBER: ${{ needs.version.outputs.build }} # Windows 文件版本的第四段
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: |
+            clients/web/apps/desktop/release/*.exe
+            clients/web/apps/desktop/release/*.AppImage
+            clients/web/apps/desktop/release/*.deb
+            clients/web/apps/desktop/release/*.blockmap
+            clients/web/apps/desktop/release/latest*.yml
+            clients/web/apps/desktop/release/beta*.yml
+
+  release:
+    name: 创建 GitHub Release
+    needs: [version, binaries, docker, apple, desktop]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: binaries-*
+          path: artifacts
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: apple-*
+          path: artifacts
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: desktop-*
+          path: artifacts
+          merge-multiple: true
+      - run: ls -la artifacts
+      - name: 校验和
+        working-directory: artifacts
+        run: |
+          rm -f SHA256SUMS
+          sha256sum * > SHA256SUMS
+      - name: 发布说明
+        env:
+          DOCKERHUB_IMAGE: ${{ vars.DOCKERHUB_IMAGE }}
+          version: ${{ needs.version.outputs.version }}
+        run: |
+          : > notes.md
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/openhane-server:$version"
+          {
+            printf '### Downloads\n\n'
+            printf -- '- **macOS**: `OpenHane-%s-macOS.dmg` (universal, signed and notarized by Apple)\n' "$version"
+            printf -- '- **iPhone / iPad**: `OpenHane-%s-iOS-unsigned.ipa` (unsigned; install with a sideloading tool such as AltStore or Sideloadly)\n' "$version"
+            printf -- '- **Windows**: `OpenHane-Setup-%s.exe`\n' "$version"
+            printf -- '- **Linux**: `.AppImage` or `.deb`\n'
+            printf -- '- **Server (Docker)**: `docker pull %s`' "$image"
+            [[ -n "$DOCKERHUB_IMAGE" ]] && printf ' or `docker pull %s:%s`' "$DOCKERHUB_IMAGE" "$version"
+            printf '; see the [deployment guide](https://github.com/%s/wiki/Deployment-Guide)\n' "$GITHUB_REPOSITORY"
+            printf -- '- **Server (standalone binary)**: `openhane_%s_<os>_<arch>.tar.gz` / `.zip`\n' "$version"
+            printf -- '- **Checksums**: `SHA256SUMS`\n'
+          } >> notes.md
+          cat notes.md
+      - name: 发布
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          flags=()
+          [[ "$GITHUB_REF_NAME" == *-* ]] && flags+=(--prerelease)
+          gh release create "$GITHUB_REF_NAME" artifacts/* --title "OpenHane ${GITHUB_REF_NAME#v}" --notes-file notes.md --generate-notes "${flags[@]}"
+      - uses: actions/download-artifact@v4
+        with:
+          name: sparkle
+          path: sparkle
+      # macOS 自动更新清单放在 appcast 分支，应用从 raw.githubusercontent.com 读取
+      - name: 更新 appcast
+        env:
+          version: ${{ needs.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git fetch --depth 1 origin appcast; then
+            git worktree add "$RUNNER_TEMP/appcast" FETCH_HEAD
+            git -C "$RUNNER_TEMP/appcast" checkout -B appcast
+          else
+            git worktree add --orphan -b appcast "$RUNNER_TEMP/appcast"
+          fi
+          read -r build length signature < <(python3 -c 'import json;d=json.load(open("sparkle/sparkle.json"));print(d["build"],d["length"],d["signature"])')
+          python3 .github/scripts/update-appcast.py "$RUNNER_TEMP/appcast/appcast.xml" \
+            --version "$version" --build "$build" --length "$length" --signature "$signature" \
+            --url "https://github.com/$GITHUB_REPOSITORY/releases/download/$GITHUB_REF_NAME/OpenHane-$version-macOS.zip" \
+            --link "https://github.com/$GITHUB_REPOSITORY/releases/tag/$GITHUB_REF_NAME"
+          cd "$RUNNER_TEMP/appcast"
+          git add appcast.xml
+          git commit -m "appcast: $version"
+          git push origin appcast

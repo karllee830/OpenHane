@@ -1,0 +1,4120 @@
+{
+  "sourceLanguage": "zh-Hans",
+  "strings": {
+    "": {
+      "shouldTranslate": false
+    },
+    "%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@"
+          }
+        }
+      }
+    },
+    "%@ %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ %2$@"
+          }
+        }
+      }
+    },
+    "%@ (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%@)"
+          }
+        }
+      }
+    },
+    "%@ · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · %@"
+          }
+        }
+      }
+    },
+    "%@ 不支持 %@ 硬件解码，会用软件解码（更费电，可能卡顿）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ can’t decode %2$@ in hardware and will use software decoding (more power, may stutter)"
+          }
+        }
+      }
+    },
+    "%@ 关闭了你的摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ turned off your camera"
+          }
+        }
+      }
+    },
+    "%@ 出示的证书与你上次连接时记住的不同。可能的原因：服务器重装或更换了证书；也可能有人正在拦截你的连接。如果不确定，请先联系服务器管理员核对指纹。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ presented a certificate different from the one remembered last time. The server may have been reinstalled or its certificate replaced — or someone may be intercepting your connection. If unsure, verify the fingerprint with the server admin."
+          }
+        }
+      }
+    },
+    "%@ 已允许你发言": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ allowed you to speak"
+          }
+        }
+      }
+    },
+    "%@ 无法解码 %@，会看 H.264 画面": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ can’t decode %2$@ and will see H.264"
+          }
+        }
+      }
+    },
+    "%@ 无法解码 %@，看不到画面": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ can’t decode %2$@ and won’t see the share"
+          }
+        }
+      }
+    },
+    "%@ 正在共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is sharing their screen"
+          }
+        }
+      }
+    },
+    "%@ 等 %lld 人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ and others (%lld people)"
+          }
+        }
+      }
+    },
+    "%@ 让所有人回到了%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ brought everyone back to %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ 让所有人回到了%2$@"
+          }
+        }
+      }
+    },
+    "%@（%lld 人受影响）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ (%lld affected)"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld ms"
+          }
+        }
+      }
+    },
+    "%lld 人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld people"
+          }
+        }
+      }
+    },
+    "%lld%%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "%lldp": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldp"
+          }
+        }
+      }
+    },
+    "%lld×%lld · %lld fps · %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld×%2$lld · %3$lld fps · %4$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld×%2$lld · %3$lld fps · %4$@"
+          }
+        }
+      }
+    },
+    "%u kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u kbps"
+          }
+        }
+      }
+    },
+    "%u 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u min"
+          }
+        }
+      }
+    },
+    "%u 天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u days"
+          }
+        }
+      }
+    },
+    "%u 小时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u h"
+          }
+        }
+      }
+    },
+    "%u/%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u/%@"
+          }
+        }
+      }
+    },
+    "1 天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 day"
+          }
+        }
+      }
+    },
+    "1:1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1:1"
+          }
+        }
+      }
+    },
+    "1:1 按原始像素显示，适合看小字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1:1 shows the original pixels — best for small text"
+          }
+        }
+      }
+    },
+    "2 小时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "2 hours"
+          }
+        }
+      }
+    },
+    "24 小时": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 hours"
+          }
+        }
+      }
+    },
+    "30 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 minutes"
+          }
+        }
+      }
+    },
+    "30 天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days"
+          }
+        }
+      }
+    },
+    "5 分钟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "5 minutes"
+          }
+        }
+      }
+    },
+    "7 天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 days"
+          }
+        }
+      }
+    },
+    "AI 降噪不可用，只用基本的降噪": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI noise suppression unavailable; using basic noise suppression only"
+          }
+        }
+      }
+    },
+    "AI 降噪工作中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI noise reduction is on"
+          }
+        }
+      }
+    },
+    "AI 降噪（推荐）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI (recommended)"
+          }
+        }
+      }
+    },
+    "ID": {
+      "shouldTranslate": false
+    },
+    "IP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP"
+          }
+        }
+      }
+    },
+    "HANE-XXXX-XXXX-XXXX-XXXX-XXXX": {
+      "shouldTranslate": false
+    },
+    "UID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UID"
+          }
+        }
+      }
+    },
+    "UID 或 IP / IP 段": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "UID or IP / CIDR"
+          }
+        }
+      }
+    },
+    "· %lld 人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "· %lld"
+          }
+        }
+      }
+    },
+    "—": {
+      "shouldTranslate": false
+    },
+    "、": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": ", "
+          }
+        }
+      }
+    },
+    "「%@」已关闭，已回到%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%1$@\" was closed. You are back in %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "「%1$@」已关闭，已回到%2$@"
+          }
+        }
+      }
+    },
+    "「%@」开启了端到端加密，当前客户端不支持，已回到%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\"%1$@\" is now end-to-end encrypted and this client does not support it. You are back in %2$@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "「%1$@」开启了端到端加密，当前客户端不支持，已回到%2$@"
+          }
+        }
+      }
+    },
+    "「%@」的设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings for \"%@\""
+          }
+        }
+      }
+    },
+    "上次记住的指纹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remembered fingerprint"
+          }
+        }
+      }
+    },
+    "上限 %lld kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "max %lld kbps"
+          }
+        }
+      }
+    },
+    "不改变": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "None"
+          }
+        }
+      }
+    },
+    "不过期": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        }
+      }
+    },
+    "不限制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No limit"
+          }
+        }
+      }
+    },
+    "与服务器的连接已断开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected from the server."
+          }
+        }
+      }
+    },
+    "主会议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Main room"
+          }
+        }
+      }
+    },
+    "主持人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderator"
+          }
+        }
+      }
+    },
+    "主持操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moderation"
+          }
+        }
+      }
+    },
+    "举手": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raise Hand"
+          }
+        }
+      }
+    },
+    "也可以在控制中心选择「语音突显」，由系统进行 AI 降噪。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can also choose Voice Isolation in Control Center for system AI noise reduction."
+          }
+        }
+      }
+    },
+    "人数上限：%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capacity: %lld"
+          }
+        }
+      }
+    },
+    "人数上限：不限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capacity: unlimited"
+          }
+        }
+      }
+    },
+    "仅主持人可共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only moderators can share screen"
+          }
+        }
+      }
+    },
+    "仅主持人可开摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only moderators can turn on cameras"
+          }
+        }
+      }
+    },
+    "从最近连接中移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from recent servers"
+          }
+        }
+      }
+    },
+    "令牌已被用完。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token has been used up."
+          }
+        }
+      }
+    },
+    "令牌已过期。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token has expired."
+          }
+        }
+      }
+    },
+    "令牌无效或已被吊销。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The token is invalid or revoked."
+          }
+        }
+      }
+    },
+    "你": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You"
+          }
+        }
+      }
+    },
+    "你在另一处连接了同一身份，本连接已断开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The same identity connected elsewhere; this connection was closed."
+          }
+        }
+      }
+    },
+    "你已被 %@ 移出「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ removed you from \"%2$@\""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "你已被 %1$@ 移出「%2$@」"
+          }
+        }
+      }
+    },
+    "你已被 %@ 移出服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were kicked by %@."
+          }
+        }
+      }
+    },
+    "你已被 %@ 移动到「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ moved you to \"%2$@\""
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "new",
+            "value": "你已被 %1$@ 移动到「%2$@」"
+          }
+        }
+      }
+    },
+    "你已被 %@ 静音，可以举手申请发言": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ muted you. Raise your hand to ask to speak"
+          }
+        }
+      }
+    },
+    "你已被禁止进入该服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are banned from this server."
+          }
+        }
+      }
+    },
+    "你已被禁止进入该服务器：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are banned from this server: %@"
+          }
+        }
+      }
+    },
+    "你已被移出服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were removed from the server."
+          }
+        }
+      }
+    },
+    "你正在共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are sharing your screen"
+          }
+        }
+      }
+    },
+    "你正在共享屏幕，其他人看到的是你选择的内容": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are sharing your screen. Others see the content you selected."
+          }
+        }
+      }
+    },
+    "你的屏幕共享已被 %@ 停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ stopped your screen share"
+          }
+        }
+      }
+    },
+    "你的角色没有变化（令牌的角色不高于你当前的角色）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your role did not change (the token is not higher than your current role)."
+          }
+        }
+      }
+    },
+    "你的身份": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your identity"
+          }
+        }
+      }
+    },
+    "你的身份保存在钥匙串中，并通过 iCloud 钥匙串在你的设备之间同步。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your identity is stored in the Keychain and synced across your devices with iCloud Keychain."
+          }
+        }
+      }
+    },
+    "使用权限令牌": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Privilege Token"
+          }
+        }
+      }
+    },
+    "使用权限令牌…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Privilege Token…"
+          }
+        }
+      }
+    },
+    "例如 meet.example.com 或 203.0.113.10:9800": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. meet.example.com or 203.0.113.10:9800"
+          }
+        }
+      }
+    },
+    "保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save"
+          }
+        }
+      }
+    },
+    "停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
+    "停止共享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop Sharing"
+          }
+        }
+      }
+    },
+    "停止屏幕共享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop screen share"
+          }
+        }
+      }
+    },
+    "允许发言": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow to speak"
+          }
+        }
+      }
+    },
+    "免服务器密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip server password"
+          }
+        }
+      }
+    },
+    "兑换": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Redeem"
+          }
+        }
+      }
+    },
+    "全员返回主会议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bring everyone back to the main room"
+          }
+        }
+      }
+    },
+    "全员静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute everyone"
+          }
+        }
+      }
+    },
+    "全局按键说话需要「输入监控」权限。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global push-to-talk needs Input Monitoring permission."
+          }
+        }
+      }
+    },
+    "全局按键说话需要「输入监控」权限：系统设置 → 隐私与安全性 → 输入监控": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Global push-to-talk needs Input Monitoring: System Settings → Privacy & Security → Input Monitoring"
+          }
+        }
+      }
+    },
+    "全屏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full Screen"
+          }
+        }
+      }
+    },
+    "全部操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All actions"
+          }
+        }
+      }
+    },
+    "共 %u 人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%u total"
+          }
+        }
+      }
+    },
+    "共享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share"
+          }
+        }
+      }
+    },
+    "共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Screen"
+          }
+        }
+      }
+    },
+    "共享屏幕声音时 AI 降噪暂停": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI noise reduction pauses while sharing screen audio"
+          }
+        }
+      }
+    },
+    "共享整个手机屏幕。点「开始」后在系统弹出的面板中选择羽见，再点「开始直播」。通知等内容也会被共享，建议先开启勿扰模式。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shares your entire screen. After tapping Start, choose OpenHane in the system panel and tap Start Broadcast. Notifications are shared too, so consider turning on Do Not Disturb first."
+          }
+        }
+      }
+    },
+    "关掉主窗口也能留在会议里：菜单栏的麦克风图标可以静音、打开主窗口或离开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closing the main window keeps you in the meeting: use the microphone icon in the menu bar to mute, reopen the window or leave."
+          }
+        }
+      }
+    },
+    "关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "关闭声音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Off Sound"
+          }
+        }
+      }
+    },
+    "关闭房间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close room"
+          }
+        }
+      }
+    },
+    "关闭摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn Off Camera"
+          }
+        }
+      }
+    },
+    "其他人看到的名字": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The name others will see"
+          }
+        }
+      }
+    },
+    "内置摄像头不可用：笔记本合上了屏幕。打开屏幕或连接外接摄像头后再试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Built-in camera unavailable: the laptop lid is closed. Open the lid or connect an external camera, then try again"
+          }
+        }
+      }
+    },
+    "出错了：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Something went wrong: %@"
+          }
+        }
+      }
+    },
+    "分辨率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resolution"
+          }
+        }
+      }
+    },
+    "切换房间后屏幕共享已停止": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screen sharing stopped after switching rooms"
+          }
+        }
+      }
+    },
+    "切换静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toggle Mute"
+          }
+        }
+      }
+    },
+    "创建": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create"
+          }
+        }
+      }
+    },
+    "创建令牌": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create Token"
+          }
+        }
+      }
+    },
+    "创建后立即进入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter after creating"
+          }
+        }
+      }
+    },
+    "到期": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires"
+          }
+        }
+      }
+    },
+    "加入 ${address}": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join ${address}"
+          }
+        }
+      }
+    },
+    "加入时默认静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute on join"
+          }
+        }
+      }
+    },
+    "加入服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Join Server"
+          }
+        }
+      }
+    },
+    "加密": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted"
+          }
+        }
+      }
+    },
+    "加密连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted connection"
+          }
+        }
+      }
+    },
+    "加载更多": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load more"
+          }
+        }
+      }
+    },
+    "加载更早的消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load earlier messages"
+          }
+        }
+      }
+    },
+    "动作最流畅，适合视频、游戏、动画。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smoothest motion — for video, games and animation."
+          }
+        }
+      }
+    },
+    "动作最流畅，适合视频、游戏。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smoothest motion — for video and games."
+          }
+        }
+      }
+    },
+    "原因": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reason"
+          }
+        }
+      }
+    },
+    "原因（可选）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reason (optional)"
+          }
+        }
+      }
+    },
+    "原始分辨率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Original"
+          }
+        }
+      }
+    },
+    "发言方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speaking Mode"
+          }
+        }
+      }
+    },
+    "发言模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Mode"
+          }
+        }
+      }
+    },
+    "发送": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        }
+      }
+    },
+    "发送消息…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send a message…"
+          }
+        }
+      }
+    },
+    "取消": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        }
+      }
+    },
+    "取消密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove Password"
+          }
+        }
+      }
+    },
+    "取消连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel Connection"
+          }
+        }
+      }
+    },
+    "取消静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmute"
+          }
+        }
+      }
+    },
+    "受限：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limited: %@"
+          }
+        }
+      }
+    },
+    "只列出这台设备能硬件编码的格式。共享中更换编码，对方画面会中断约一秒。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only codecs this device can encode in hardware are listed. Changing the codec while sharing interrupts the picture for about a second."
+          }
+        }
+      }
+    },
+    "只有你在这里。把服务器地址发给其他人吧。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're the only one here. Share the server address with others."
+          }
+        }
+      }
+    },
+    "只用基本的降噪，主要去掉风扇、空调这类平稳的噪声。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basic noise suppression only; mainly removes steady noise such as fans and air conditioning."
+          }
+        }
+      }
+    },
+    "可用次数：%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses: %lld"
+          }
+        }
+      }
+    },
+    "可用次数：不限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses: unlimited"
+          }
+        }
+      }
+    },
+    "吊销": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoke"
+          }
+        }
+      }
+    },
+    "同时共享声音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share Audio"
+          }
+        }
+      }
+    },
+    "同时共享的人数已达上限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many people are already sharing"
+          }
+        }
+      }
+    },
+    "同时共享的人数已达上限。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many people are already sharing."
+          }
+        }
+      }
+    },
+    "同时封禁 IP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Also ban IP address"
+          }
+        }
+      }
+    },
+    "名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        }
+      }
+    },
+    "向服务器管理员索取": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ask the server admin"
+          }
+        }
+      }
+    },
+    "和浏览器里的会议一样，不会压低其他应用的声音。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Like meetings in a browser: other apps' audio is not lowered."
+          }
+        }
+      }
+    },
+    "回声消除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Echo cancellation"
+          }
+        }
+      }
+    },
+    "在成员列表里点房间名即可进入，切换时声音几乎不中断。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tap a room name in the member list to enter it; switching barely interrupts the audio."
+          }
+        }
+      }
+    },
+    "在羽见的会议中静音或取消静音。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute or unmute yourself in an OpenHane meeting."
+          }
+        }
+      }
+    },
+    "在这里发送的消息，房间里的人都能看到。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Messages sent here are visible to everyone in the room."
+          }
+        }
+      }
+    },
+    "填写服务器地址和昵称即可加入，不需要注册。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the server address and a nickname to join. No account needed."
+          }
+        }
+      }
+    },
+    "复制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        }
+      }
+    },
+    "复制地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy address"
+          }
+        }
+      }
+    },
+    "复制链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy link"
+          }
+        }
+      }
+    },
+    "外放时回声消除效果更好，可以用「语音突显」，但会压低其他应用（音乐、视频）的声音。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Better echo cancellation on speakers and supports Voice Isolation, but lowers other apps' audio (music, video)."
+          }
+        }
+      }
+    },
+    "安全": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security"
+          }
+        }
+      }
+    },
+    "安全码（与其他人核对：所有人看到的相同，就说明没有人被偷偷加进来）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safety code (compare with the others: if everyone sees the same code, nobody was secretly added)"
+          }
+        }
+      }
+    },
+    "审计日志": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audit log"
+          }
+        }
+      }
+    },
+    "宽频谱": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wide Spectrum"
+          }
+        }
+      }
+    },
+    "密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        }
+      }
+    },
+    "密码不正确。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrong password."
+          }
+        }
+      }
+    },
+    "密码（可选）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password (optional)"
+          }
+        }
+      }
+    },
+    "密码（已设置，留空则保持不变）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password (set — leave empty to keep)"
+          }
+        }
+      }
+    },
+    "对象": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target"
+          }
+        }
+      }
+    },
+    "封禁": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban"
+          }
+        }
+      }
+    },
+    "封禁 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban %@"
+          }
+        }
+      }
+    },
+    "封禁…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ban…"
+          }
+        }
+      }
+    },
+    "已保存，已实时应用到所有在线用户。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved and applied to everyone online."
+          }
+        }
+      }
+    },
+    "已关闭声音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound off"
+          }
+        }
+      }
+    },
+    "已创建「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Created \"%@\""
+          }
+        }
+      }
+    },
+    "已加入 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joined %@"
+          }
+        }
+      }
+    },
+    "已取消静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unmuted"
+          }
+        }
+      }
+    },
+    "已吊销": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revoked"
+          }
+        }
+      }
+    },
+    "已封禁": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banned"
+          }
+        }
+      }
+    },
+    "已封禁 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ was banned"
+          }
+        }
+      }
+    },
+    "已开启（回声消除、降噪、自动增益）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "On (echo cancellation, noise reduction, auto gain)"
+          }
+        }
+      }
+    },
+    "已成为主持人。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are now a moderator."
+          }
+        }
+      }
+    },
+    "已成为管理员。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You are now an admin."
+          }
+        }
+      }
+    },
+    "已用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used"
+          }
+        }
+      }
+    },
+    "已离开会议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left the meeting"
+          }
+        }
+      }
+    },
+    "已设置，留空则保持不变": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set — leave empty to keep it"
+          }
+        }
+      }
+    },
+    "已踢出 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ was kicked"
+          }
+        }
+      }
+    },
+    "已锁定": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked"
+          }
+        }
+      }
+    },
+    "已静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted"
+          }
+        }
+      }
+    },
+    "已静音 %u 人": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muted %u people"
+          }
+        }
+      }
+    },
+    "帧率（fps）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame rate (fps)"
+          }
+        }
+      }
+    },
+    "常开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Always On"
+          }
+        }
+      }
+    },
+    "常规": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General"
+          }
+        }
+      }
+    },
+    "应用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply"
+          }
+        }
+      }
+    },
+    "开启声音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn On Sound"
+          }
+        }
+      }
+    },
+    "开启摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn On Camera"
+          }
+        }
+      }
+    },
+    "开始": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start"
+          }
+        }
+      }
+    },
+    "当前不在会议中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not in a meeting"
+          }
+        }
+      }
+    },
+    "当前音频设备不支持 AI 降噪（例如蓝牙耳机的通话模式）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The current audio device doesn't support AI noise reduction (for example, Bluetooth headsets in call mode)"
+          }
+        }
+      }
+    },
+    "成员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        }
+      }
+    },
+    "我确认这是正常的变化": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "I confirm this change is expected"
+          }
+        }
+      }
+    },
+    "房间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rooms"
+          }
+        }
+      }
+    },
+    "房间不存在或已关闭。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The room no longer exists."
+          }
+        }
+      }
+    },
+    "房间与成员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rooms and members"
+          }
+        }
+      }
+    },
+    "房间人数已满。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The room is full."
+          }
+        }
+      }
+    },
+    "房间密码不正确。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrong room password."
+          }
+        }
+      }
+    },
+    "房间已锁定，只有主持人可以进入或拉人进入。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The room is locked. Only moderators can enter or bring people in."
+          }
+        }
+      }
+    },
+    "房间规则（只能比服务器设置更严）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Room rules (stricter than server settings only)"
+          }
+        }
+      }
+    },
+    "房间设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Room settings…"
+          }
+        }
+      }
+    },
+    "房间设置已保存": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Room settings saved"
+          }
+        }
+      }
+    },
+    "所有房间的默认语音码率，保存后立即应用到所有在线用户；单个房间还可以在房间设置中设置码率上限。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default voice bitrate for all rooms; applies to everyone online as soon as you save. Each room can also set a bitrate cap in its room settings."
+          }
+        }
+      }
+    },
+    "打开系统设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open System Settings"
+          }
+        }
+      }
+    },
+    "打开羽见并连接到指定的服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open OpenHane and connect to a server."
+          }
+        }
+      }
+    },
+    "按住 %@ 说话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold %@ to talk"
+          }
+        }
+      }
+    },
+    "按住说话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold to Talk"
+          }
+        }
+      }
+    },
+    "按动态画面处理：网络不好时先降清晰度，保证流畅": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treated as motion: on a poor network the resolution drops first to keep it smooth"
+          }
+        }
+      }
+    },
+    "按文字处理：网络不好时先降帧率，保证字清楚": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Treated as text: on a poor network the frame rate drops first to keep text sharp"
+          }
+        }
+      }
+    },
+    "按画面内容自动切换：文档和代码保持清晰，播放视频时保持流畅。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switches automatically: documents and code stay sharp, video stays smooth."
+          }
+        }
+      }
+    },
+    "按键": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key"
+          }
+        }
+      }
+    },
+    "按键说话": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Push to Talk"
+          }
+        }
+      }
+    },
+    "控制连接延迟": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control latency"
+          }
+        }
+      }
+    },
+    "摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera"
+          }
+        }
+      }
+    },
+    "摄像头出错：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera error: %@"
+          }
+        }
+      }
+    },
+    "操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Action"
+          }
+        }
+      }
+    },
+    "操作者": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "By"
+          }
+        }
+      }
+    },
+    "操作过于频繁，请稍后再试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many requests, try again later."
+          }
+        }
+      }
+    },
+    "放下手": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower Hand"
+          }
+        }
+      }
+    },
+    "文字最清楚，适合文档、代码、表格。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharpest text — for documents, code and spreadsheets."
+          }
+        }
+      }
+    },
+    "文字最清楚，适合文档、网页、聊天记录。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharpest text — for documents, web pages and chats."
+          }
+        }
+      }
+    },
+    "断开与羽见服务器的连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect from the OpenHane server."
+          }
+        }
+      }
+    },
+    "新令牌（只显示这一次）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New token (shown only once)"
+          }
+        }
+      }
+    },
+    "新建临时房间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New temporary room"
+          }
+        }
+      }
+    },
+    "新建房间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New room"
+          }
+        }
+      }
+    },
+    "无法开始共享：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not start sharing: %@"
+          }
+        }
+      }
+    },
+    "无法连接到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not connect to %@"
+          }
+        }
+      }
+    },
+    "无法连接到服务器，请检查地址和端口，以及服务器是否在运行。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot reach the server. Check the address and port, and that the server is running."
+          }
+        }
+      }
+    },
+    "时长": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duration"
+          }
+        }
+      }
+    },
+    "时间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
+          }
+        }
+      }
+    },
+    "昵称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickname"
+          }
+        }
+      }
+    },
+    "昵称不可用：需要 1–32 个字符，且不能包含不可见字符。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickname not allowed: 1–32 characters without invisible characters."
+          }
+        }
+      }
+    },
+    "显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display"
+          }
+        }
+      }
+    },
+    "显示主窗口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Main Window"
+          }
+        }
+      }
+    },
+    "智能": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart"
+          }
+        }
+      }
+    },
+    "智能：按画面内容自动在清晰和流畅之间切换；自定义：自己设定分辨率、帧率、码率和编码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smart: switches between clarity and smoothness based on the content. Custom: set the resolution, frame rate, bitrate and codec yourself"
+          }
+        }
+      }
+    },
+    "更多": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More"
+          }
+        }
+      }
+    },
+    "更改…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change…"
+          }
+        }
+      }
+    },
+    "最大在线人数": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Max clients"
+          }
+        }
+      }
+    },
+    "最近": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last seen"
+          }
+        }
+      }
+    },
+    "最近连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent servers"
+          }
+        }
+      }
+    },
+    "有效期": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expires"
+          }
+        }
+      }
+    },
+    "服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server"
+          }
+        }
+      }
+    },
+    "服务器上限：%@p · %@ fps · %@ kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server limits: %@p · %@ fps · %@ kbps"
+          }
+        }
+      }
+    },
+    "服务器不允许你共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server does not allow you to share your screen"
+          }
+        }
+      }
+    },
+    "服务器与客户端版本不兼容，请更新。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server and client versions are incompatible. Please update."
+          }
+        }
+      }
+    },
+    "服务器人数已满。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server is full."
+          }
+        }
+      }
+    },
+    "服务器名称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server name"
+          }
+        }
+      }
+    },
+    "服务器地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server address"
+          }
+        }
+      }
+    },
+    "服务器密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server password"
+          }
+        }
+      }
+    },
+    "服务器的身份发生了变化": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server's identity has changed"
+          }
+        }
+      }
+    },
+    "服务器管理…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server Admin…"
+          }
+        }
+      }
+    },
+    "服务器证书与上次记住的不一致，已停止连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server certificate differs from the remembered one. Connection stopped."
+          }
+        }
+      }
+    },
+    "服务器证书与预期不一致，可能有人在拦截你的连接。已停止连接。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server certificate does not match. Someone may be intercepting your connection. Connection stopped."
+          }
+        }
+      }
+    },
+    "服务器返回了无法识别的数据，请确认地址指向的是羽见服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server sent unexpected data. Make sure the address points to an OpenHane server."
+          }
+        }
+      }
+    },
+    "未加密的连接（http://），只建议在本机或内网测试时使用。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unencrypted connection (http://). Use it only for local testing."
+          }
+        }
+      }
+    },
+    "未设置，任何人都可以连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not set — anyone can connect"
+          }
+        }
+      }
+    },
+    "未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not connected"
+          }
+        }
+      }
+    },
+    "本次看到的指纹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fingerprint seen now"
+          }
+        }
+      }
+    },
+    "权限令牌": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privilege Tokens"
+          }
+        }
+      }
+    },
+    "标准": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard"
+          }
+        }
+      }
+    },
+    "标准 32 kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard 32 kbps"
+          }
+        }
+      }
+    },
+    "模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mode"
+          }
+        }
+      }
+    },
+    "次数：%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses: %lld"
+          }
+        }
+      }
+    },
+    "次数：不限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uses: unlimited"
+          }
+        }
+      }
+    },
+    "欢迎语": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Welcome message"
+          }
+        }
+      }
+    },
+    "正在共享屏幕": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharing Screen"
+          }
+        }
+      }
+    },
+    "正在加载 AI 降噪模型…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the AI noise reduction model…"
+          }
+        }
+      }
+    },
+    "正在建立加密…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting up encryption…"
+          }
+        }
+      }
+    },
+    "正在建立语音通道…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting up voice…"
+          }
+        }
+      }
+    },
+    "正在说话…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Talking…"
+          }
+        }
+      }
+    },
+    "正在连接…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting…"
+          }
+        }
+      }
+    },
+    "永久": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permanent"
+          }
+        }
+      }
+    },
+    "没人时自动关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close when empty after"
+          }
+        }
+      }
+    },
+    "没有找到摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No camera found"
+          }
+        }
+      }
+    },
+    "没有权限执行该操作。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You do not have permission to do that."
+          }
+        }
+      }
+    },
+    "流畅": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smooth"
+          }
+        }
+      }
+    },
+    "流畅优先": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smoothness"
+          }
+        }
+      }
+    },
+    "添加封禁": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add ban"
+          }
+        }
+      }
+    },
+    "清晰": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear"
+          }
+        }
+      }
+    },
+    "清晰优先": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clarity"
+          }
+        }
+      }
+    },
+    "灵敏度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sensitivity"
+          }
+        }
+      }
+    },
+    "点击房间名即可进入，切换时声音几乎不中断。主持人可以把成员拖到其他房间。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click a room name to enter it; switching barely interrupts the audio. Moderators can drag members into other rooms."
+          }
+        }
+      }
+    },
+    "版本": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        }
+      }
+    },
+    "生成邀请链接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create invite link"
+          }
+        }
+      }
+    },
+    "用户": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Users"
+          }
+        }
+      }
+    },
+    "用户连接后显示在会议界面顶部": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown at the top of the meeting after connecting"
+          }
+        }
+      }
+    },
+    "留空按分辨率和帧率自动选择，最高 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave empty to pick from resolution and frame rate, up to %@"
+          }
+        }
+      }
+    },
+    "省流 16 kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Economy 16 kbps"
+          }
+        }
+      }
+    },
+    "码率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitrate"
+          }
+        }
+      }
+    },
+    "离开": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave"
+          }
+        }
+      }
+    },
+    "离开会议": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leave Meeting"
+          }
+        }
+      }
+    },
+    "移出房间": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from room"
+          }
+        }
+      }
+    },
+    "移动到": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move to"
+          }
+        }
+      }
+    },
+    "移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
+    "立即": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Immediately"
+          }
+        }
+      }
+    },
+    "端到端加密": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end encryption"
+          }
+        }
+      }
+    },
+    "端到端加密（服务器强制开启）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end encryption (required by server)"
+          }
+        }
+      }
+    },
+    "端到端加密（服务器未开启）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end encryption (disabled on server)"
+          }
+        }
+      }
+    },
+    "筛选": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter"
+          }
+        }
+      }
+    },
+    "管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Admin"
+          }
+        }
+      }
+    },
+    "粘贴服务器管理员给你的权限令牌（HANE-…）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste the privilege token (HANE-…) from the server admin."
+          }
+        }
+      }
+    },
+    "系统": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "系统「语音突显」已开启，AI 降噪暂停（不重复降噪）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Isolation is on in the system, so AI noise reduction is paused (no double processing)"
+          }
+        }
+      }
+    },
+    "系统语音处理": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System voice processing"
+          }
+        }
+      }
+    },
+    "系统语音处理已开启（回声消除、降噪、自动增益）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System voice processing is on (echo cancellation, noise reduction, auto gain)"
+          }
+        }
+      }
+    },
+    "系统默认": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System Default"
+          }
+        }
+      }
+    },
+    "编码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec"
+          }
+        }
+      }
+    },
+    "羽见": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenHane"
+          }
+        }
+      }
+    },
+    "聊天": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat"
+          }
+        }
+      }
+    },
+    "能去掉键盘声、狗叫、旁人说话等各种噪声，在回声消除之后再处理一遍。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes all kinds of noise such as typing, barking and background voices; runs after echo cancellation."
+          }
+        }
+      }
+    },
+    "自动": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto"
+          }
+        }
+      }
+    },
+    "自动灵敏度": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic sensitivity"
+          }
+        }
+      }
+    },
+    "自定义": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        }
+      }
+    },
+    "自定义共享参数": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Sharing Settings"
+          }
+        }
+      }
+    },
+    "自定义参数…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom Settings…"
+          }
+        }
+      }
+    },
+    "自己设定分辨率、帧率、码率和编码：24 fps 及以上按动态画面处理（网络不好时先降清晰度），以下按文字处理（先降帧率）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the resolution, frame rate, bitrate and codec yourself. At 24 fps and above it is treated as motion (resolution drops first on a poor network); below that as text (frame rate drops first)."
+          }
+        }
+      }
+    },
+    "自己设定帧率、码率和编码（分辨率始终是整个屏幕）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set the frame rate, bitrate and codec yourself (the resolution is always the full screen)."
+          }
+        }
+      }
+    },
+    "自托管的语音、视频与屏幕共享": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Self-hosted voice, video and screen sharing"
+          }
+        }
+      }
+    },
+    "菜单栏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Menu bar"
+          }
+        }
+      }
+    },
+    "角色": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Role"
+          }
+        }
+      }
+    },
+    "解除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove"
+          }
+        }
+      }
+    },
+    "设置": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        }
+      }
+    },
+    "证书指纹": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Certificate fingerprint"
+          }
+        }
+      }
+    },
+    "该房间开启了端到端加密，当前客户端不支持。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This room is end-to-end encrypted and this client does not support it."
+          }
+        }
+      }
+    },
+    "该服务器需要密码。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server requires a password."
+          }
+        }
+      }
+    },
+    "详情": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Details"
+          }
+        }
+      }
+    },
+    "语音未连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice not connected"
+          }
+        }
+      }
+    },
+    "语音激活": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Activation"
+          }
+        }
+      }
+    },
+    "语音激活：说话时自动发送，并过滤键盘声等噪声。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice activation: sends automatically while you speak and filters out noise like typing."
+          }
+        }
+      }
+    },
+    "语音码率": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice bitrate"
+          }
+        }
+      }
+    },
+    "语音码率上限": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice bitrate limit"
+          }
+        }
+      }
+    },
+    "语音突显": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice Isolation"
+          }
+        }
+      }
+    },
+    "语音通道中断，正在重连…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice channel interrupted, reconnecting…"
+          }
+        }
+      }
+    },
+    "说话方式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How you talk"
+          }
+        }
+      }
+    },
+    "调整自定义参数": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust custom settings"
+          }
+        }
+      }
+    },
+    "调整音量…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust volume…"
+          }
+        }
+      }
+    },
+    "踢出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kick"
+          }
+        }
+      }
+    },
+    "踢出 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kick %@"
+          }
+        }
+      }
+    },
+    "踢出服务器…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kick…"
+          }
+        }
+      }
+    },
+    "身份验证失败。请检查设备时间是否准确。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Authentication failed. Check that your device clock is correct."
+          }
+        }
+      }
+    },
+    "软件回声消除和基本降噪已开启": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Software echo cancellation and basic noise suppression are on"
+          }
+        }
+      }
+    },
+    "软件（推荐）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Software (recommended)"
+          }
+        }
+      }
+    },
+    "输入电平": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input level"
+          }
+        }
+      }
+    },
+    "输入设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Input device"
+          }
+        }
+      }
+    },
+    "输出设备": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output device"
+          }
+        }
+      }
+    },
+    "还有 %lld 人的密钥没有收到": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for keys from %lld people"
+          }
+        }
+      }
+    },
+    "还没有消息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No messages yet"
+          }
+        }
+      }
+    },
+    "这个房间的声音、视频和屏幕共享只有房间里的人能解密，服务器也无法查看。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio, video and screen shares in this room can only be decrypted by the people in it. Not even the server can see them."
+          }
+        }
+      }
+    },
+    "进入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter"
+          }
+        }
+      }
+    },
+    "进入「%@」": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter \"%@\""
+          }
+        }
+      }
+    },
+    "进入会议后启用": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turns on when you join a meeting"
+          }
+        }
+      }
+    },
+    "连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        }
+      }
+    },
+    "连接中断，正在重连（第 %lld 次）…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection lost, reconnecting (attempt %lld)…"
+          }
+        }
+      }
+    },
+    "连接信息": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Info"
+          }
+        }
+      }
+    },
+    "连接到服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to a server"
+          }
+        }
+      }
+    },
+    "连接超时，请稍后重试。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection timed out. Please try again."
+          }
+        }
+      }
+    },
+    "退出全屏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit Full Screen"
+          }
+        }
+      }
+    },
+    "退出羽见": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quit OpenHane"
+          }
+        }
+      }
+    },
+    "适应窗口": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fit"
+          }
+        }
+      }
+    },
+    "选「智能」模式就好：文档会保持清晰，视频和游戏会保持流畅。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just pick \"Smart\" : documents stay sharp, videos and games stay smooth."
+          }
+        }
+      }
+    },
+    "选择共享内容…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose What to Share…"
+          }
+        }
+      }
+    },
+    "通过邀请链接加入": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Joining with an invite link"
+          }
+        }
+      }
+    },
+    "通过邀请链接进入的用户可以免输密码（在「邀请码」中设置）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "People who join with an invite link can skip the password (set this under Invites)."
+          }
+        }
+      }
+    },
+    "邀请码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invites"
+          }
+        }
+      }
+    },
+    "邀请链接（发给对方即可直接进入）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invite link (share it to let people in)"
+          }
+        }
+      }
+    },
+    "重连中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting"
+          }
+        }
+      }
+    },
+    "链接中包含一个权限令牌，是否使用它？": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The link contains a privilege token. Use it?"
+          }
+        }
+      }
+    },
+    "锁定（只有主持人可以进入或拉人进入）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Locked (only moderators can enter or bring people in)"
+          }
+        }
+      }
+    },
+    "降噪": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noise Reduction"
+          }
+        }
+      }
+    },
+    "需要密码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password protected"
+          }
+        }
+      }
+    },
+    "静音": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute"
+          }
+        }
+      }
+    },
+    "音乐 128 kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Music 128 kbps"
+          }
+        }
+      }
+    },
+    "音量 %lld%%": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume %lld%%"
+          }
+        }
+      }
+    },
+    "音频": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio"
+          }
+        }
+      }
+    },
+    "音频设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Settings…"
+          }
+        }
+      }
+    },
+    "高清 64 kbps": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HD 64 kbps"
+          }
+        }
+      }
+    },
+    "麦克风出错：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone error: %@"
+          }
+        }
+      }
+    },
+    "麦克风模式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic Mode"
+          }
+        }
+      }
+    },
+    "麦克风模式（语音突显）…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mic Mode (Voice Isolation)…"
+          }
+        }
+      }
+    },
+    "默认是语音激活。⌘⇧M 静音；在设置里可以改用按键说话（支持鼠标侧键）或常开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice activation is the default. ⌘⇧M mutes; in Settings you can switch to push-to-talk (mouse side buttons work too) or always on."
+          }
+        }
+      }
+    },
+    "默认是语音激活。在「更多」里可以改用按键说话或常开。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voice activation is the default. Under More you can switch to push-to-talk or always on."
+          }
+        }
+      }
+    },
+    "（%@ 解除）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (until %@)"
+          }
+        }
+      }
+    },
+    "（操作者：%@）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " (by %@)"
+          }
+        }
+      }
+    },
+    "：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": " : %@"
+          }
+        }
+      }
+    },
+    "；": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "; "
+          }
+        }
+      }
+    },
+    "关于羽见": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About OpenHane"
+          }
+        }
+      }
+    },
+    "关于羽见…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About OpenHane…"
+          }
+        }
+      }
+    },
+    "完成": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "版本 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        }
+      }
+    },
+    "以 GNU AGPL-3.0 授权的自由软件。「羽见」名称和图标保留所有权利。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free software licensed under the GNU AGPL-3.0. The OpenHane name and logo: all rights reserved."
+          }
+        }
+      }
+    },
+    "图标设计：": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Logo designed by "
+          }
+        }
+      }
+    },
+    "源代码": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source Code"
+          }
+        }
+      }
+    },
+    "开源许可": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Source Licenses"
+          }
+        }
+      }
+    },
+    "羽见使用了以下 %lld 个开源组件，感谢它们的作者。点击可以查看许可证原文。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OpenHane uses the following %lld open source components. Thanks to their authors. Tap one to see its license."
+          }
+        }
+      }
+    },
+    "无法加载开源许可清单。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not load the open source licenses."
+          }
+        }
+      }
+    },
+    "检查更新…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        }
+      }
+    },
+    "更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates"
+          }
+        }
+      }
+    },
+    "自动检查更新": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically check for updates"
+          }
+        }
+      }
+    },
+    "接收公测版": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive beta versions"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

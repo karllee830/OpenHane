@@ -1,0 +1,101 @@
+{
+  "welcome": {
+    "sessionId": "4qy8nkgc2b",
+    "uid": "copdsqhgjnkjc4rardm2",
+    "nickname": "小明 (2)",
+    "role": "ROLE_ADMIN",
+    "resumeTicket": "dGlja2V0",
+    "resumed": true,
+    "snapshot": {
+      "info": {
+        "name": "S",
+        "protocolMin": 1,
+        "protocolMax": 1
+      },
+      "rooms": [
+        {
+          "id": "main",
+          "kind": "ROOM_KIND_MAIN",
+          "name": "主会议",
+          "createdAtMs": "1"
+        }
+      ],
+      "participants": [
+        {
+          "sessionId": "4qy8nkgc2b",
+          "uid": "copdsqhgjnkjc4rardm2",
+          "nickname": "小明 (2)",
+          "role": "ROLE_ADMIN",
+          "roomId": "main",
+          "state": {
+            "micMuted": true,
+            "handRaised": true
+          },
+          "platform": "PLATFORM_MACOS",
+          "mediaConnected": true,
+          "mediaIdentity": "copdsqhgjnkjc4rardm2:4qy8nkgc2b",
+          "cameraOn": true,
+          "screenSharing": true
+        },
+        {
+          "sessionId": "y8d433t8xc",
+          "uid": "copdsqhgjnkjc4rardm2",
+          "nickname": "Alice",
+          "role": "ROLE_MEMBER",
+          "roomId": "main",
+          "state": {
+            "micMuted": true,
+            "handRaised": true
+          },
+          "platform": "PLATFORM_MACOS",
+          "mediaConnected": true,
+          "mediaIdentity": "copdsqhgjnkjc4rardm2:y8d433t8xc",
+          "cameraOn": true,
+          "screenSharing": true
+        }
+      ],
+      "eventSeq": "18446744073709551615"
+    },
+    "autoJoin": {
+      "roomId": "main",
+      "media": {
+        "token": "jwt.token.value",
+        "expiresAtMs": "1760000300000"
+      },
+      "policy": {
+        "audio": {
+          "preset": "AUDIO_PRESET_STANDARD",
+          "maxBitrateBps": 32000,
+          "musicModeAllowed": true,
+          "red": true,
+          "dtx": true
+        },
+        "camera": {
+          "allowed": true,
+          "maxWidth": 1280,
+          "maxHeight": 720,
+          "maxFps": 30
+        },
+        "screen": {
+          "allowed": true,
+          "maxWidth": 2560,
+          "maxHeight": 1440,
+          "maxFps": 60,
+          "maxBitrateBps": 8000000,
+          "audioAllowed": true,
+          "maxConcurrent": 2
+        },
+        "codecs": {
+          "mode": "CODEC_MODE_AUTO",
+          "roomDecodable": [
+            "video/av1",
+            "video/h264"
+          ]
+        },
+        "e2ee": {
+          "mode": "E2EE_MODE_OPTIONAL"
+        }
+      }
+    }
+  }
+}

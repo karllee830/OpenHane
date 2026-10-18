@@ -1,0 +1,12 @@
+{
+  "request": {
+    "id": 21,
+    "moderate": {
+      "sessionId": "s2",
+      "action": "MODERATION_ACTION_BAN",
+      "durationSec": 3600,
+      "reason": "刷屏",
+      "banIp": true
+    }
+  }
+}

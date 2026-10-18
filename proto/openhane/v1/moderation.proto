@@ -1,0 +1,141 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/session.proto";
+
+// 主持与管理操作。只能管理角色比自己低的人。
+
+enum ModerationAction {
+  MODERATION_ACTION_UNSPECIFIED = 0;
+  MODERATION_ACTION_FORCE_MUTE = 1; // 收回麦克风发布权限
+  MODERATION_ACTION_UNMUTE = 2; // 解除强制静音（不会自动开麦）
+  MODERATION_ACTION_STOP_SHARE = 3; // 收回屏幕共享许可
+  MODERATION_ACTION_CAMERA_OFF = 4; // 取消发布摄像头（不禁止再次开启）
+  MODERATION_ACTION_REMOVE_FROM_ROOM = 5; // 送回主会议
+  MODERATION_ACTION_KICK = 6; // 断开连接（可以重连）
+  MODERATION_ACTION_BAN = 7; // 断开连接并封禁
+}
+
+message Moderate {
+  string session_id = 1;
+  ModerationAction action = 2;
+  uint32 duration_sec = 3; // 封禁时长，0 表示永久（主持人最长 24 小时）
+  string reason = 4;
+  bool ban_ip = 5; // 同时封禁 IP
+}
+
+message ModerateResult {}
+
+// 房间内全员静音：对角色比自己低的所有成员执行强制静音（房间级，切换房间后解除）。
+message MuteAll {
+  string room_id = 1;
+}
+
+message MuteAllResult {
+  uint32 muted = 1;
+}
+
+// 推送给当事人，例如「你已被主持人静音」。
+message ModerationNotice {
+  ModerationAction action = 1;
+  string by_name = 2;
+  string reason = 3;
+  int64 until_ms = 4; // 封禁到期时间，0 表示永久或不适用
+}
+
+// ---------- 封禁、审计、邀请码（管理员） ----------
+
+message BanInfo {
+  int64 id = 1;
+  string uid = 2;
+  string ip_cidr = 3;
+  string reason = 4;
+  string created_by = 5;
+  int64 created_at_ms = 6;
+  int64 expires_at_ms = 7; // 0 表示永久
+  string nickname = 8; // 被封禁者最后使用的昵称（如有）
+}
+
+message ListBans {}
+
+message ListBansResult {
+  repeated BanInfo bans = 1;
+}
+
+// 直接添加封禁（例如封禁不在线的身份或 IP 段）。
+message AddBan {
+  string uid = 1;
+  string ip_cidr = 2;
+  uint32 duration_sec = 3; // 0 表示永久
+  string reason = 4;
+}
+
+message AddBanResult {
+  BanInfo ban = 1;
+  uint32 kicked = 2; // 立即断开的在线会话数
+}
+
+message RemoveBan {
+  int64 id = 1;
+}
+
+message RemoveBanResult {}
+
+message AuditEntry {
+  int64 id = 1;
+  int64 at_ms = 2;
+  string actor_uid = 3; // 空表示系统或命令行
+  string action = 4; // 如 room.create、moderate.ban、settings.update
+  string target = 5;
+  string detail = 6; // JSON
+  string ip = 7;
+  string actor_name = 8; // 操作者最后使用的昵称
+}
+
+message GetAuditLog {
+  int64 before_id = 1; // 0 表示从最新开始
+  uint32 limit = 2; // ≤ 200
+  string action_prefix = 3; // 例如 "moderate." 只看管理操作
+  string actor_uid = 4;
+}
+
+message GetAuditLogResult {
+  repeated AuditEntry entries = 1;
+  bool has_more = 2;
+}
+
+// 邀请码：免服务器密码入场，可附带角色。
+message InviteInfo {
+  string code = 1;
+  bool bypass_password = 2;
+  Role role = 3; // 使用后获得的角色；MEMBER 表示不改变
+  uint32 max_uses = 4; // 0 表示不限
+  uint32 used_count = 5;
+  int64 expires_at_ms = 6; // 0 表示不过期
+  string created_by = 7;
+  int64 created_at_ms = 8;
+}
+
+message CreateInvite {
+  uint32 max_uses = 1;
+  uint32 expires_in_sec = 2; // 0 表示不过期
+  bool bypass_password = 3;
+  Role role = 4;
+}
+
+message CreateInviteResult {
+  InviteInfo invite = 1;
+}
+
+message ListInvites {}
+
+message ListInvitesResult {
+  repeated InviteInfo invites = 1;
+}
+
+message RevokeInvite {
+  string code = 1;
+}
+
+message RevokeInviteResult {}

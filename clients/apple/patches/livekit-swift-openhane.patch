@@ -1,0 +1,332 @@
+diff --git a/Sources/LiveKit/Core/SignalClient.swift b/Sources/LiveKit/Core/SignalClient.swift
+index c98e1d7..97de7b2 100644
+--- a/Sources/LiveKit/Core/SignalClient.swift
++++ b/Sources/LiveKit/Core/SignalClient.swift
+@@ -230,7 +230,8 @@ actor SignalClient: Loggable {
+             let validateUrl = try Utils.toValidateUrl(url)
+             log("Validating with url: \(validateUrl)...")
+             do {
+-                try await HTTP.requestValidation(from: validateUrl, token: token)
++                try await HTTP.requestValidation(from: validateUrl, token: token,
++                                                 serverTrustEvaluator: connectOptions?.serverTrustEvaluator)
+                 // Re-throw original error since validation passed
+                 throw LiveKitError(.network, internalError: connectionError)
+             } catch let error as LiveKitError where error.type == .serviceNotFound {
+diff --git a/Sources/LiveKit/E2EE/E2EEManager.swift b/Sources/LiveKit/E2EE/E2EEManager.swift
+index 4796dfb..81e3f43 100644
+--- a/Sources/LiveKit/E2EE/E2EEManager.swift
++++ b/Sources/LiveKit/E2EE/E2EEManager.swift
+@@ -78,6 +78,8 @@ public class E2EEManager: NSObject, @unchecked Sendable, ObservableObject, Logga
+ 
+     private struct State: Equatable {
+         var enabled: Bool = true
++        /// OpenHane: key index used to encrypt local tracks (sender-key rotation)
++        var localKeyIndex: Int32 = 0
+         var frameCryptors = [CryptorKey: LKRTCFrameCryptor]()
+         var trackPublications = [LKRTCFrameCryptor: TrackPublication]()
+         var dataCryptor: LKRTCDataPacketCryptor?
+@@ -206,11 +208,26 @@ public class E2EEManager: NSObject, @unchecked Sendable, ObservableObject, Logga
+             _state.mutate {
+                 $0.frameCryptors[[participantIdentity: publication.sid]] = frameCryptor
+                 $0.trackPublications[frameCryptor] = publication
++                frameCryptor.keyIndex = $0.localKeyIndex
+                 frameCryptor.enabled = $0.enabled
+             }
+         }
+     }
+ 
++    /// OpenHane: switch the key index used to encrypt local tracks, for sender-key rotation where each
++    /// participant distributes a new key at a new index and switches to it once everyone has received it.
++    /// (The SDK otherwise always encrypts local tracks with index 0.)
++    public func setLocalKeyIndex(_ index: Int32) async {
++        await RTC.run {
++            _state.mutate {
++                $0.localKeyIndex = index
++                for (cryptor, publication) in $0.trackPublications where publication is LocalTrackPublication {
++                    cryptor.keyIndex = index
++                }
++            }
++        }
++    }
++
+     func addRtpReceiver(publication: RemoteTrackPublication, participantIdentity: Participant.Identity) async {
+         guard publication.encryptionType != .none else {
+             log("encryptionType is .none, skipping creating frame cryptor...", .warning)
+diff --git a/Sources/LiveKit/Support/Network/HTTP.swift b/Sources/LiveKit/Support/Network/HTTP.swift
+index d0c1084..a2d6cbb 100644
+--- a/Sources/LiveKit/Support/Network/HTTP.swift
++++ b/Sources/LiveKit/Support/Network/HTTP.swift
+@@ -23,7 +23,7 @@ class HTTP: NSObject {
+                                                    delegate: nil,
+                                                    delegateQueue: operationQueue)
+ 
+-    static func requestValidation(from url: URL, token: String) async throws {
++    static func requestValidation(from url: URL, token: String, serverTrustEvaluator: ServerTrustEvaluator? = nil) async throws {
+         var request = URLRequest(url: url,
+                                  cachePolicy: .reloadIgnoringLocalAndRemoteCacheData,
+                                  timeoutInterval: .defaultHTTPConnect)
+@@ -31,7 +31,13 @@ class HTTP: NSObject {
+         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+ 
+         // Make the data request
+-        let (data, response) = try await session.data(for: request)
++        let data: Data
++        let response: URLResponse
++        if #available(iOS 15.0, macOS 12.0, macCatalyst 15.0, tvOS 15.0, visionOS 1.0, *), let serverTrustEvaluator {
++            (data, response) = try await session.data(for: request, delegate: TrustDelegate(serverTrustEvaluator))
++        } else {
++            (data, response) = try await session.data(for: request)
++        }
+ 
+         guard let httpResponse = response as? HTTPURLResponse else {
+             throw URLError(.badServerResponse)
+@@ -75,3 +81,20 @@ class HTTP: NSObject {
+         }
+     }
+ }
++
++/// Per-task delegate that applies a custom `ServerTrustEvaluator`.
++private final class TrustDelegate: NSObject, URLSessionTaskDelegate, Sendable {
++    private let evaluator: ServerTrustEvaluator
++
++    init(_ evaluator: @escaping ServerTrustEvaluator) {
++        self.evaluator = evaluator
++    }
++
++    func urlSession(_: URLSession,
++                    task _: URLSessionTask,
++                    didReceive challenge: URLAuthenticationChallenge,
++                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
++    {
++        ServerTrustChallenge.handle(challenge, evaluator: evaluator, completionHandler: completionHandler)
++    }
++}
+diff --git a/Sources/LiveKit/Support/Network/WebSocket.swift b/Sources/LiveKit/Support/Network/WebSocket.swift
+index e4c4f95..e6b6957 100644
+--- a/Sources/LiveKit/Support/Network/WebSocket.swift
++++ b/Sources/LiveKit/Support/Network/WebSocket.swift
+@@ -49,7 +49,7 @@ actor WebSocket: Loggable, AsyncSequence {
+         }
+         #endif
+ 
+-        delegate = Delegate()
++        delegate = Delegate(serverTrustEvaluator: connectOptions?.serverTrustEvaluator)
+         urlSession = URLSession(configuration: Self.makeSessionConfiguration(),
+                                 delegate: delegate, delegateQueue: nil)
+         task = urlSession.webSocketTask(with: request)
+@@ -117,6 +117,18 @@ actor WebSocket: Loggable, AsyncSequence {
+ 
+     private final class Delegate: NSObject, Loggable, URLSessionWebSocketDelegate {
+         private let _continuation = StateSync<CheckedContinuation<Void, Error>?>(nil)
++        private let serverTrustEvaluator: ServerTrustEvaluator?
++
++        init(serverTrustEvaluator: ServerTrustEvaluator?) {
++            self.serverTrustEvaluator = serverTrustEvaluator
++        }
++
++        func urlSession(_: URLSession,
++                        didReceive challenge: URLAuthenticationChallenge,
++                        completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
++        {
++            ServerTrustChallenge.handle(challenge, evaluator: serverTrustEvaluator, completionHandler: completionHandler)
++        }
+ 
+         func setConnectContinuation(_ continuation: CheckedContinuation<Void, Error>) {
+             _continuation.mutate { $0 = continuation }
+diff --git a/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift b/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
+index 356e8c1..81bbfa3 100644
+--- a/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
++++ b/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
+@@ -17,6 +17,8 @@
+ import Combine
+ import Foundation
+ 
++internal import LiveKitWebRTC
++
+ @objcMembers
+ public class LocalTrackPublication: TrackPublication, @unchecked Sendable {
+     // indicates whether the track was suspended(muted) by the SDK
+@@ -167,6 +169,59 @@ extension LocalTrackPublication {
+         }
+     }
+ 
++    /// Updates the video encoding of this publication at runtime, without renegotiation.
++    ///
++    /// Use it to adapt the maximum bitrate, maximum framerate and degradation preference to the
++    /// content and the network while publishing, for example for adaptive screen sharing.
++    ///
++    /// - Parameters:
++    ///   - encoding: New maximum bitrate and framerate for the top layer.
++    ///   - degradationPreference: New degradation preference, or `nil` to keep the current one.
++    public func setVideoEncoding(_ encoding: VideoEncoding, degradationPreference: DegradationPreference? = nil) async {
++        guard let track = track as? LocalVideoTrack else { return }
++        let old = (track.publishOptions as? VideoPublishOptions) ?? VideoPublishOptions()
++        let isScreenShare = track.source == .screenShareVideo
++        let updated = VideoPublishOptions(name: old.name,
++                                          encoding: isScreenShare ? old.encoding : encoding,
++                                          screenShareEncoding: isScreenShare ? encoding : old.screenShareEncoding,
++                                          simulcast: old.simulcast,
++                                          simulcastLayers: old.simulcastLayers,
++                                          screenShareSimulcastLayers: old.screenShareSimulcastLayers,
++                                          preferredCodec: old.preferredCodec,
++                                          preferredBackupCodec: old.preferredBackupCodec,
++                                          degradationPreference: degradationPreference ?? old.degradationPreference,
++                                          streamName: old.streamName)
++        track._state.mutate { $0.lastPublishOptions = updated }
++        await recomputeSenderParameters()
++        if let degradationPreference {
++            await applyDegradationPreference(degradationPreference.resolve(for: track.source))
++        }
++    }
++
++    /// OpenHane: change the max bitrate of a published audio track at runtime (e.g. when the server
++    /// policy changes, or when sharing system audio needs a music-grade bitrate) without republishing.
++    public func setAudioEncoding(maxBitrate: Int) async {
++        guard track is LocalAudioTrack else { return }
++        await applyAudioMaxBitrate(maxBitrate)
++    }
++
++    @RTC
++    private func applyAudioMaxBitrate(_ bps: Int) {
++        guard let sender = (track as? LocalAudioTrack)?._state.rtpSender else { return }
++        let parameters = sender.raw.parameters
++        for encoding in parameters.encodings {
++            encoding.maxBitrateBps = NSNumber(value: bps)
++        }
++        sender.raw.parameters = parameters
++        log("Updated audio max bitrate to \(bps)")
++    }
++
++    @RTC
++    private func applyDegradationPreference(_ preference: LKRTCDegradationPreference) {
++        guard let sender = (track as? LocalVideoTrack)?._state.rtpSender else { return }
++        sender.raw.set(degradationPreference: preference)
++    }
++
+     @RTC
+     func recomputeSenderParameters() {
+         guard let track = track as? LocalVideoTrack,
+diff --git a/Sources/LiveKit/Types/Options/ConnectOptions+Copy.swift b/Sources/LiveKit/Types/Options/ConnectOptions+Copy.swift
+index b73e97d..6303267 100644
+--- a/Sources/LiveKit/Types/Options/ConnectOptions+Copy.swift
++++ b/Sources/LiveKit/Types/Options/ConnectOptions+Copy.swift
+@@ -29,6 +29,7 @@ public extension ConnectOptions {
+                        reconnectAttemptDelay: reconnectAttemptDelay.value(ifAbsent: self.reconnectAttemptDelay),
+                        reconnectMaxDelay: reconnectMaxDelay.value(ifAbsent: self.reconnectMaxDelay),
+                        protocolVersion: protocolVersion.value(ifAbsent: self.protocolVersion),
+-                       clientProtocol: clientProtocol.value(ifAbsent: self.clientProtocol))
++                       clientProtocol: clientProtocol.value(ifAbsent: self.clientProtocol),
++                       serverTrustEvaluator: serverTrustEvaluator)
+     }
+ }
+diff --git a/Sources/LiveKit/Types/Options/ConnectOptions.swift b/Sources/LiveKit/Types/Options/ConnectOptions.swift
+index 020b9da..69bf973 100644
+--- a/Sources/LiveKit/Types/Options/ConnectOptions.swift
++++ b/Sources/LiveKit/Types/Options/ConnectOptions.swift
+@@ -15,6 +15,7 @@
+  */
+ 
+ import Foundation
++import Security
+ 
+ /// Options used when establishing a connection.
+ @objcMembers
+@@ -80,6 +81,14 @@ public final class ConnectOptions: NSObject, Sendable {
+     /// with no 15 KB size limit). Generally, it's not recommended to change this.
+     public let clientProtocol: ClientProtocol
+ 
++    /// Custom server certificate trust evaluation for the signaling connection
++    /// (WebSocket and the HTTP validation request). Return `true` to trust the server.
++    /// When `nil` (default), the system's standard trust evaluation is used.
++    ///
++    /// Useful for self-hosted servers with self-signed certificates, where the app
++    /// pins the certificate's public key (trust on first use) instead of relying on a CA.
++    public let serverTrustEvaluator: ServerTrustEvaluator?
++
+     override public init() {
+         autoSubscribe = true
+         reconnectAttempts = 10
+@@ -94,6 +103,7 @@ public final class ConnectOptions: NSObject, Sendable {
+         enableMicrophone = false
+         protocolVersion = .v16
+         clientProtocol = .v1
++        serverTrustEvaluator = nil
+     }
+ 
+     public init(autoSubscribe: Bool = true,
+@@ -108,7 +118,8 @@ public final class ConnectOptions: NSObject, Sendable {
+                 isDscpEnabled: Bool = false,
+                 enableMicrophone: Bool = false,
+                 protocolVersion: ProtocolVersion = .v16,
+-                clientProtocol: ClientProtocol = .v1)
++                clientProtocol: ClientProtocol = .v1,
++                serverTrustEvaluator: ServerTrustEvaluator? = nil)
+     {
+         self.autoSubscribe = autoSubscribe
+         self.reconnectAttempts = reconnectAttempts
+@@ -123,12 +134,15 @@ public final class ConnectOptions: NSObject, Sendable {
+         self.enableMicrophone = enableMicrophone
+         self.protocolVersion = protocolVersion
+         self.clientProtocol = clientProtocol
++        self.serverTrustEvaluator = serverTrustEvaluator
+     }
+ 
+     // MARK: - Equal
+ 
+     override public func isEqual(_ object: Any?) -> Bool {
+         guard let other = object as? Self else { return false }
++        // Closures can't be compared: options carrying a trust evaluator are only equal to themselves.
++        guard serverTrustEvaluator == nil, other.serverTrustEvaluator == nil else { return self === other }
+         return autoSubscribe == other.autoSubscribe &&
+             reconnectAttempts == other.reconnectAttempts &&
+             reconnectAttemptDelay == other.reconnectAttemptDelay &&
+@@ -147,6 +161,7 @@ public final class ConnectOptions: NSObject, Sendable {
+     override public var hash: Int {
+         var hasher = Hasher()
+         hasher.combine(autoSubscribe)
++        hasher.combine(serverTrustEvaluator != nil)
+         hasher.combine(reconnectAttempts)
+         hasher.combine(reconnectAttemptDelay)
+         hasher.combine(reconnectMaxDelay)
+@@ -161,3 +176,27 @@ public final class ConnectOptions: NSObject, Sendable {
+         return hasher.finalize()
+     }
+ }
++
++/// Decides whether to trust a server presenting `trust` for `host`. Called on a background queue.
++public typealias ServerTrustEvaluator = @Sendable (_ trust: SecTrust, _ host: String) -> Bool
++
++/// Shared handling of `NSURLAuthenticationMethodServerTrust` challenges.
++enum ServerTrustChallenge {
++    static func handle(_ challenge: URLAuthenticationChallenge,
++                       evaluator: ServerTrustEvaluator?,
++                       completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
++    {
++        guard let evaluator,
++              challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
++              let trust = challenge.protectionSpace.serverTrust
++        else {
++            completionHandler(.performDefaultHandling, nil)
++            return
++        }
++        if evaluator(trust, challenge.protectionSpace.host) {
++            completionHandler(.useCredential, URLCredential(trust: trust))
++        } else {
++            completionHandler(.cancelAuthenticationChallenge, nil)
++        }
++    }
++}
+diff --git a/Sources/LiveKit/Views/SampleBufferVideoRenderer.swift b/Sources/LiveKit/Views/SampleBufferVideoRenderer.swift
+index 49525e3..47b84c1 100644
+--- a/Sources/LiveKit/Views/SampleBufferVideoRenderer.swift
++++ b/Sources/LiveKit/Views/SampleBufferVideoRenderer.swift
+@@ -184,6 +184,9 @@ private final class SampleBufferDisplayPixelBufferProvider: @unchecked Sendable,
+             return nil
+         }
+ 
++        // Keep the color tags (range, matrix, primaries, transfer) so the layer color-manages the copy like the original
++        CVBufferPropagateAttachments(buffer.pixelBuffer, outputPixelBuffer)
++
+         return outputPixelBuffer
+     }
+ 

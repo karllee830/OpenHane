@@ -1,0 +1,7 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+release/
+# AI 降噪的 WASM 和模型（clients/deepfilter/build.sh web 生成）
+packages/audio-dsp/dfn/

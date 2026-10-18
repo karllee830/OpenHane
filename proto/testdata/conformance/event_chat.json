@@ -1,0 +1,14 @@
+{
+  "event": {
+    "seq": "3",
+    "chatMessage": {
+      "id": "42",
+      "roomId": "main",
+      "senderName": "乙",
+      "text": "多行\n消息",
+      "replyTo": "41",
+      "createdAtMs": "1760000000000",
+      "clientMsgId": "x"
+    }
+  }
+}

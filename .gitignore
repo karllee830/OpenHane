@@ -1,0 +1,30 @@
+# 运行时数据（证书、数据库）
+data/
+*.db
+*.db-wal
+*.db-shm
+
+# 构建产物
+node_modules/
+dist/
+# 例外：服务端嵌入网页版的目录必须存在（目录里的 .gitignore 只保留占位文件），否则 go build 找不到 embed 目标
+!server/internal/webui/dist/
+.build/
+DerivedData/
+
+.DS_Store
+
+# 密钥和证书（签名证书、App Store Connect API 密钥、环境变量文件），任何情况下都不入库
+*.p12
+*.p8
+*.pem
+*.key
+*.mobileprovision
+.env
+.env.*
+
+# AI 编程助手的本机配置和说明文件
+.claude/
+CLAUDE.md
+CLAUDE.local.md
+AGENTS.md

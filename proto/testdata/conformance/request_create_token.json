@@ -1,0 +1,11 @@
+{
+  "request": {
+    "id": 6,
+    "createToken": {
+      "role": "ROLE_MODERATOR",
+      "maxUses": 3,
+      "expiresInSec": 86400,
+      "note": "给小明"
+    }
+  }
+}

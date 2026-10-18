@@ -1,0 +1,10 @@
+{
+  "response": {
+    "id": 7,
+    "error": {
+      "code": "ERROR_CODE_RATE_LIMITED",
+      "message": "too many requests",
+      "retryAfterMs": 1000
+    }
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "goodbye": {
+    "error": {
+      "code": "ERROR_CODE_SERVER_SHUTTING_DOWN"
+    },
+    "reconnect": true
+  }
+}

@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/handshake.proto";
+import "openhane/v1/session.proto";
+
+// 服务器设置以「键 → JSON 值」表示，键名见管理员手册（https://github.com/karllee830/OpenHane/wiki/Admin-Guide）第 10 节。
+// 密码类设置读取时只返回 "\"********\""（已设置）或 "null"（未设置）。
+message GetSettings {}
+
+message GetSettingsResult {
+  map<string, string> values = 1;
+}
+
+message UpdateSettings {
+  map<string, string> patch = 1; // 值为 JSON；"null" 表示恢复默认
+}
+
+message UpdateSettingsResult {
+  map<string, string> values = 1;
+}
+
+message TokenInfo {
+  string id = 1;
+  Role role = 2;
+  uint32 max_uses = 3; // 0 表示不限
+  uint32 used_count = 4;
+  int64 expires_at_ms = 5; // 0 表示不过期
+  string created_by = 6;
+  int64 created_at_ms = 7;
+  int64 revoked_at_ms = 8;
+  string note = 9;
+}
+
+message CreateToken {
+  Role role = 1; // 只能是主持人或管理员
+  uint32 max_uses = 2; // 0 表示不限
+  uint32 expires_in_sec = 3; // 0 表示不过期
+  string note = 4;
+}
+
+message CreateTokenResult {
+  string token = 1; // 明文只在这里出现一次
+  TokenInfo info = 2;
+}
+
+message ListTokens {}
+
+message ListTokensResult {
+  repeated TokenInfo tokens = 1;
+}
+
+message RevokeToken {
+  string id = 1;
+}
+
+message RevokeTokenResult {}
+
+message SetRole {
+  string uid = 1;
+  Role role = 2;
+}
+
+message SetRoleResult {}
+
+message Identity {
+  string uid = 1;
+  Role role = 2;
+  string last_nickname = 3;
+  int64 first_seen_at_ms = 4;
+  int64 last_seen_at_ms = 5;
+  string last_ip = 6;
+  string note = 7;
+}
+
+message ListIdentities {
+  Role role = 1; // ROLE_UNSPECIFIED 表示全部
+  uint32 limit = 2; // 默认 100，最多 500
+  uint32 offset = 3;
+}
+
+message ListIdentitiesResult {
+  repeated Identity identities = 1;
+  uint32 total = 2;
+}
+
+message ServerInfoUpdated {
+  ServerInfo info = 1;
+}
+
+message ServerNotice {
+  enum Kind {
+    KIND_UNSPECIFIED = 0;
+    KIND_ANNOUNCEMENT = 1;
+    KIND_RESTARTING = 2;
+  }
+  Kind kind = 1;
+  string text = 2;
+}

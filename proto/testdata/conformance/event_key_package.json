@@ -1,0 +1,12 @@
+{
+  "event": {
+    "seq": "12",
+    "keyPackage": {
+      "fromSessionId": "s1",
+      "roomId": "r_abc",
+      "keyIndex": 2,
+      "enc": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s=",
+      "ciphertext": "zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
+    }
+  }
+}

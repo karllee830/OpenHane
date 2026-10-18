@@ -1,0 +1,9 @@
+{
+  "event": {
+    "seq": "6",
+    "serverNotice": {
+      "kind": "KIND_RESTARTING",
+      "text": "维护"
+    }
+  }
+}

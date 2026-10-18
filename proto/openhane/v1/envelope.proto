@@ -1,0 +1,160 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/admin.proto";
+import "openhane/v1/chat.proto";
+import "openhane/v1/errors.proto";
+import "openhane/v1/handshake.proto";
+import "openhane/v1/e2ee.proto";
+import "openhane/v1/media.proto";
+import "openhane/v1/moderation.proto";
+import "openhane/v1/room.proto";
+import "openhane/v1/session.proto";
+
+// 每个 WebSocket 二进制帧承载一个 Envelope（子协议 hane.v1）。
+message Envelope {
+  oneof msg {
+    ClientHello client_hello = 1;
+    ServerChallenge server_challenge = 2;
+    ClientAuth client_auth = 3;
+    Welcome welcome = 4;
+    Request request = 10;
+    Response response = 11;
+    Event event = 12;
+    Ping ping = 20;
+    Pong pong = 21;
+    Goodbye goodbye = 30;
+  }
+}
+
+// 客户端 → 服务端的请求，用 id 匹配响应。
+// 字段号按类别分段：10–29 会话与房间，30–39 聊天，40–49 权限，50–69 媒体，
+// 70–99 房间管理与主持，100–149 管理员。
+message Request {
+  uint32 id = 1;
+  oneof body {
+    JoinRoom join_room = 10;
+    UpdateSelf update_self = 11;
+    CreateRoom create_room = 12;
+    UpdateRoom update_room = 13;
+    CloseRoom close_room = 14;
+    MoveParticipant move_participant = 15;
+    RecallAll recall_all = 16;
+    Moderate moderate = 17;
+    MuteAll mute_all = 18;
+
+    SendChat send_chat = 30;
+    GetChatHistory get_chat_history = 31;
+
+    RedeemToken redeem_token = 40;
+
+    RequestScreenShare request_screen_share = 50;
+    ReleaseScreenShare release_screen_share = 51;
+    JoinShareMedia join_share_media = 52;
+
+    SendKeyPackage send_key_package = 60;
+
+    GetSettings get_settings = 100;
+    UpdateSettings update_settings = 101;
+    CreateToken create_token = 102;
+    ListTokens list_tokens = 103;
+    RevokeToken revoke_token = 104;
+    SetRole set_role = 105;
+    ListIdentities list_identities = 106;
+    ListBans list_bans = 107;
+    AddBan add_ban = 108;
+    RemoveBan remove_ban = 109;
+    GetAuditLog get_audit_log = 110;
+    CreateInvite create_invite = 111;
+    ListInvites list_invites = 112;
+    RevokeInvite revoke_invite = 113;
+  }
+}
+
+// 服务端对请求的响应；error 为空表示成功，此时 body 与请求类型对应（无返回内容的请求 body 为空）。
+message Response {
+  uint32 id = 1;
+  Error error = 2;
+  oneof body {
+    JoinRoomResult join_room = 10;
+    UpdateSelfResult update_self = 11;
+    CreateRoomResult create_room = 12;
+    UpdateRoomResult update_room = 13;
+    CloseRoomResult close_room = 14;
+    MoveParticipantResult move_participant = 15;
+    RecallAllResult recall_all = 16;
+    ModerateResult moderate = 17;
+    MuteAllResult mute_all = 18;
+
+    SendChatResult send_chat = 30;
+    GetChatHistoryResult get_chat_history = 31;
+
+    RedeemTokenResult redeem_token = 40;
+
+    ScreenShareGrant request_screen_share = 50;
+    ReleaseScreenShareResult release_screen_share = 51;
+    MediaGrant join_share_media = 52;
+
+    SendKeyPackageResult send_key_package = 60;
+
+    GetSettingsResult get_settings = 100;
+    UpdateSettingsResult update_settings = 101;
+    CreateTokenResult create_token = 102;
+    ListTokensResult list_tokens = 103;
+    RevokeTokenResult revoke_token = 104;
+    SetRoleResult set_role = 105;
+    ListIdentitiesResult list_identities = 106;
+    ListBansResult list_bans = 107;
+    AddBanResult add_ban = 108;
+    RemoveBanResult remove_ban = 109;
+    GetAuditLogResult get_audit_log = 110;
+    CreateInviteResult create_invite = 111;
+    ListInvitesResult list_invites = 112;
+    RevokeInviteResult revoke_invite = 113;
+  }
+}
+
+// 服务端主动推送的事件，seq 按会话递增，用于断线恢复时补发。
+message Event {
+  uint64 seq = 1;
+  oneof body {
+    ParticipantJoined participant_joined = 10;
+    ParticipantLeft participant_left = 11;
+    ParticipantUpdated participant_updated = 12;
+    RoomCreated room_created = 13;
+    RoomUpdated room_updated = 14;
+    RoomClosed room_closed = 15;
+    YouWereMoved you_were_moved = 16;
+    ModerationNotice moderation_notice = 17;
+
+    ChatMessage chat_message = 30;
+
+    RoleChanged role_changed = 40;
+
+    PolicyUpdated policy_updated = 50;
+    ShareStateChanged share_state_changed = 51;
+
+    KeyPackage key_package = 60;
+
+    ServerInfoUpdated server_info_updated = 100;
+    ServerNotice server_notice = 101;
+  }
+}
+
+// 应用层心跳：浏览器拿不到 WebSocket 协议层的 ping 帧。客户端每 15 秒发一次。
+message Ping {
+  int64 client_time_ms = 1;
+}
+
+message Pong {
+  int64 client_time_ms = 1;
+  int64 server_time_ms = 2;
+}
+
+// 服务端主动断开前发送，说明原因。
+message Goodbye {
+  Error error = 1;
+  // 为 true 时客户端应自动重连（例如服务器重启）；被踢、被封禁时为 false。
+  bool reconnect = 2;
+}

@@ -1,0 +1,5 @@
+# 锁定 Rust 版本：同样的源码和 Cargo.lock 在任何机器上都编出同样的 WASM（rustup 会自动安装这个版本）
+[toolchain]
+channel = "1.99.0"
+profile = "minimal"
+targets = ["wasm32-unknown-unknown"]

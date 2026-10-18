@@ -1,0 +1,22 @@
+{
+  "event": {
+    "seq": "9",
+    "roomUpdated": {
+      "room": {
+        "id": "r_abc",
+        "kind": "ROOM_KIND_TEMPORARY",
+        "name": "设计评审",
+        "hasPassword": true,
+        "capacity": 8,
+        "createdBy": "copdsqhgjnkjc4rardm2",
+        "createdAtMs": "1760000000000",
+        "overrides": {
+          "cameraModeratorOnly": true,
+          "e2ee": true
+        },
+        "e2ee": true,
+        "emptyTimeoutSec": 300
+      }
+    }
+  }
+}

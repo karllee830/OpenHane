@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/media.proto";
+
+enum RoomKind {
+  ROOM_KIND_UNSPECIFIED = 0;
+  ROOM_KIND_MAIN = 1;
+  ROOM_KIND_TEMPORARY = 2;
+}
+
+// 房间级覆盖：只能比服务器设置更严。
+message RoomOverrides {
+  bool screen_moderator_only = 1; // 仅主持人可共享屏幕
+  bool camera_moderator_only = 2; // 仅主持人可开摄像头
+  bool e2ee = 3; // 开启端到端加密（服务器策略为「可选」时有效；「强制」时所有房间总是开启）
+  uint32 audio_max_kbps = 4; // 语音码率上限，0 表示不覆盖；只能低于服务器设置
+}
+
+message Room {
+  string id = 1; // 主会议为 "main"，临时房间为 "r_<随机>"
+  RoomKind kind = 2;
+  string name = 3;
+  bool has_password = 4;
+  bool locked = 5;
+  uint32 capacity = 6; // 0 表示不限
+  string created_by = 7; // 创建者 uid；主会议为空
+  int64 created_at_ms = 8;
+  repeated ShareInfo shares = 9; // 正在进行的屏幕共享
+  RoomOverrides overrides = 10;
+  bool e2ee = 11; // 实际是否开启端到端加密（服务器策略 + 房间覆盖）
+  uint32 empty_timeout_sec = 12; // 临时房间空置多久后自动关闭
+}
+
+message JoinRoom {
+  string room_id = 1;
+  string password = 2;
+}
+
+// 创建临时房间。权限：rooms.create_min_role。
+message CreateRoom {
+  string name = 1;
+  string password = 2; // 空表示无密码
+  bool locked = 3;
+  uint32 capacity = 4;
+  RoomOverrides overrides = 5;
+  optional uint32 empty_timeout_sec = 6; // 不填则使用服务器设置
+  bool join = 7; // 创建后立即进入
+}
+
+message CreateRoomResult {
+  Room room = 1;
+  JoinRoomResult joined = 2; // join 为 true 时
+}
+
+// 修改房间设置。权限：主持人以上，或临时房间的创建者（房间主持）。
+message UpdateRoom {
+  string room_id = 1;
+  optional string name = 2;
+  optional string password = 3; // 空字符串表示取消密码
+  optional bool locked = 4;
+  optional uint32 capacity = 5;
+  RoomOverrides overrides = 6; // 不为空时整体替换
+  optional uint32 empty_timeout_sec = 7;
+}
+
+message UpdateRoomResult {
+  Room room = 1;
+}
+
+// 关闭临时房间：成员送回主会议后销毁。
+message CloseRoom {
+  string room_id = 1;
+}
+
+message CloseRoomResult {}
+
+// 移动成员到另一个房间（主持人以上）。
+message MoveParticipant {
+  string session_id = 1;
+  string room_id = 2;
+}
+
+message MoveParticipantResult {}
+
+// 所有临时房间的成员返回主会议（分组讨论结束时使用）。
+message RecallAll {}
+
+message RecallAllResult {
+  uint32 moved = 1;
+}
+
+enum MoveReason {
+  MOVE_REASON_UNSPECIFIED = 0;
+  MOVE_REASON_MOVED = 1; // 被主持人移动
+  MOVE_REASON_REMOVED = 2; // 被移出房间（送回主会议）
+  MOVE_REASON_ROOM_CLOSED = 3; // 房间被关闭
+  MOVE_REASON_RECALLED = 4; // 全员返回主会议
+  MOVE_REASON_E2EE_UNSUPPORTED = 5; // 房间开启了端到端加密，而本客户端不支持
+}
+
+// 推送给被移动的当事人，附带新房间的媒体令牌：客户端直接切换媒体。
+message YouWereMoved {
+  string room_id = 1;
+  MoveReason reason = 2;
+  string by_name = 3; // 操作者昵称；系统操作为空
+  JoinRoomResult joined = 4;
+  string from_room_name = 5;
+}
+
+message JoinRoomResult {
+  string room_id = 1;
+  MediaGrant media = 2;
+  MediaPolicy policy = 3;
+}
+
+message RoomCreated {
+  Room room = 1;
+}
+
+message RoomUpdated {
+  Room room = 1;
+}
+
+message RoomClosed {
+  string room_id = 1;
+}

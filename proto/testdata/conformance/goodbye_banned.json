@@ -1,0 +1,9 @@
+{
+  "goodbye": {
+    "error": {
+      "code": "ERROR_CODE_BANNED",
+      "banReason": "刷屏",
+      "banExpiresAtMs": "1760003600000"
+    }
+  }
+}

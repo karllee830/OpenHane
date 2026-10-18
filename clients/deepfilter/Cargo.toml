@@ -1,0 +1,28 @@
+# 羽见的 AI 降噪（DeepFilterNet3）：网页版 / 桌面版编译成 WASM，苹果端编译成静态库。
+# 用 build.sh 构建（它会先准备下面 [patch] 用到的 build/tract-linalg），不要直接运行 cargo。
+[package]
+name = "hane-deepfilter"
+version = "0.1.0"
+edition = "2021"
+license = "AGPL-3.0-only"
+publish = false
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+deep_filter = { path = "libdf", features = ["tract"] }
+ndarray = "0.16"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "0.2", features = ["custom"] }
+
+[patch.crates-io]
+# 苹果芯片的 Mac 上不用 AMX 矩阵乘内核：对 DeepFilterNet 这种小矩阵，比 NEON 内核慢一倍（见 build.sh）
+tract-linalg = { path = "build/tract-linalg" }
+
+[profile.release]
+opt-level = 3
+lto = "fat"
+codegen-units = 1
+strip = true

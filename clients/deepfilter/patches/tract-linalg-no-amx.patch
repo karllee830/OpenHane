@@ -1,0 +1,15 @@
+苹果芯片的 Mac 上不使用 AMX 矩阵乘内核（tract-linalg 0.21.7，由 build.sh 打到从 crates.io 下载的源码上）。
+DeepFilterNet3 每帧都是很小的矩阵乘 / 矩阵向量乘，AMX 内核在 M4 上每帧 0.61 ms，NEON 内核 0.30 ms（2026-10 实测）。
+iOS 上 tract 默认就不用 AMX（需要 apple-amx-ios 特性），不受影响。
+
+--- a/src/arm64.rs
++++ b/src/arm64.rs
+@@ -325,7 +325,7 @@
+     }
+     #[cfg(any(target_os = "macos", all(target_os = "ios", feature = "apple-amx-ios")))]
+     {
+-        if has_amx() {
++        if false && has_amx() {
+             log::info!("AMX optimisation activated");
+             ops.mmm_f16 = Box::new(|_, _, _| apple_amx::apple_amx_mmm_f16_64x32.mmm());
+             ops.mmm_f32 = Box::new(|_, _, _| apple_amx::apple_amx_mmm_f32_32x32.mmm());

@@ -1,0 +1,11 @@
+{
+  "name": "@hane/audio-dsp",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@shiguredo/rnnoise-wasm": "2025.1.5"
+  },
+  "license": "AGPL-3.0-only"
+}

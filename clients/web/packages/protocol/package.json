@@ -1,0 +1,11 @@
+{
+  "name": "@hane/protocol",
+  "private": true,
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@bufbuild/protobuf": "2.16.0"
+  },
+  "license": "AGPL-3.0-only"
+}

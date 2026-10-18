@@ -1,0 +1,53 @@
+{
+  "event": {
+    "seq": "10",
+    "youWereMoved": {
+      "roomId": "main",
+      "reason": "MOVE_REASON_ROOM_CLOSED",
+      "byName": "张三",
+      "joined": {
+        "roomId": "main",
+        "media": {
+          "url": "wss://h:9800/rtc",
+          "token": "jwt",
+          "expiresAtMs": "1760000300000"
+        },
+        "policy": {
+          "audio": {
+            "preset": "AUDIO_PRESET_STANDARD",
+            "maxBitrateBps": 32000,
+            "musicModeAllowed": true,
+            "red": true,
+            "dtx": true
+          },
+          "camera": {
+            "allowed": true,
+            "maxWidth": 1280,
+            "maxHeight": 720,
+            "maxFps": 30
+          },
+          "screen": {
+            "allowed": true,
+            "maxWidth": 2560,
+            "maxHeight": 1440,
+            "maxFps": 60,
+            "maxBitrateBps": 8000000,
+            "audioAllowed": true,
+            "maxConcurrent": 2
+          },
+          "codecs": {
+            "mode": "CODEC_MODE_AUTO",
+            "roomDecodable": [
+              "video/av1",
+              "video/h264"
+            ]
+          },
+          "e2ee": {
+            "mode": "E2EE_MODE_OPTIONAL"
+          }
+        }
+      },
+      "fromRoomName": "设计评审"
+    }
+  }
+}

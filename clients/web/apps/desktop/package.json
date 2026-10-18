@@ -1,0 +1,31 @@
+{
+  "name": "@hane/desktop",
+  "productName": "OpenHane",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "OpenHane desktop client (Windows / Linux)",
+  "main": "dist/main.cjs",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && electron .",
+    "pack": "npm run build && electron-builder --dir",
+    "dist": "npm run build && electron-builder"
+  },
+  "dependencies": {
+    "electron-updater": "6.8.9",
+    "uiohook-napi": "1.5.5"
+  },
+  "devDependencies": {
+    "@hane/core": "*",
+    "@hane/media": "*",
+    "@hane/platform": "*",
+    "@hane/protocol": "*",
+    "@hane/ui": "*",
+    "electron": "44.7.0",
+    "electron-builder": "26.15.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "license": "AGPL-3.0-only"
+}

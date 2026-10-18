@@ -1,0 +1,197 @@
+# XcodeGen 工程定义。生成：xcodegen generate；工程文件不入库。
+name: OpenHane
+options:
+  bundleIdPrefix: com.0http
+  deploymentTarget:
+    macOS: "14.0"
+    iOS: "17.0"
+  createIntermediateGroups: true
+  # Icon Composer 的图标（.icon 是文件夹形式的文档）：整体作为一个资源文件交给 actool，不展开成里面的文件
+  fileTypes:
+    icon:
+      file: true
+      buildPhase: resources
+  developmentLanguage: zh-Hans
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.2.0"
+    CURRENT_PROJECT_VERSION: "1"
+    HANE_VERSION: "$(MARKETING_VERSION)" # 完整版本号（含 -beta.N / -dev.B），显示在关于页面
+packages:
+  OpenHaneKit:
+    path: Packages/OpenHaneKit
+  # 广播扩展直接使用 SDK 的 LKSampleHandler
+  LiveKit:
+    path: .vendor/client-sdk-swift
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    exactVersion: 2.10.0
+targets:
+  OpenHane-macOS:
+    type: application
+    platform: macOS
+    sources:
+      - path: App-macOS
+      - path: Shared
+    dependencies:
+      - package: OpenHaneKit
+        product: HaneCore
+      - package: OpenHaneKit
+        product: HaneMedia
+      - package: Sparkle
+    info:
+      path: App-macOS/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        HaneVersion: $(HANE_VERSION)
+        SUFeedURL: https://raw.githubusercontent.com/karllee830/OpenHane/appcast/appcast.xml
+        SUPublicEDKey: bRSWCf3habpLN343ApqXfBT5mQY8YwYuXn3CO9aLve8=
+        SUEnableAutomaticChecks: true
+        CFBundleDisplayName: 羽见 # 英文环境为 OpenHane（各 target 的 InfoPlist.xcstrings）
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        LSApplicationCategoryType: public.app-category.social-networking
+        NSMicrophoneUsageDescription: 用于在会议中说话
+        NSCameraUsageDescription: 用于在会议中开启摄像头
+        # 自托管服务器默认使用自签名证书，由客户端按指纹校验（TOFU，见 HaneCore/Trust.swift）。ATS 的系统证书校验
+        # 只对局域网地址豁免，用公网 IP 连接时会拒绝自签名证书（TLS 错误 -9802）；例外域名又不支持 IP 地址，所以只能整体关闭。
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.0http.openhane.link
+            CFBundleURLSchemes: [openhane]
+    entitlements:
+      path: App-macOS/OpenHane.entitlements
+      properties:
+        com.apple.security.device.audio-input: true
+        com.apple.security.device.camera: true
+    settings:
+      base:
+        PRODUCT_NAME: OpenHane
+        PRODUCT_BUNDLE_IDENTIFIER: com.0http.openhane
+        ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: OpenHane # Shared/OpenHane.icon
+        # 品牌色（取自图标的天蓝，浅色 #176BCB / 深色 #2B87E8，与网页版的 accent 同色相）：按钮、链接、选中态等全局强调色
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "-"
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ARCHS: "$(ARCHS_STANDARD)"
+
+  # iOS / iPadOS 应用
+  OpenHane-iOS:
+    type: application
+    platform: iOS
+    sources:
+      - path: App-iOS
+      - path: Shared
+      - path: ActivityShared
+    dependencies:
+      - package: OpenHaneKit
+        product: HaneCore
+      - package: OpenHaneKit
+        product: HaneMedia
+      - target: OpenHaneBroadcast
+      - target: OpenHaneWidgets
+    info:
+      path: App-iOS/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        HaneVersion: $(HANE_VERSION)
+        CFBundleDisplayName: 羽见 # 英文环境为 OpenHane（各 target 的 InfoPlist.xcstrings）
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        UILaunchScreen: {}
+        UIBackgroundModes: [audio]
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
+        NSMicrophoneUsageDescription: 用于在会议中说话
+        NSCameraUsageDescription: 用于在会议中开启摄像头
+        NSSupportsLiveActivities: true
+        NSLocalNetworkUsageDescription: 用于连接局域网内的羽见服务器
+        # 同 macOS：证书由客户端按指纹校验，ATS 整体关闭。不能同时设置 NSAllowsLocalNetworking，否则 NSAllowsArbitraryLoads 会被忽略
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.0http.openhane.link
+            CFBundleURLSchemes: [openhane]
+        # 广播扩展与主应用通过应用组中的套接字传帧（LiveKit SDK）
+        RTCAppGroupIdentifier: group.com.0http.openhane
+        RTCScreenSharingExtension: com.0http.openhane.broadcast
+    entitlements:
+      path: App-iOS/OpenHane.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.0http.openhane]
+    settings:
+      base:
+        PRODUCT_NAME: OpenHane
+        PRODUCT_BUNDLE_IDENTIFIER: com.0http.openhane
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CODE_SIGN_STYLE: Automatic
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: OpenHane # Shared/OpenHane.icon
+        # 品牌色（取自图标的天蓝，浅色 #176BCB / 深色 #2B87E8，与网页版的 accent 同色相）：按钮、链接、选中态等全局强调色
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+  # 小组件扩展：会议的实时活动（锁屏、灵动岛）
+  OpenHaneWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widgets
+      - path: ActivityShared
+    info:
+      path: Widgets/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: 羽见 # 英文环境为 OpenHane（各 target 的 InfoPlist.xcstrings）
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.0http.openhane.widgets
+        CODE_SIGN_STYLE: Automatic
+        SKIP_INSTALL: YES
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) HANE_WIDGET"
+        LOCALIZATION_PREFERS_STRING_CATALOGS: YES
+        SWIFT_EMIT_LOC_STRINGS: YES
+
+  # 屏幕共享广播上传扩展：只负责采集和传帧，编码和发布在主应用中完成
+  OpenHaneBroadcast:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: BroadcastExtension
+    dependencies:
+      - package: LiveKit
+        product: LiveKit
+    info:
+      path: BroadcastExtension/Info.plist
+      properties:
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleDisplayName: 羽见 # 英文环境为 OpenHane（各 target 的 InfoPlist.xcstrings）
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleLocalizations: [zh-Hans, en]
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.broadcast-services-upload
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).SampleHandler
+          RPBroadcastProcessMode: RPBroadcastProcessModeSampleBuffer
+        RTCAppGroupIdentifier: group.com.0http.openhane
+    entitlements:
+      path: BroadcastExtension/OpenHaneBroadcast.entitlements
+      properties:
+        com.apple.security.application-groups: [group.com.0http.openhane]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.0http.openhane.broadcast
+        CODE_SIGN_STYLE: Automatic
+        SKIP_INSTALL: YES

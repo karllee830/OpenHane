@@ -1,0 +1,6 @@
+.vendor/
+build/
+*.xcodeproj/
+# AI 降噪库和模型（../deepfilter/build.sh apple 生成）
+Packages/OpenHaneKit/Binaries/
+Packages/OpenHaneKit/Sources/HaneMedia/Resources/deepfilternet3.bin

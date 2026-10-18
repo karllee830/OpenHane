@@ -1,0 +1,74 @@
+name: Bug report / 问题反馈
+description: Report something that doesn't work as expected. / 反馈不符合预期的问题。
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! You can write in English or Chinese. **Please do not report security vulnerabilities here**; use [private vulnerability reporting](https://github.com/karllee830/OpenHane/security/advisories/new) instead.
+        感谢反馈问题！用英文或中文都可以。**安全漏洞请不要在这里提交**，请使用[私密漏洞报告](https://github.com/karllee830/OpenHane/security/advisories/new)。
+  - type: input
+    id: version
+    attributes:
+      label: Version / 版本
+      description: The OpenHane version of the client and server, e.g. 0.1.0 / 客户端和服务端的版本号，例如 0.1.0
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform / 平台
+      description: Where does the problem happen? / 问题出现在哪个平台？
+      multiple: true
+      options:
+        - Server (Docker) / 服务端（Docker）
+        - Server (standalone binary) / 服务端（独立程序）
+        - Web browser / 网页版
+        - Windows
+        - Linux
+        - macOS
+        - iPhone / iPad
+        - Android
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened? / 发生了什么？
+      description: A clear description of the problem. / 清楚地描述问题。
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / 复现步骤
+      placeholder: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior / 期望的结果
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / 日志
+      description: Relevant logs, e.g. `docker logs openhane` for the server. Remove any private information first. / 相关日志，例如服务端的 `docker logs openhane`。请先去掉隐私信息。
+      render: shell
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 环境
+      description: OS version, browser, network setup (reverse proxy, port mapping, frp, etc.) / 系统版本、浏览器、网络部署方式（反向代理、端口映射、frp 等）
+  - type: checkboxes
+    id: search
+    attributes:
+      label: Before submitting / 提交前
+      options:
+        - label: I have searched existing issues and the [FAQ](https://github.com/karllee830/OpenHane/wiki/FAQ). / 我已经搜索过现有议题和[常见问题](https://github.com/karllee830/OpenHane/wiki/常见问题)。
+          required: true

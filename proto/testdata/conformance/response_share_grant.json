@@ -1,0 +1,23 @@
+{
+  "response": {
+    "id": 10,
+    "requestScreenShare": {
+      "grantId": "g_abc",
+      "limits": {
+        "allowed": true,
+        "maxWidth": 2560,
+        "maxHeight": 1440,
+        "maxFps": 60,
+        "maxBitrateBps": 8000000,
+        "audioAllowed": true,
+        "maxConcurrent": 2
+      },
+      "roomDecodable": [
+        "video/h264",
+        "video/vp8"
+      ],
+      "codecMode": "CODEC_MODE_AUTO",
+      "withAudio": true
+    }
+  }
+}

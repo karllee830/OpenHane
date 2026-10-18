@@ -1,0 +1,60 @@
+# DeepFilterNet 的 libDF 子集（只保留推理需要的部分），来源与改动见 UPSTREAM.md。
+[package]
+name = "deep_filter"
+version = "0.5.7-pre"
+authors = ["Hendrik Schröter"]
+edition = "2021"
+description = "Noise supression using deep filtering"
+repository = "https://github.com/Rikorose/DeepFilterNet"
+license = "MIT OR Apache-2.0"
+publish = false
+
+[lib]
+name = "df"
+path = "src/lib.rs"
+
+[features]
+default = []
+transforms = ["dep:thiserror", "dep:ndarray", "dep:rubato"]
+logging = ["dep:log", "dep:crossbeam-channel"]
+tract = [
+  "transforms",
+  "logging",
+  "dep:tract-core",
+  "dep:tract-onnx",
+  "dep:tract-pulse",
+  "dep:tract-hir",
+  "dep:rust-ini",
+  "dep:ndarray",
+  "dep:anyhow",
+  "dep:flate2",
+  "dep:tar",
+]
+# 以下特性的代码没有收录（训练数据集、C / wasm-bindgen 接口、内置模型），只为让源码里的 cfg 保持有效
+dataset = []
+capi = []
+wasm = []
+wav-utils = []
+timings = []
+default-model = []
+default-model-ll = []
+
+[dependencies]
+rustfft = "^6.1.0"
+realfft = "^3.1.0"
+itertools = "0.12"
+num-complex = "^0.4"
+log = { version = "0.4", features = ["std"], optional = true }
+rubato = { version = "0.14", optional = true }
+thiserror = { version = "1.0", optional = true }
+anyhow = { version = "1.0", optional = true }
+crossbeam-channel = { version = "^0.5", optional = true }
+rust-ini = { version = "^0.21", optional = true }
+ndarray = { version = "^0.16", optional = true }
+# 0.21.7 带 WASM SIMD 矩阵乘内核（上游锁定的 0.21.4 没有，网页版慢一倍）；更新的 0.21.18 在 WASM 上反而慢约 30%
+tract-core = { version = "=0.21.7", optional = true }
+tract-onnx = { version = "=0.21.7", optional = true }
+tract-pulse = { version = "=0.21.7", optional = true }
+tract-hir = { version = "=0.21.7", optional = true }
+flate2 = { version = "1.0.24", optional = true }
+tar = { version = "0.4.38", optional = true }

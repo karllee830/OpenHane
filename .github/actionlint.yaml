@@ -1,0 +1,4 @@
+# actionlint 配置：GitHub 新增的托管运行机标签（旧版 actionlint 还不认识）
+self-hosted-runner:
+  labels:
+    - xcode-27

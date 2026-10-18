@@ -1,0 +1,10 @@
+{
+  "event": {
+    "seq": "11",
+    "moderationNotice": {
+      "action": "MODERATION_ACTION_FORCE_MUTE",
+      "byName": "主持人",
+      "reason": "请举手发言"
+    }
+  }
+}

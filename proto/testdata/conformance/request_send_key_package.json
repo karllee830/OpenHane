@@ -1,0 +1,12 @@
+{
+  "request": {
+    "id": 22,
+    "sendKeyPackage": {
+      "toSessionId": "s3",
+      "roomId": "r_abc",
+      "keyIndex": 2,
+      "enc": "q6urq6urq6urq6urq6urq6urq6urq6urq6urq6urq6s=",
+      "ciphertext": "zc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N"
+    }
+  }
+}

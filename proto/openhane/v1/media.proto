@@ -1,0 +1,154 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+// 连接媒体服务器（LiveKit）所需的地址和令牌。
+message MediaGrant {
+  // 为空时表示与控制连接同一地址（wss://<host>:<port>），客户端直接把该地址交给 LiveKit SDK。
+  string url = 1;
+  string token = 2; // LiveKit JWT，有效期 5 分钟，SDK 连上后由媒体服务器自动续期
+  int64 expires_at_ms = 3;
+  bool tcp = 4; // 共享连接：这个令牌的连接只走 TCP（服务端过滤掉 UDP 候选）；连不上时带 transport=UDP 重新请求
+}
+
+enum AudioPreset {
+  AUDIO_PRESET_UNSPECIFIED = 0;
+  AUDIO_PRESET_ECONOMY = 1;
+  AUDIO_PRESET_STANDARD = 2;
+  AUDIO_PRESET_HD = 3;
+  AUDIO_PRESET_MUSIC = 4;
+  AUDIO_PRESET_CUSTOM = 5;
+}
+
+message AudioPolicy {
+  AudioPreset preset = 1;
+  uint32 max_bitrate_bps = 2;
+  bool music_mode_allowed = 3;
+  bool low_latency = 4; // 10 ms 帧
+  bool red = 5;
+  bool dtx = 6;
+  bool force_mute_on_join = 7;
+}
+
+message CameraPolicy {
+  bool allowed = 1;
+  uint32 max_width = 2;
+  uint32 max_height = 3;
+  uint32 max_fps = 4;
+}
+
+message ScreenPolicy {
+  bool allowed = 1;
+  uint32 max_width = 2;
+  uint32 max_height = 3;
+  uint32 max_fps = 4;
+  uint32 max_bitrate_bps = 5;
+  bool audio_allowed = 6;
+  uint32 max_concurrent = 7;
+}
+
+enum CodecMode {
+  CODEC_MODE_UNSPECIFIED = 0;
+  CODEC_MODE_AUTO = 1;
+  CODEC_MODE_COMPAT = 2; // 只用 H.264（硬件优先，软件兜底）
+  CODEC_MODE_QUALITY = 3 [deprecated = true]; // 旧版本的「画质优先」，已取消；客户端按 AUTO 处理
+}
+
+message CodecPolicy {
+  CodecMode mode = 1;
+  repeated string room_decodable = 2; // 房间内所有人都能解码的视频编码器（mime）
+}
+
+enum E2EEMode {
+  E2EE_MODE_UNSPECIFIED = 0;
+  E2EE_MODE_OFF = 1;
+  E2EE_MODE_OPTIONAL = 2;
+  E2EE_MODE_REQUIRED = 3;
+}
+
+message E2EEPolicy {
+  E2EEMode mode = 1;
+  bool room_enabled = 2;
+}
+
+// 屏幕共享连接的传输方式。语音和摄像头所在的主连接始终走 UDP。
+enum ShareTransport {
+  SHARE_TRANSPORT_UNSPECIFIED = 0; // 请求里：按服务器设置
+  SHARE_TRANSPORT_TCP = 1; // TCP 优先：共享连接只走 ICE-TCP，连不上时客户端改用 UDP
+  SHARE_TRANSPORT_UDP = 2; // UDP 优先：UDP 持续丢包或延迟暴涨时客户端切到 TCP（LiveKit 的 ICE 重启，轨道保留）
+}
+
+message TransportPolicy {
+  reserved 1; // 旧的 tcp_fallback
+  ShareTransport share_transport = 2; // 服务器设置 media.share_transport
+  bool tcp_available = 3; // 服务器开放了 ICE-TCP 端口；没有时共享连接只能走 UDP
+}
+
+// 有效策略 = 服务器设置 ∩ 房间覆盖。
+message MediaPolicy {
+  AudioPolicy audio = 1;
+  CameraPolicy camera = 2;
+  ScreenPolicy screen = 3;
+  CodecPolicy codecs = 4;
+  E2EEPolicy e2ee = 5;
+  TransportPolicy transport = 6;
+}
+
+// 屏幕共享单独走一条媒体连接：麦克风和摄像头在主连接上（始终 UDP），共享画面和共享声音在共享连接上
+// （按 media.share_transport 优先走 TCP 或 UDP）。共享连接在单独的 SFU 房间（<房间 ID>~share），身份为 <主连接身份>#s。
+// 客户端在自己要共享、或者房间里有人在共享时请求令牌并连接；返回的令牌在获得共享许可后才能发布屏幕。
+message JoinShareMedia {
+  // 客户端想要的传输方式：不指定时按服务器设置；TCP 连不上时请求 UDP；UDP 不稳定切到 TCP 后，之后的共享连接请求 TCP
+  ShareTransport transport = 1;
+}
+
+// 屏幕共享意图：智能（自动识别文档 / 视频）、清晰优先、流畅优先、自定义（用户指定分辨率、帧率和码率）。
+// 旧客户端不认识「自定义」时按智能显示。
+enum ShareIntent {
+  SHARE_INTENT_UNSPECIFIED = 0;
+  SHARE_INTENT_SMART = 1;
+  SHARE_INTENT_CLARITY = 2;
+  SHARE_INTENT_SMOOTHNESS = 3;
+  SHARE_INTENT_CUSTOM = 4;
+}
+
+// 申请屏幕共享许可。获得许可后，SFU 才允许该参与者发布 screen_share（及 screen_share_audio）轨道。
+message RequestScreenShare {
+  ShareIntent intent = 1;
+  bool with_audio = 2;
+}
+
+message ScreenShareGrant {
+  string grant_id = 1;
+  ScreenPolicy limits = 2; // 有效上限（服务器设置 ∩ 房间覆盖）
+  repeated string room_decodable = 3; // 房间内所有人都能解码的视频编码器（mime）
+  CodecMode codec_mode = 4;
+  bool with_audio = 5; // 服务器不允许共享声音时为 false
+  bool e2ee = 6; // 房间开启了 E2EE（不能用 AV1）
+}
+
+message ReleaseScreenShare {
+  string grant_id = 1;
+}
+
+message ReleaseScreenShareResult {}
+
+// 房间内的一路屏幕共享
+message ShareInfo {
+  string grant_id = 1;
+  string session_id = 2;
+  ShareIntent intent = 3;
+  bool with_audio = 4;
+  int64 started_at_ms = 5;
+}
+
+// 房间内的共享列表变化（开始、结束），用于观看端切换布局
+message ShareStateChanged {
+  string room_id = 1;
+  repeated ShareInfo shares = 2;
+}
+
+message PolicyUpdated {
+  string room_id = 1;
+  MediaPolicy policy = 2;
+}

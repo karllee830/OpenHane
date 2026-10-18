@@ -1,0 +1,42 @@
+{
+  "event": {
+    "seq": "4",
+    "policyUpdated": {
+      "roomId": "main",
+      "policy": {
+        "audio": {
+          "preset": "AUDIO_PRESET_STANDARD",
+          "maxBitrateBps": 32000,
+          "musicModeAllowed": true,
+          "red": true,
+          "dtx": true
+        },
+        "camera": {
+          "allowed": true,
+          "maxWidth": 1280,
+          "maxHeight": 720,
+          "maxFps": 30
+        },
+        "screen": {
+          "allowed": true,
+          "maxWidth": 2560,
+          "maxHeight": 1440,
+          "maxFps": 60,
+          "maxBitrateBps": 8000000,
+          "audioAllowed": true,
+          "maxConcurrent": 2
+        },
+        "codecs": {
+          "mode": "CODEC_MODE_AUTO",
+          "roomDecodable": [
+            "video/av1",
+            "video/h264"
+          ]
+        },
+        "e2ee": {
+          "mode": "E2EE_MODE_OPTIONAL"
+        }
+      }
+    }
+  }
+}

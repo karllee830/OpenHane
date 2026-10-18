@@ -1,0 +1,24 @@
+{
+  "clientHello": {
+    "protocolVersion": 1,
+    "client": {
+      "appVersion": "1.0.0",
+      "platform": "PLATFORM_WEB",
+      "osVersion": "macOS 26",
+      "deviceName": "卡尔的 MacBook"
+    },
+    "caps": {
+      "codecs": [
+        {
+          "mime": "video/av1",
+          "encode": true,
+          "decode": true,
+          "hardware": true
+        }
+      ],
+      "e2ee": true
+    },
+    "resumeTicket": "AAEC/w==",
+    "inviteCode": "AbC123"
+  }
+}

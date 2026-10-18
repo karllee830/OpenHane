@@ -1,0 +1,9 @@
+{
+  "event": {
+    "seq": "5",
+    "roleChanged": {
+      "uid": "u",
+      "role": "ROLE_ADMIN"
+    }
+  }
+}

@@ -1,0 +1,113 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+import "openhane/v1/e2ee.proto";
+
+enum Role {
+  ROLE_UNSPECIFIED = 0;
+  ROLE_MEMBER = 1;
+  ROLE_MODERATOR = 2;
+  ROLE_ADMIN = 3;
+}
+
+enum Platform {
+  PLATFORM_UNSPECIFIED = 0;
+  PLATFORM_MACOS = 1;
+  PLATFORM_IOS = 2;
+  PLATFORM_WINDOWS = 3;
+  PLATFORM_LINUX = 4;
+  PLATFORM_ANDROID = 5;
+  PLATFORM_WEB = 6;
+}
+
+message ClientInfo {
+  string app_version = 1;
+  Platform platform = 2;
+  string os_version = 3;
+  string device_name = 4;
+}
+
+// 编解码能力，用于计算房间内所有人都能解码的编码器集合。
+message CodecCapability {
+  string mime = 1; // 如 video/av1
+  bool encode = 2;
+  bool decode = 3;
+  bool hardware = 4; // decode 项：能硬件解码（hardware_reported 为 true 时才有意义）
+}
+
+message Capabilities {
+  repeated CodecCapability codecs = 1;
+  bool e2ee = 2;
+  bool svc = 3;
+  bool hardware_reported = 4; // codecs 的 hardware 字段有效（旧版本客户端不上报，按未知处理）
+}
+
+// 成员自身的状态，由本人通过 UpdateSelf 修改。
+message SelfState {
+  bool mic_muted = 1;
+  bool deafened = 2;
+  bool hand_raised = 3;
+  bool away = 4;
+}
+
+// 一个在线会话在其他人眼中的样子。
+message Participant {
+  string session_id = 1;
+  string uid = 2;
+  string nickname = 3;
+  Role role = 4;
+  string room_id = 5;
+  SelfState state = 6;
+  Platform platform = 7;
+  bool force_muted = 8; // 被主持人强制静音
+  bool reconnecting = 9; // 控制连接断开，处于会话恢复宽限期
+  bool media_connected = 10; // 已连上媒体服务器
+  string media_identity = 11; // LiveKit 中的 identity，用于把媒体轨道对应到成员
+  bool camera_on = 12; // 来自 SFU：已发布摄像头轨道
+  bool screen_sharing = 13; // 持有屏幕共享许可
+  bytes public_key = 14; // 身份公钥（Ed25519），用于校验 E2EE 公钥的签名和计算安全码
+  SignedPublicKey e2ee_key = 15; // E2EE 密钥交换公钥（X25519 + 身份签名）；不支持 E2EE 的客户端为空
+  bool supports_e2ee = 16;
+  // 视频解码能力（mime，小写；自定义共享选编码器时提示谁不能硬件解码）。两项都为空表示没有上报（旧版本客户端）
+  repeated string decode_hardware = 17; // 能硬件解码
+  repeated string decode_software = 18; // 只能软件解码
+  string media_share_identity = 19; // 共享连接的 identity（在 <房间 ID>~share 里，见 JoinShareMedia）
+}
+
+message UpdateSelf {
+  optional bool mic_muted = 1;
+  optional bool deafened = 2;
+  optional bool hand_raised = 3;
+  optional bool away = 4;
+  optional string nickname = 5;
+}
+
+message UpdateSelfResult {
+  Participant self = 1;
+}
+
+message ParticipantJoined {
+  Participant participant = 1;
+}
+
+message ParticipantLeft {
+  string session_id = 1;
+}
+
+message ParticipantUpdated {
+  Participant participant = 1;
+}
+
+message RedeemToken {
+  string token = 1;
+}
+
+message RedeemTokenResult {
+  Role role = 1; // 兑换后的角色（只升不降）
+}
+
+message RoleChanged {
+  string uid = 1;
+  Role role = 2;
+}

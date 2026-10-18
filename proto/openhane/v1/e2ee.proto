@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package openhane.v1;
+
+// E2EE 公钥：X25519 公钥 + 身份私钥（Ed25519）对它的签名。
+// 签名内容："OpenHane-E2EE-Key-v1" || 0x00 || public_key(32)
+message SignedPublicKey {
+  bytes public_key = 1;
+  bytes signature = 2;
+}
+
+// 中转 E2EE 密钥包：发送者用 HPKE 把自己的媒体密钥加密给房间里的某个成员。
+// 服务端只校验双方在同一个开启 E2EE 的房间，不解密。
+message SendKeyPackage {
+  string to_session_id = 1;
+  string room_id = 2;
+  uint32 key_index = 3; // 发送者密钥环中的索引（0–15）
+  bytes enc = 4; // HPKE 封装的临时公钥
+  bytes ciphertext = 5; // HPKE 密文（媒体密钥）
+}
+
+message SendKeyPackageResult {}
+
+message KeyPackage {
+  string from_session_id = 1;
+  string room_id = 2;
+  uint32 key_index = 3;
+  bytes enc = 4;
+  bytes ciphertext = 5;
+}

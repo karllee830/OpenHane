@@ -1,0 +1,39 @@
+# 夜间模糊测试：每晚每个目标 20 分钟；发现问题时上传导致失败的输入。
+name: Fuzz
+
+on:
+  schedule:
+    - cron: '17 18 * * *' # 北京时间 02:17
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: ${{ matrix.target.fn }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { pkg: ./internal/hub, fn: FuzzRequest }
+          - { pkg: ./internal/identity, fn: FuzzNormalizeNickname }
+          - { pkg: ./internal/auth, fn: FuzzNormalizeToken }
+          - { pkg: ./internal/webui, fn: FuzzPath }
+          - { pkg: ./internal/gateway, fn: FuzzRealIP }
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: server/go.mod
+          cache-dependency-path: server/go.sum
+      - run: go test ${{ matrix.target.pkg }} -run '^$' -fuzz '^${{ matrix.target.fn }}$' -fuzztime 20m
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: fuzz-${{ matrix.target.fn }}
+          path: server/**/testdata/fuzz/

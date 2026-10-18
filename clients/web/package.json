@@ -1,0 +1,36 @@
+{
+  "name": "openhane-web",
+  "private": true,
+  "description": "羽见的 Web / Electron / Android 客户端（npm workspaces）",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "npm run dev -w @hane/web",
+    "build": "npm run build -w @hane/web",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p apps/desktop/tsconfig.node.json --noEmit",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "budget": "node scripts/check-budget.mjs"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@bufbuild/protoc-gen-es": "2.16.0",
+    "@playwright/test": "1.64.0",
+    "@types/node": "^26.6.5",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  },
+  "allowScripts": {
+    "uiohook-napi": false,
+    "electron-winstaller": false
+  },
+  "license": "AGPL-3.0-only"
+}
