@@ -1,4 +1,5 @@
 # 每月检查一次依赖更新；每个生态的更新合并成一个 PR，提到 dev 分支
+# clients/deepfilter 的 Rust 依赖跟随上游 DeepFilterNet 的版本，不在这里自动升级
 version: 2
 updates:
   - package-ecosystem: gomod
@@ -20,18 +21,6 @@ updates:
       interval: monthly
     groups:
       npm:
-        patterns: ['*']
-    commit-message:
-      prefix: build
-      include: scope
-
-  - package-ecosystem: cargo
-    directory: /clients/deepfilter
-    target-branch: dev
-    schedule:
-      interval: monthly
-    groups:
-      cargo:
         patterns: ['*']
     commit-message:
       prefix: build
