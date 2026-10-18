@@ -1,15 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
-<rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
+<rss version="2.0">
   <channel>
     <title>OpenHane</title>
-    <item>
-      <title>OpenHane 0.2.0-beta.1</title>
-      <pubDate>Sun, 18 Oct 2026 01:10:55 GMT</pubDate>
-      <link>https://github.com/karllee830/OpenHane/releases/tag/v0.2.0-beta.1</link>
-      <sparkle:version>39529324</sparkle:version>
-      <sparkle:shortVersionString>0.2.0-beta.1</sparkle:shortVersionString>
-      <sparkle:channel>beta</sparkle:channel>
-      <enclosure url="https://github.com/karllee830/OpenHane/releases/download/v0.2.0-beta.1/OpenHane-0.2.0-beta.1-macOS.zip" length="" type="application/octet-stream" sparkle:edSignature="" />
-    </item>
   </channel>
 </rss>
