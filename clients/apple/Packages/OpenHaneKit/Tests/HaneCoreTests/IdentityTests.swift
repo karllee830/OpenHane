@@ -51,6 +51,14 @@ private func hex(_ d: Data) -> String { d.map { String(format: "%02x", $0) }.joi
         }
     }
 
+    @Test func candidatePorts() throws {
+        #expect(try ServerAddress.parse("meet.example.com").candidates.map(\.port) == [9800, 443])
+        #expect(try ServerAddress.parse("[2001:db8::1]").candidates.map(\.port) == [9800, 443])
+        for explicit in ["meet.example.com:9800", "https://meet.example.com", "openhane://meet.example.com", "http://meet.example.com"] {
+            #expect(try ServerAddress.parse(explicit).candidates.count == 1)
+        }
+    }
+
     @Test func urls() throws {
         let a = try ServerAddress.parse("[::1]:9850")
         #expect(a.controlURL.absoluteString == "wss://[::1]:9850/ws")

@@ -70,6 +70,19 @@ describe.skipIf(skipServerTests)('OpenHaneClient against the real server', () =>
     bob.disconnect();
   });
 
+  it('falls back to 443 when the address has no port', async () => {
+    // 把候选地址映射到本机：9800 → 一个没人监听的端口，443 → 测试服务器
+    const webSocket = (url: string, protocols: string[]) =>
+      new WebSocket(url.includes(':443/') ? `ws://127.0.0.1:${server.port}/ws` : 'ws://127.0.0.1:1/ws', protocols);
+    const seed = new Uint8Array(32);
+    seed[0] = 7;
+    const c = new OpenHaneClient({ identity: new MemoryIdentityStore(seed), appVersion: 'test', platform: Platform.WEB, webSocket });
+    await c.connect({ address: 'meet.example.com', nickname: 'Dave' });
+    expect(c.store.getState().status).toBe('connected');
+    expect(c.store.getState().address).toEqual({ host: 'meet.example.com', port: 443, secure: true, invite: undefined });
+    c.disconnect();
+  });
+
   it('reports password errors without retrying', async () => {
     const admin = newClient(1);
     await admin.connect({ address: server.address, nickname: 'Admin' });

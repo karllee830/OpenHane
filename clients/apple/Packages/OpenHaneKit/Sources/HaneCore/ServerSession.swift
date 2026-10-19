@@ -147,14 +147,39 @@ public final class ServerSession {
         }
     }
 
+    /// 建立控制连接（到 WebSocket 升级完成为止）。地址没写端口时同时尝试几个端口、按优先级选一个。
+    private func dial(_ target: ServerAddress) async throws -> (ServerAddress, ControlConnection) {
+        let trust = trust
+        let attempts = target.candidates.map { a in
+            { @Sendable () async throws -> (ServerAddress, ControlConnection) in
+                let c = ControlConnection(url: a.controlURL, hostPort: a.hostPort, trust: trust)
+                do {
+                    try await withTaskCancellationHandler { try await c.open() } onCancel: { c.close() }
+                } catch {
+                    c.close()
+                    throw error
+                }
+                return (a, c)
+            }
+        }
+        return try await firstByPriority(attempts, grace: .milliseconds(500),
+                                         decisive: { if case .fingerprintChanged = $0 as? HaneError { true } else { false } },
+                                         discard: { $0.1.close() })
+    }
+
     private func open() async throws {
-        guard let address else { return }
+        guard let target = address else { return }
         generation += 1
         let gen = generation
-        let c = ControlConnection(url: address.controlURL, hostPort: address.hostPort, trust: trust)
+        // 选中的端口写回 address，之后断线重连只用这个端口
+        let (address, c) = try await dial(target)
+        guard gen == generation else {
+            c.close()
+            throw HaneError.connectionLost
+        }
+        self.address = address
         conn = c
         let welcome = try await withTimeout(seconds: 10) { [self] in
-            try await c.open()
             try await c.send(.with {
                 $0.clientHello = .with {
                     $0.protocolVersion = 1

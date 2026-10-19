@@ -73,7 +73,8 @@ import {
   type Welcome,
 } from '@hane/protocol';
 import type { IdentityStore, TrustStore } from '@hane/platform';
-import { controlUrl, hostPort, mediaUrl, parseAddress, type ServerAddress } from './address';
+import { candidateAddresses, controlUrl, hostPort, mediaUrl, parseAddress, type ServerAddress } from './address';
+import { firstByPriority } from './dial';
 import { LocalErrorCode, HaneError, isFatal } from './errors';
 import { e2eeKeySigInput, generateKeyExchange, type KeyExchange } from './e2ee';
 import { authSigInput, deriveIdentity, sign, toHex, type ServerIdentity } from './identity';
@@ -124,6 +125,8 @@ export interface RoomOptions {
 }
 
 const HANDSHAKE_TIMEOUT = 10_000;
+/** 同时尝试多个端口时，排在后面的先连上后再等排在前面的多久 */
+const PORT_GRACE = 500;
 const REQUEST_TIMEOUT = 10_000;
 const PING_INTERVAL = 15_000;
 const IDLE_TIMEOUT = 45_000;
@@ -248,25 +251,68 @@ export class OpenHaneClient {
   // ---------- 连接与握手 ----------
 
   private async open(): Promise<Welcome> {
-    const allowed = (await this.opt.trust?.beforeConnect?.(hostPort(this.address!))) ?? true;
-    if (!allowed) throw new HaneError(LocalErrorCode.FINGERPRINT_CHANGED, 'certificate fingerprint changed');
-    return this.openSocket();
+    return this.openSocket(await this.dial());
   }
 
-  private openSocket(): Promise<Welcome> {
-    const gen = ++this.generation;
-    const address = this.address!;
-    const url = controlUrl(address);
+  /**
+   * 建立 WebSocket 连接（到升级完成为止）。地址没写端口时同时尝试几个端口、按优先级选一个，
+   * 选中的端口写回 this.address，之后断线重连只用这个端口。
+   */
+  private async dial(): Promise<WebSocket> {
+    const gen = this.generation;
+    const win = await firstByPriority(
+      candidateAddresses(this.address!).map((a) => this.dialOne(a).then((ws) => ({ a, ws }))),
+      {
+        graceMs: PORT_GRACE,
+        decisive: (e) => e instanceof HaneError && e.code === LocalErrorCode.FINGERPRINT_CHANGED,
+        discard: (w) => w.ws.close(),
+      },
+    );
+    if (gen !== this.generation) {
+      win.ws.close();
+      throw new HaneError(LocalErrorCode.CONNECTION_LOST, 'disconnected');
+    }
+    if (this.address!.portImplicit) {
+      const { portImplicit: _, ...resolved } = win.a;
+      this.address = resolved;
+      this.store.setState({ address: resolved });
+    }
+    return win.ws;
+  }
+
+  private async dialOne(address: ServerAddress): Promise<WebSocket> {
+    const allowed = (await this.opt.trust?.beforeConnect?.(hostPort(address))) ?? true;
+    if (!allowed) throw new HaneError(LocalErrorCode.FINGERPRINT_CHANGED, 'certificate fingerprint changed');
     const factory = this.opt.webSocket ?? ((u: string, p: string[]) => new WebSocket(u, p));
-    return new Promise<Welcome>((resolve, reject) => {
+    return new Promise<WebSocket>((resolve, reject) => {
       let ws: WebSocket;
       try {
-        ws = factory(url, [SUBPROTOCOL]);
+        ws = factory(controlUrl(address), [SUBPROTOCOL]);
       } catch (e) {
         reject(new HaneError(LocalErrorCode.UNREACHABLE, String(e)));
         return;
       }
       ws.binaryType = 'arraybuffer';
+      const timer = setTimeout(() => {
+        reject(new HaneError(LocalErrorCode.TIMEOUT, 'connect timeout'));
+        ws.close();
+      }, HANDSHAKE_TIMEOUT);
+      ws.onopen = () => {
+        clearTimeout(timer);
+        ws.onclose = null;
+        resolve(ws);
+      };
+      ws.onclose = (ev) => {
+        clearTimeout(timer);
+        reject(new HaneError(LocalErrorCode.UNREACHABLE, `connection closed (${ev.code})`));
+      };
+    });
+  }
+
+  /** 在已打开的 WebSocket 上握手鉴权 */
+  private openSocket(ws: WebSocket): Promise<Welcome> {
+    const gen = ++this.generation;
+    return new Promise<Welcome>((resolve, reject) => {
       this.ws = ws;
       let phase: 'hello' | 'auth' | 'ready' = 'hello';
       const timer = setTimeout(() => {
@@ -274,29 +320,27 @@ export class OpenHaneClient {
         ws.close();
       }, HANDSHAKE_TIMEOUT);
 
-      ws.onopen = () => {
-        const decodeCaps = this.opt.videoDecodeCaps?.() ?? [];
-        this.send({
-          case: 'clientHello',
-          value: create(ClientHelloSchema, {
-            protocolVersion: PROTOCOL_VERSION,
-            client: create(ClientInfoSchema, {
-              appVersion: this.opt.appVersion,
-              platform: this.opt.platform,
-              osVersion: this.opt.osVersion ?? '',
-              deviceName: this.opt.deviceName ?? '',
-            }),
-            resumeTicket: this.resumeTicket ?? new Uint8Array(),
-            inviteCode: this.params?.inviteCode ?? this.address?.invite ?? '',
-            caps: create(CapabilitiesSchema, {
-              codecs: decodeCaps.map((c) => create(CodecCapabilitySchema, { mime: c.mime, decode: true, hardware: c.hardware ?? false })),
-              hardwareReported: decodeCaps.length > 0 && decodeCaps.every((c) => c.hardware !== undefined),
-              // 能进入端到端加密的房间：有密钥交换密钥，且媒体层支持帧加密（Insertable Streams / RTCRtpScriptTransform）
-              e2ee: !!this.keyExchange && (this.opt.e2eeSupported?.() ?? false),
-            }),
+      const decodeCaps = this.opt.videoDecodeCaps?.() ?? [];
+      this.send({
+        case: 'clientHello',
+        value: create(ClientHelloSchema, {
+          protocolVersion: PROTOCOL_VERSION,
+          client: create(ClientInfoSchema, {
+            appVersion: this.opt.appVersion,
+            platform: this.opt.platform,
+            osVersion: this.opt.osVersion ?? '',
+            deviceName: this.opt.deviceName ?? '',
           }),
-        });
-      };
+          resumeTicket: this.resumeTicket ?? new Uint8Array(),
+          inviteCode: this.params?.inviteCode ?? this.address?.invite ?? '',
+          caps: create(CapabilitiesSchema, {
+            codecs: decodeCaps.map((c) => create(CodecCapabilitySchema, { mime: c.mime, decode: true, hardware: c.hardware ?? false })),
+            hardwareReported: decodeCaps.length > 0 && decodeCaps.every((c) => c.hardware !== undefined),
+            // 能进入端到端加密的房间：有密钥交换密钥，且媒体层支持帧加密（Insertable Streams / RTCRtpScriptTransform）
+            e2ee: !!this.keyExchange && (this.opt.e2eeSupported?.() ?? false),
+          }),
+        }),
+      });
 
       ws.onmessage = async (msg) => {
         if (gen !== this.generation) return;
