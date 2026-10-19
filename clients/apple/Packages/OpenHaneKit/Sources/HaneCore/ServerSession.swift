@@ -48,6 +48,8 @@ public final class ServerSession {
     @ObservationIgnored public private(set) var keyExchange = Curve25519.KeyAgreement.PrivateKey()
     @ObservationIgnored private var conn: ControlConnection?
     @ObservationIgnored private var resumeTicket = Data()
+    /// HTTP 接口（聊天图片）的凭据，Welcome 里下发
+    @ObservationIgnored var apiToken = ""
     @ObservationIgnored private var nextID: UInt32 = 1
     @ObservationIgnored private var pending: [UInt32: CheckedContinuation<Openhane_V1_Response, Error>] = [:]
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
@@ -103,6 +105,7 @@ public final class ServerSession {
         keyExchange = Curve25519.KeyAgreement.PrivateKey()
         keyInbox = []
         resumeTicket = Data()
+        apiToken = ""
         state = SessionState()
         status = .connecting
         do {
@@ -239,6 +242,7 @@ public final class ServerSession {
 
     private func onWelcome(_ w: Openhane_V1_Welcome, connection c: ControlConnection, generation gen: Int) {
         resumeTicket = w.resumeTicket
+        apiToken = w.apiToken
         state.apply(welcome: w, mediaURL: address!.mediaURL)
         status = .connected
         lastReceived = Date()
@@ -399,12 +403,14 @@ public final class ServerSession {
         }))
     }
 
-    public func sendChat(_ text: String) async throws {
+    /// 发送聊天消息。imageID 是 uploadChatImage 返回的图片（有图片时 text 可以为空）
+    public func sendChat(_ text: String, imageID: String = "") async throws {
         let room = state.media?.roomID ?? "main"
         let r = try await request(.sendChat(.with {
             $0.roomID = room
             $0.text = text
             $0.clientMsgID = UUID().uuidString
+            $0.imageID = imageID
         }))
         if case let .sendChat(s) = r.body { state.mergeChat(room: room, [s.message]) }
     }

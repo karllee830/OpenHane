@@ -52,15 +52,18 @@ type Settings struct {
 
 	SecurityE2EEPolicy string `json:"security.e2ee_policy"`
 
-	RoomsCreateMinRole  string `json:"rooms.create_min_role"`
-	RoomsMaxTemporary   int    `json:"rooms.max_temporary"`
-	RoomsEmptyTimeout   int    `json:"rooms.empty_timeout_sec"`
-	RoomsMainName       string `json:"rooms.main_name"`
-	ChatRetentionDays   int    `json:"chat.retention_days"`
-	ChatMaxLength       int    `json:"chat.max_length"`
-	AuditRetentionDays  int    `json:"audit.retention_days"`
-	PrivacyStoreIP      bool   `json:"privacy.store_ip"`
-	BandwidthBudgetMbps int    `json:"bandwidth.egress_budget_mbps"`
+	RoomsCreateMinRole string `json:"rooms.create_min_role"`
+	RoomsMaxTemporary  int    `json:"rooms.max_temporary"`
+	RoomsEmptyTimeout  int    `json:"rooms.empty_timeout_sec"`
+	RoomsMainName      string `json:"rooms.main_name"`
+	ChatRetentionDays  int    `json:"chat.retention_days"`
+	ChatMaxLength      int    `json:"chat.max_length"`
+	// 聊天图片：单张大小上限（0 表示不允许发送图片）和所有图片占用空间的上限
+	ChatImageMaxMB      int  `json:"chat.image_max_mb"`
+	ChatImageStorageMB  int  `json:"chat.image_storage_mb"`
+	AuditRetentionDays  int  `json:"audit.retention_days"`
+	PrivacyStoreIP      bool `json:"privacy.store_ip"`
+	BandwidthBudgetMbps int  `json:"bandwidth.egress_budget_mbps"`
 }
 
 // MaxServerNameRunes 是服务器名称的长度上限（客户端的服务器列表和会议侧栏里显示）。
@@ -108,6 +111,8 @@ func Defaults() *Settings {
 		RoomsMainName:        "主会议",
 		ChatRetentionDays:    7,
 		ChatMaxLength:        2000,
+		ChatImageMaxMB:       10,
+		ChatImageStorageMB:   2048,
 		AuditRetentionDays:   90,
 		PrivacyStoreIP:       true,
 	}
@@ -308,6 +313,8 @@ func (s *Settings) Validate() error {
 		}(),
 		between("chat.retention_days", s.ChatRetentionDays, 0, 36500),
 		between("chat.max_length", s.ChatMaxLength, 1, 10000),
+		between("chat.image_max_mb", s.ChatImageMaxMB, 0, 50),
+		between("chat.image_storage_mb", s.ChatImageStorageMB, 100, 1<<20),
 		between("audit.retention_days", s.AuditRetentionDays, 1, 36500),
 		between("bandwidth.egress_budget_mbps", s.BandwidthBudgetMbps, 0, 100000),
 	)

@@ -12,6 +12,15 @@ message ChatMessage {
   int64 reply_to = 7; // 0 表示不是回复
   int64 created_at_ms = 8;
   string client_msg_id = 9; // 发送方生成，用于本地回显去重
+  ChatImage image = 10; // 附带的图片；有图片时 text 可以为空
+}
+
+// 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
+message ChatImage {
+  string id = 1;
+  uint32 width = 2;
+  uint32 height = 3;
+  uint32 size = 4; // 字节数
 }
 
 message SendChat {
@@ -19,6 +28,7 @@ message SendChat {
   string text = 2;
   string client_msg_id = 3;
   int64 reply_to = 4;
+  string image_id = 5; // 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
 }
 
 message SendChatResult {

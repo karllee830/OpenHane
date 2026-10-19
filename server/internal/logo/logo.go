@@ -25,6 +25,8 @@ import (
 	"path/filepath"
 	"sync"
 	"time"
+
+	"github.com/karllee830/OpenHane/server/internal/imaging"
 )
 
 // Names 是按优先级查找的原图文件名。
@@ -171,75 +173,11 @@ func encode(path string, info fs.FileInfo) ([]byte, error) {
 	rgba := image.NewRGBA(image.Rect(0, 0, cfg.Width, cfg.Height))
 	draw.Draw(rgba, rgba.Bounds(), src, src.Bounds().Min, draw.Src)
 	if cfg.Width > Output {
-		rgba = downscale(rgba, Output)
+		rgba = imaging.Downscale(rgba, Output, Output)
 	}
 	var buf bytes.Buffer
 	if err := (&png.Encoder{CompressionLevel: png.BestCompression}).Encode(&buf, rgba); err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
-}
-
-// downscale 把正方形图片按面积平均缩到 size×size（只用于缩小）。先横向再纵向，各自按覆盖比例加权
-func downscale(src *image.RGBA, size int) *image.RGBA {
-	n := src.Bounds().Dx()
-	taps := weights(n, size)
-	// 横向：n 行 × size 列
-	tmp := make([]float64, n*size*4)
-	for y := range n {
-		row := src.Pix[y*src.Stride:]
-		for x, ts := range taps {
-			var acc [4]float64
-			for _, t := range ts {
-				p := row[t.i*4:]
-				for c := range 4 {
-					acc[c] += float64(p[c]) * t.w
-				}
-			}
-			copy(tmp[(y*size+x)*4:], acc[:])
-		}
-	}
-	// 纵向：size 行 × size 列
-	dst := image.NewRGBA(image.Rect(0, 0, size, size))
-	for y, ts := range taps {
-		for x := range size {
-			var acc [4]float64
-			for _, t := range ts {
-				p := tmp[(t.i*size+x)*4:]
-				for c := range 4 {
-					acc[c] += p[c] * t.w
-				}
-			}
-			o := dst.Pix[y*dst.Stride+x*4:]
-			a := clamp(acc[3])
-			// 预乘的颜色不能超过透明度
-			o[0], o[1], o[2], o[3] = min(clamp(acc[0]), a), min(clamp(acc[1]), a), min(clamp(acc[2]), a), a
-		}
-	}
-	return dst
-}
-
-type tap struct {
-	i int
-	w float64
-}
-
-// weights：目标的每个像素覆盖原图的哪些像素、各占多少比例（权重之和为 1）
-func weights(n, m int) [][]tap {
-	scale := float64(n) / float64(m)
-	out := make([][]tap, m)
-	for d := range m {
-		start, end := float64(d)*scale, float64(d+1)*scale
-		for i := int(start); float64(i) < end && i < n; i++ {
-			w := min(end, float64(i+1)) - max(start, float64(i))
-			if w > 0 {
-				out[d] = append(out[d], tap{i, w / scale})
-			}
-		}
-	}
-	return out
-}
-
-func clamp(v float64) uint8 {
-	return uint8(min(255, max(0, v+0.5)))
 }

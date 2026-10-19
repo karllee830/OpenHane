@@ -86,8 +86,13 @@ public enum ServerProbe {
 
     /// 读响应体，最多 limit 字节：超了立即停止并报错（恶意服务端可以一直发数据）
     static func readLimited(_ url: URL, _ session: URLSession, limit: Int) async throws -> Data {
-        let (bytes, response) = try await session.bytes(from: url)
-        guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { throw URLError(.badServerResponse) }
+        try await readLimited(URLRequest(url: url), session, limit: limit).data
+    }
+
+    /// 同上，返回状态码（不是 200 时也读出响应体，最多 limit 字节）
+    static func readLimited(_ request: URLRequest, _ session: URLSession, limit: Int, requireOK: Bool = true) async throws -> (data: Data, status: Int) {
+        let (bytes, response) = try await session.bytes(for: request)
+        guard let http = response as? HTTPURLResponse, !requireOK || http.statusCode == 200 else { throw URLError(.badServerResponse) }
         if http.expectedContentLength > limit { throw URLError(.dataLengthExceedsMaximum) }
         var data = Data()
         data.reserveCapacity(min(limit, max(0, Int(http.expectedContentLength))))
@@ -95,7 +100,7 @@ public enum ServerProbe {
             if data.count >= limit { throw URLError(.dataLengthExceedsMaximum) }
             data.append(byte)
         }
-        return data
+        return (data, http.statusCode)
     }
 
     /// info 里的 logo 字段换成图标地址：必须是十六进制摘要，否则当作没有图标
@@ -127,8 +132,8 @@ public enum ServerProbe {
     }
 }
 
-/// 探测时的证书校验：只接受 CA 签发的有效证书或已记住的自签名证书
-private final class ProbeTrust: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
+/// 探测和 HTTP 接口的证书校验：只接受 CA 签发的有效证书或已记住的自签名证书
+final class ProbeTrust: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     let trust: TrustStore
     let hostPort: String
 
@@ -142,6 +147,13 @@ private final class ProbeTrust: NSObject, URLSessionTaskDelegate, @unchecked Sen
                     newRequest _: URLRequest, completionHandler: @escaping (URLRequest?) -> Void)
     {
         completionHandler(nil)
+    }
+
+    /// async 接口（bytes(for:) 等）的证书质询发到任务级的回调，与会话级的同样处理
+    func urlSession(_ session: URLSession, task _: URLSessionTask, didReceive challenge: URLAuthenticationChallenge,
+                    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void)
+    {
+        urlSession(session, didReceive: challenge, completionHandler: completionHandler)
     }
 
     func urlSession(_: URLSession, didReceive challenge: URLAuthenticationChallenge,

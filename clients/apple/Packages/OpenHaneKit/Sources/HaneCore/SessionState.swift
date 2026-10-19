@@ -3,6 +3,7 @@ import Foundation
 public typealias Participant = Openhane_V1_Participant
 public typealias Room = Openhane_V1_Room
 public typealias ChatMessage = Openhane_V1_ChatMessage
+public typealias ChatImage = Openhane_V1_ChatImage
 public typealias ServerInfo = Openhane_V1_ServerInfo
 public typealias MediaPolicy = Openhane_V1_MediaPolicy
 public typealias Role = Openhane_V1_Role

@@ -208,6 +208,7 @@ func (h *Hub) closeRoom(room *Room, by *Session, why string) {
 		room.emptyTimer.Stop()
 	}
 	delete(h.rooms, room.ID)
+	h.dropRoomImages(room.ID)
 	h.broadcast(nil, &pb.Event{Body: &pb.Event_RoomClosed{RoomClosed: &pb.RoomClosed{RoomId: room.ID}}})
 	go func() {
 		ctx, cancel := bg()

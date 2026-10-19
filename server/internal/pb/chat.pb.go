@@ -32,6 +32,7 @@ type ChatMessage struct {
 	ReplyTo         int64                  `protobuf:"varint,7,opt,name=reply_to,json=replyTo,proto3" json:"reply_to,omitempty"` // 0 表示不是回复
 	CreatedAtMs     int64                  `protobuf:"varint,8,opt,name=created_at_ms,json=createdAtMs,proto3" json:"created_at_ms,omitempty"`
 	ClientMsgId     string                 `protobuf:"bytes,9,opt,name=client_msg_id,json=clientMsgId,proto3" json:"client_msg_id,omitempty"` // 发送方生成，用于本地回显去重
+	Image           *ChatImage             `protobuf:"bytes,10,opt,name=image,proto3" json:"image,omitempty"`                                 // 附带的图片；有图片时 text 可以为空
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -129,19 +130,96 @@ func (x *ChatMessage) GetClientMsgId() string {
 	return ""
 }
 
+func (x *ChatMessage) GetImage() *ChatImage {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+// 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
+type ChatImage struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Width         uint32                 `protobuf:"varint,2,opt,name=width,proto3" json:"width,omitempty"`
+	Height        uint32                 `protobuf:"varint,3,opt,name=height,proto3" json:"height,omitempty"`
+	Size          uint32                 `protobuf:"varint,4,opt,name=size,proto3" json:"size,omitempty"` // 字节数
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChatImage) Reset() {
+	*x = ChatImage{}
+	mi := &file_openhane_v1_chat_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChatImage) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChatImage) ProtoMessage() {}
+
+func (x *ChatImage) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_chat_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChatImage.ProtoReflect.Descriptor instead.
+func (*ChatImage) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ChatImage) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ChatImage) GetWidth() uint32 {
+	if x != nil {
+		return x.Width
+	}
+	return 0
+}
+
+func (x *ChatImage) GetHeight() uint32 {
+	if x != nil {
+		return x.Height
+	}
+	return 0
+}
+
+func (x *ChatImage) GetSize() uint32 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
 type SendChat struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	RoomId        string                 `protobuf:"bytes,1,opt,name=room_id,json=roomId,proto3" json:"room_id,omitempty"`
 	Text          string                 `protobuf:"bytes,2,opt,name=text,proto3" json:"text,omitempty"`
 	ClientMsgId   string                 `protobuf:"bytes,3,opt,name=client_msg_id,json=clientMsgId,proto3" json:"client_msg_id,omitempty"`
 	ReplyTo       int64                  `protobuf:"varint,4,opt,name=reply_to,json=replyTo,proto3" json:"reply_to,omitempty"`
+	ImageId       string                 `protobuf:"bytes,5,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"` // 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SendChat) Reset() {
 	*x = SendChat{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[1]
+	mi := &file_openhane_v1_chat_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -153,7 +231,7 @@ func (x *SendChat) String() string {
 func (*SendChat) ProtoMessage() {}
 
 func (x *SendChat) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[1]
+	mi := &file_openhane_v1_chat_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -166,7 +244,7 @@ func (x *SendChat) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChat.ProtoReflect.Descriptor instead.
 func (*SendChat) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{1}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *SendChat) GetRoomId() string {
@@ -197,6 +275,13 @@ func (x *SendChat) GetReplyTo() int64 {
 	return 0
 }
 
+func (x *SendChat) GetImageId() string {
+	if x != nil {
+		return x.ImageId
+	}
+	return ""
+}
+
 type SendChatResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       *ChatMessage           `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
@@ -206,7 +291,7 @@ type SendChatResult struct {
 
 func (x *SendChatResult) Reset() {
 	*x = SendChatResult{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[2]
+	mi := &file_openhane_v1_chat_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -218,7 +303,7 @@ func (x *SendChatResult) String() string {
 func (*SendChatResult) ProtoMessage() {}
 
 func (x *SendChatResult) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[2]
+	mi := &file_openhane_v1_chat_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -231,7 +316,7 @@ func (x *SendChatResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatResult.ProtoReflect.Descriptor instead.
 func (*SendChatResult) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{2}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *SendChatResult) GetMessage() *ChatMessage {
@@ -252,7 +337,7 @@ type GetChatHistory struct {
 
 func (x *GetChatHistory) Reset() {
 	*x = GetChatHistory{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	mi := &file_openhane_v1_chat_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -264,7 +349,7 @@ func (x *GetChatHistory) String() string {
 func (*GetChatHistory) ProtoMessage() {}
 
 func (x *GetChatHistory) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	mi := &file_openhane_v1_chat_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -277,7 +362,7 @@ func (x *GetChatHistory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatHistory.ProtoReflect.Descriptor instead.
 func (*GetChatHistory) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{3}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetChatHistory) GetRoomId() string {
@@ -311,7 +396,7 @@ type GetChatHistoryResult struct {
 
 func (x *GetChatHistoryResult) Reset() {
 	*x = GetChatHistoryResult{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	mi := &file_openhane_v1_chat_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -323,7 +408,7 @@ func (x *GetChatHistoryResult) String() string {
 func (*GetChatHistoryResult) ProtoMessage() {}
 
 func (x *GetChatHistoryResult) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	mi := &file_openhane_v1_chat_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -336,7 +421,7 @@ func (x *GetChatHistoryResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatHistoryResult.ProtoReflect.Descriptor instead.
 func (*GetChatHistoryResult) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{4}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetChatHistoryResult) GetMessages() []*ChatMessage {
@@ -357,7 +442,7 @@ var File_openhane_v1_chat_proto protoreflect.FileDescriptor
 
 const file_openhane_v1_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x16openhane/v1/chat.proto\x12\vopenhane.v1\"\x99\x02\n" +
+	"\x16openhane/v1/chat.proto\x12\vopenhane.v1\"\xc7\x02\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12*\n" +
@@ -369,12 +454,20 @@ const file_openhane_v1_chat_proto_rawDesc = "" +
 	"\x04text\x18\x06 \x01(\tR\x04text\x12\x19\n" +
 	"\breply_to\x18\a \x01(\x03R\areplyTo\x12\"\n" +
 	"\rcreated_at_ms\x18\b \x01(\x03R\vcreatedAtMs\x12\"\n" +
-	"\rclient_msg_id\x18\t \x01(\tR\vclientMsgId\"v\n" +
+	"\rclient_msg_id\x18\t \x01(\tR\vclientMsgId\x12,\n" +
+	"\x05image\x18\n" +
+	" \x01(\v2\x16.openhane.v1.ChatImageR\x05image\"]\n" +
+	"\tChatImage\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05width\x18\x02 \x01(\rR\x05width\x12\x16\n" +
+	"\x06height\x18\x03 \x01(\rR\x06height\x12\x12\n" +
+	"\x04size\x18\x04 \x01(\rR\x04size\"\x91\x01\n" +
 	"\bSendChat\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\"\n" +
 	"\rclient_msg_id\x18\x03 \x01(\tR\vclientMsgId\x12\x19\n" +
-	"\breply_to\x18\x04 \x01(\x03R\areplyTo\"D\n" +
+	"\breply_to\x18\x04 \x01(\x03R\areplyTo\x12\x19\n" +
+	"\bimage_id\x18\x05 \x01(\tR\aimageId\"D\n" +
 	"\x0eSendChatResult\x122\n" +
 	"\amessage\x18\x01 \x01(\v2\x18.openhane.v1.ChatMessageR\amessage\"\\\n" +
 	"\x0eGetChatHistory\x12\x17\n" +
@@ -398,22 +491,24 @@ func file_openhane_v1_chat_proto_rawDescGZIP() []byte {
 	return file_openhane_v1_chat_proto_rawDescData
 }
 
-var file_openhane_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_openhane_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_openhane_v1_chat_proto_goTypes = []any{
 	(*ChatMessage)(nil),          // 0: openhane.v1.ChatMessage
-	(*SendChat)(nil),             // 1: openhane.v1.SendChat
-	(*SendChatResult)(nil),       // 2: openhane.v1.SendChatResult
-	(*GetChatHistory)(nil),       // 3: openhane.v1.GetChatHistory
-	(*GetChatHistoryResult)(nil), // 4: openhane.v1.GetChatHistoryResult
+	(*ChatImage)(nil),            // 1: openhane.v1.ChatImage
+	(*SendChat)(nil),             // 2: openhane.v1.SendChat
+	(*SendChatResult)(nil),       // 3: openhane.v1.SendChatResult
+	(*GetChatHistory)(nil),       // 4: openhane.v1.GetChatHistory
+	(*GetChatHistoryResult)(nil), // 5: openhane.v1.GetChatHistoryResult
 }
 var file_openhane_v1_chat_proto_depIdxs = []int32{
-	0, // 0: openhane.v1.SendChatResult.message:type_name -> openhane.v1.ChatMessage
-	0, // 1: openhane.v1.GetChatHistoryResult.messages:type_name -> openhane.v1.ChatMessage
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // 0: openhane.v1.ChatMessage.image:type_name -> openhane.v1.ChatImage
+	0, // 1: openhane.v1.SendChatResult.message:type_name -> openhane.v1.ChatMessage
+	0, // 2: openhane.v1.GetChatHistoryResult.messages:type_name -> openhane.v1.ChatMessage
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_openhane_v1_chat_proto_init() }
@@ -427,7 +522,7 @@ func file_openhane_v1_chat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_openhane_v1_chat_proto_rawDesc), len(file_openhane_v1_chat_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

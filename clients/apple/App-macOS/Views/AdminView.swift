@@ -47,6 +47,8 @@ struct AdminView: View {
     @State private var password = ""
     @State private var maxClients = 100
     @State private var forceMute = false
+    @State private var imageMaxMB = 10
+    @State private var imageStorageMB = 2048
     @State private var preset = "standard"
     @State private var message: (ok: Bool, text: String)?
     @State private var tokens: [Openhane_V1_TokenInfo] = []
@@ -139,6 +141,27 @@ struct AdminView: View {
                 }
                 Toggle("加入时默认静音", isOn: $forceMute)
             }
+            Section {
+                LabeledContent("单张图片上限（MB）") {
+                    HStack(spacing: 6) {
+                        TextField("", value: $imageMaxMB, format: .number)
+                            .labelsHidden()
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 70)
+                        Stepper("", value: $imageMaxMB, in: 0 ... 50).labelsHidden()
+                    }
+                }
+                LabeledContent("图片总存储上限（MB）") {
+                    TextField("", value: $imageStorageMB, format: .number)
+                        .labelsHidden()
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 90)
+                }
+            } header: {
+                Text("聊天图片")
+            } footer: {
+                Text("单张上限为 0 时不允许发送图片。存储满了之后新图片会被拒绝，旧图片随聊天记录一起过期删除。").font(.caption).foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
     }
@@ -219,6 +242,8 @@ struct AdminView: View {
             welcome = decode(values["server.welcome_message"]) ?? ""
             maxClients = decode(values["server.max_clients"]) ?? 100
             forceMute = decode(values["join.force_mute"]) ?? false
+            imageMaxMB = decode(values["chat.image_max_mb"]) ?? 10
+            imageStorageMB = decode(values["chat.image_storage_mb"]) ?? 2048
             preset = decode(values["audio.preset"]) ?? "standard"
             tokens = try await model.session.listTokens()
         } catch let e as HaneError { message = (false, describe(e)) } catch {}
@@ -229,6 +254,7 @@ struct AdminView: View {
             // 服务器名称留空：恢复默认名称（HANE_SERVER_NAME，没有设置时是 OpenHane）
             "server.name": name.trimmingCharacters(in: .whitespaces).isEmpty ? "null" : encode(name), "server.welcome_message": encode(welcome),
             "server.max_clients": encode(maxClients), "join.force_mute": encode(forceMute), "audio.preset": encode(preset),
+            "chat.image_max_mb": encode(imageMaxMB), "chat.image_storage_mb": encode(imageStorageMB),
         ]
         if override == nil, !password.isEmpty { patch["server.password"] = encode(password) }
         do {

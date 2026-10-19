@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/karllee830/OpenHane/server/internal/chatimage"
 	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/media"
 	"github.com/karllee830/OpenHane/server/internal/pb"
@@ -61,6 +62,8 @@ type Options struct {
 	ShareGrace    time.Duration // 测试时可缩短（默认 ShareRepublishGrace）
 	StoreClientIP func() bool
 	GeoIP         *geoip.DB // nil 表示不查归属地
+	// Images 存放聊天图片；nil 表示不支持发送图片
+	Images *chatimage.Store
 }
 
 type Hub struct {
@@ -83,8 +86,13 @@ type Hub struct {
 	sessions map[string]*Session // 会话 ID → 会话
 	byTicket map[string]*Session // 恢复凭证 → 会话
 	byMedia  map[string]*Session // 媒体 identity → 会话
+	byAPI    map[string]*Session // HTTP 接口凭据 → 会话
 	rooms    map[string]*Room
 	chatSeq  int64
+	// 已上传、还没随消息发出的图片（图片 ID → 上传信息），超时没发就删掉
+	pendingImages map[string]*pendingImage
+	// 只在内存里的聊天（临时房间，或主会议不保存聊天记录时）引用的图片：图片 ID → 房间。消息被挤出内存时删掉图片
+	memImages map[string]string
 }
 
 func New(opt Options) *Hub {
@@ -111,7 +119,11 @@ func New(opt Options) *Hub {
 		sessions: map[string]*Session{},
 		byTicket: map[string]*Session{},
 		byMedia:  map[string]*Session{},
+		byAPI:    map[string]*Session{},
 		rooms:    map[string]*Room{},
+
+		pendingImages: map[string]*pendingImage{},
+		memImages:     map[string]string{},
 	}
 	h.settings.Store(opt.Settings)
 	h.rooms[MainRoomID] = &Room{ID: MainRoomID, Kind: pb.RoomKind_ROOM_KIND_MAIN, CreatedAt: h.now(), Overrides: &pb.RoomOverrides{}, decodable: baselineDecodable}
@@ -138,6 +150,7 @@ func (h *Hub) ServerInfo() *pb.ServerInfo {
 		ProtocolMin:       h.opt.ProtocolMin,
 		ProtocolMax:       h.opt.ProtocolMax,
 		RoomCreateMinRole: roleProto(s.RoomsCreateMinRole),
+		ChatImageMaxBytes: h.chatImageMaxBytes(s),
 	}
 }
 

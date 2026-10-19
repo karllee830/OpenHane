@@ -78,6 +78,11 @@ export function controlUrl(a: ServerAddress): string {
   return `${a.secure ? 'wss' : 'ws'}://${hostPort(a)}/ws`;
 }
 
+/** HTTP 接口地址（聊天图片等）：与控制连接同一 host:port */
+export function httpBase(a: ServerAddress): string {
+  return `${a.secure ? 'https' : 'http'}://${hostPort(a)}`;
+}
+
 /** 媒体（LiveKit）地址：与控制连接同一 host:port */
 export function mediaUrl(a: ServerAddress): string {
   return `${a.secure ? 'wss' : 'ws'}://${hostPort(a)}`;

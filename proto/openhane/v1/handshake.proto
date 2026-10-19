@@ -45,6 +45,7 @@ message Welcome {
   bool resumed = 6; // 本次是否恢复了原有会话（房间、媒体会话保持不变）
   Snapshot snapshot = 7; // 总是完整快照（包括恢复会话时），客户端据此重建状态
   JoinRoomResult auto_join = 8; // 自动加入的房间（通常为主会议）；恢复会话时为当前房间
+  string api_token = 9; // HTTP 接口（聊天图片）的凭据：Authorization: Bearer <api_token>，会话结束即失效
 }
 
 // 服务器的完整状态快照；之后只推送增量事件。
@@ -64,4 +65,5 @@ message ServerInfo {
   uint32 protocol_min = 6;
   uint32 protocol_max = 7;
   Role room_create_min_role = 8; // 创建临时房间所需的最低角色（客户端据此显示「新建房间」）
+  uint32 chat_image_max_bytes = 9; // 聊天图片的大小上限；0 表示不允许发送图片
 }

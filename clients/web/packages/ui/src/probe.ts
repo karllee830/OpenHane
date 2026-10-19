@@ -1,8 +1,10 @@
 // 服务器列表的状态：延迟、在线人数和图标（GET /api/v1/info、/api/v1/logo，服务端允许跨域读取）。
 // 服务端返回的内容一律不信任：限制读取的字节数、不跟随重定向，图标先校验文件头（PNG、尺寸）再显示。
-import { candidateAddresses, hostPort, parseAddress, type ServerAddress } from '@hane/core';
+import { candidateAddresses, hostPort, parseAddress, readLimited, type ServerAddress } from '@hane/core';
 import { useEffect, useState } from 'react';
 import { cleanServerName } from './recent';
+
+export { readLimited };
 
 export interface ServerStatus {
   /** 往返延迟（毫秒）；null 表示连不上 */
@@ -21,33 +23,6 @@ const INFO_MAX_BYTES = 64 << 10;
 /** 图标的大小上限，以及允许的最大边长（服务端给的是 512 以内的 PNG） */
 const LOGO_MAX_BYTES = 1 << 20;
 const LOGO_MAX_SIDE = 1024;
-
-/** 读响应体，最多 limit 字节：超了立即停止并报错（恶意服务端可以一直发数据） */
-export async function readLimited(r: Response, limit: number): Promise<Uint8Array> {
-  const declared = Number(r.headers.get('content-length'));
-  if (declared > limit) throw new Error('response too large');
-  const reader = r.body?.getReader();
-  if (!reader) return new Uint8Array();
-  const chunks: Uint8Array[] = [];
-  let total = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    total += value.byteLength;
-    if (total > limit) {
-      void reader.cancel();
-      throw new Error('response too large');
-    }
-    chunks.push(value);
-  }
-  const out = new Uint8Array(total);
-  let at = 0;
-  for (const c of chunks) {
-    out.set(c, at);
-    at += c.byteLength;
-  }
-  return out;
-}
 
 /** info 里的 logo 字段换成图标地址：必须是十六进制摘要，否则当作没有图标 */
 export function logoUrl(hash: unknown, infoUrl: string): string | undefined {

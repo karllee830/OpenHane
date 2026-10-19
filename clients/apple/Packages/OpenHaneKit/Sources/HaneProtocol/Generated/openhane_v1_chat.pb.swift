@@ -46,6 +46,38 @@ public nonisolated struct Openhane_V1_ChatMessage: Sendable {
   /// 发送方生成，用于本地回显去重
   public var clientMsgID: String = String()
 
+  /// 附带的图片；有图片时 text 可以为空
+  public var image: Openhane_V1_ChatImage {
+    get {_image ?? Openhane_V1_ChatImage()}
+    set {_image = newValue}
+  }
+  /// Returns true if `image` has been explicitly set.
+  public var hasImage: Bool {self._image != nil}
+  /// Clears the value of `image`. Subsequent reads from it will return its default value.
+  public mutating func clearImage() {self._image = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _image: Openhane_V1_ChatImage? = nil
+}
+
+/// 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
+public nonisolated struct Openhane_V1_ChatImage: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var id: String = String()
+
+  public var width: UInt32 = 0
+
+  public var height: UInt32 = 0
+
+  /// 字节数
+  public var size: UInt32 = 0
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -63,6 +95,9 @@ public nonisolated struct Openhane_V1_SendChat: Sendable {
   public var clientMsgID: String = String()
 
   public var replyTo: Int64 = 0
+
+  /// 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
+  public var imageID: String = String()
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -129,7 +164,7 @@ fileprivate nonisolated let _protobuf_package = "openhane.v1"
 
 nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ChatMessage"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}room_id\0\u{3}sender_session_id\0\u{3}sender_uid\0\u{3}sender_name\0\u{1}text\0\u{3}reply_to\0\u{3}created_at_ms\0\u{3}client_msg_id\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}room_id\0\u{3}sender_session_id\0\u{3}sender_uid\0\u{3}sender_name\0\u{1}text\0\u{3}reply_to\0\u{3}created_at_ms\0\u{3}client_msg_id\0\u{1}image\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -146,12 +181,17 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
       case 7: try { try decoder.decodeSingularInt64Field(value: &self.replyTo) }()
       case 8: try { try decoder.decodeSingularInt64Field(value: &self.createdAtMs) }()
       case 9: try { try decoder.decodeSingularStringField(value: &self.clientMsgID) }()
+      case 10: try { try decoder.decodeSingularMessageField(value: &self._image) }()
       default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if self.id != 0 {
       try visitor.visitSingularInt64Field(value: self.id, fieldNumber: 1)
     }
@@ -179,6 +219,9 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
     if !self.clientMsgID.isEmpty {
       try visitor.visitSingularStringField(value: self.clientMsgID, fieldNumber: 9)
     }
+    try { if let v = self._image {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -192,6 +235,52 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
     if lhs.replyTo != rhs.replyTo {return false}
     if lhs.createdAtMs != rhs.createdAtMs {return false}
     if lhs.clientMsgID != rhs.clientMsgID {return false}
+    if lhs._image != rhs._image {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_ChatImage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".ChatImage"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}width\0\u{1}height\0\u{1}size\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.id) }()
+      case 2: try { try decoder.decodeSingularUInt32Field(value: &self.width) }()
+      case 3: try { try decoder.decodeSingularUInt32Field(value: &self.height) }()
+      case 4: try { try decoder.decodeSingularUInt32Field(value: &self.size) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.id.isEmpty {
+      try visitor.visitSingularStringField(value: self.id, fieldNumber: 1)
+    }
+    if self.width != 0 {
+      try visitor.visitSingularUInt32Field(value: self.width, fieldNumber: 2)
+    }
+    if self.height != 0 {
+      try visitor.visitSingularUInt32Field(value: self.height, fieldNumber: 3)
+    }
+    if self.size != 0 {
+      try visitor.visitSingularUInt32Field(value: self.size, fieldNumber: 4)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_ChatImage, rhs: Openhane_V1_ChatImage) -> Bool {
+    if lhs.id != rhs.id {return false}
+    if lhs.width != rhs.width {return false}
+    if lhs.height != rhs.height {return false}
+    if lhs.size != rhs.size {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -199,7 +288,7 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
 
 nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SendChat"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}room_id\0\u{1}text\0\u{3}client_msg_id\0\u{3}reply_to\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}room_id\0\u{1}text\0\u{3}client_msg_id\0\u{3}reply_to\0\u{3}image_id\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -211,6 +300,7 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
       case 2: try { try decoder.decodeSingularStringField(value: &self.text) }()
       case 3: try { try decoder.decodeSingularStringField(value: &self.clientMsgID) }()
       case 4: try { try decoder.decodeSingularInt64Field(value: &self.replyTo) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.imageID) }()
       default: break
       }
     }
@@ -229,6 +319,9 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
     if self.replyTo != 0 {
       try visitor.visitSingularInt64Field(value: self.replyTo, fieldNumber: 4)
     }
+    if !self.imageID.isEmpty {
+      try visitor.visitSingularStringField(value: self.imageID, fieldNumber: 5)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -237,6 +330,7 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
     if lhs.text != rhs.text {return false}
     if lhs.clientMsgID != rhs.clientMsgID {return false}
     if lhs.replyTo != rhs.replyTo {return false}
+    if lhs.imageID != rhs.imageID {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

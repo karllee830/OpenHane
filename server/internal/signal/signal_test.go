@@ -7,12 +7,14 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"slices"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/karllee830/OpenHane/server/internal/chatimage"
 	"github.com/karllee830/OpenHane/server/internal/client"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
@@ -35,6 +37,9 @@ type env struct {
 	store *store.Store
 	media *media.Fake
 	sig   *signal.Server
+	// base 是 HTTPS 地址（聊天图片接口）；images 是聊天图片目录
+	base   string
+	images *chatimage.Store
 }
 
 func setup(t *testing.T) *env {
@@ -53,20 +58,30 @@ func setup(t *testing.T) *env {
 		t.Fatal(err)
 	}
 	fake := media.NewFake()
+	imgs, err := chatimage.Open(dir, log)
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := hub.New(hub.Options{
 		Store: st, Media: fake, Settings: settings.Defaults(), ServerID: []byte("0123456789abcdef"),
 		Version: "test", ProtocolMin: 1, ProtocolMax: 1, Log: log,
 		HashPassword: settings.HashPassword, ResumeGrace: 300 * time.Millisecond, ShareGrace: 300 * time.Millisecond,
-		GeoIP: geoip.Open(dir, log),
+		GeoIP: geoip.Open(dir, log), Images: imgs,
 	})
 	go h.Run(ctx)
 	sig := signal.NewServer(h, st, tm, log)
-	srv := httptest.NewUnstartedServer(gateway.NewRealIP(nil).Middleware(sig))
+	mux := http.NewServeMux()
+	images := chatimage.Handler(imgs, h, log)
+	mux.Handle("/api/v1/chat/images", images)
+	mux.Handle("/api/v1/chat/images/", images)
+	mux.Handle("/", sig)
+	srv := httptest.NewUnstartedServer(gateway.NewRealIP(nil).Middleware(mux))
 	// 不用 StartTLS：它会塞入 httptest 自己的证书，按 IP 连接（没有 SNI）时优先使用，指纹就对不上了
 	srv.Listener = tls.NewListener(srv.Listener, tm.TLSConfig())
 	srv.Start()
 	t.Cleanup(srv.Close)
-	return &env{t: t, url: "wss://" + srv.Listener.Addr().String() + "/ws", hub: h, store: st, media: fake, sig: sig}
+	return &env{t: t, url: "wss://" + srv.Listener.Addr().String() + "/ws", hub: h, store: st, media: fake, sig: sig,
+		base: "https://" + srv.Listener.Addr().String(), images: imgs}
 }
 
 func seed(n byte) []byte { s := make([]byte, 32); s[0] = n; return s }

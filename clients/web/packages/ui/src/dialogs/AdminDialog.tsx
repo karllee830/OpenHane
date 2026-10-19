@@ -63,6 +63,8 @@ const SETTINGS: Record<'general' | 'audio' | 'media' | 'rooms' | 'security', Spe
     { key: 'server.max_clients', label: 'admin.maxClients', kind: 'number', min: 1 },
     { key: 'join.force_mute', label: 'admin.forceMute', kind: 'bool' },
     { key: 'chat.retention_days', label: 'admin.chatRetention', kind: 'number', min: 0 },
+    { key: 'chat.image_max_mb', label: 'admin.chatImageMax', kind: 'number', min: 0, max: 50 },
+    { key: 'chat.image_storage_mb', label: 'admin.chatImageStorage', kind: 'number', min: 100 },
   ],
   audio: [
     {

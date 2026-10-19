@@ -81,6 +81,7 @@ func (h *Hub) join(p JoinParams) (*Session, *pb.Error) {
 		ConnectedAt: h.now(),
 		conn:        p.Conn,
 		ticket:      newTicket(),
+		apiKey:      newTicket(),
 	}
 	newLimits(s)
 	if st.JoinForceMute {
@@ -89,6 +90,7 @@ func (h *Hub) join(p JoinParams) (*Session, *pb.Error) {
 	h.sessions[s.ID] = s
 	h.online.Store(int32(len(h.sessions)))
 	h.byTicket[s.ticket] = s
+	h.byAPI[s.apiKey] = s
 	h.byMedia[s.MediaID] = s
 	s.ShareMediaID = s.MediaID + "#s"
 	h.byMedia[s.ShareMediaID] = s
@@ -141,6 +143,7 @@ func (h *Hub) sendWelcome(s *Session, resumed bool) {
 		Resumed:      resumed,
 		Snapshot:     snap,
 		AutoJoin:     h.joinResult(s),
+		ApiToken:     s.apiKey,
 	}
 	s.conn.Send(&pb.Envelope{Msg: &pb.Envelope_Welcome{Welcome: w}})
 }
@@ -239,6 +242,8 @@ func (h *Hub) removeSession(s *Session, reason string) {
 	delete(h.sessions, s.ID)
 	h.online.Store(int32(len(h.sessions)))
 	delete(h.byTicket, s.ticket)
+	delete(h.byAPI, s.apiKey)
+	h.dropPendingImages(func(p *pendingImage) bool { return p.session == s.ID })
 	delete(h.byMedia, s.MediaID)
 	delete(h.byMedia, s.ShareMediaID)
 	h.broadcast(nil, &pb.Event{Body: &pb.Event_ParticipantLeft{ParticipantLeft: &pb.ParticipantLeft{SessionId: s.ID}}})

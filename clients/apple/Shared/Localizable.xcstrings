@@ -513,12 +513,32 @@
         }
       }
     },
+    "不支持这种图片格式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This image format is not supported"
+          }
+        }
+      }
+    },
     "不改变": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "None"
+          }
+        }
+      }
+    },
+    "不能在这个房间发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can't send images in this room"
           }
         }
       }
@@ -1285,6 +1305,26 @@
         }
       }
     },
+    "单张上限为 0 时不允许发送图片。存储满了之后新图片会被拒绝，旧图片随聊天记录一起过期删除。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With a limit of 0, images can't be sent. When storage is full, new images are rejected; old images expire with the chat history."
+          }
+        }
+      }
+    },
+    "单张图片上限（MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image size limit (MB)"
+          }
+        }
+      }
+    },
     "原因": {
       "localizations": {
         "en": {
@@ -1341,6 +1381,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send"
+          }
+        }
+      }
+    },
+    "发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send an image"
           }
         }
       }
@@ -1545,6 +1595,66 @@
         }
       }
     },
+    "图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        }
+      }
+    },
+    "图片上传失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image couldn't be uploaded"
+          }
+        }
+      }
+    },
+    "图片发得太快了，请稍后再试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many images. Try again shortly."
+          }
+        }
+      }
+    },
+    "图片太大（上限 %lld MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image is too large (limit %lld MB)"
+          }
+        }
+      }
+    },
+    "图片总存储上限（MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total image storage (MB)"
+          }
+        }
+      }
+    },
+    "图片无法显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image can't be shown"
+          }
+        }
+      }
+    },
     "在羽见的会议中静音或取消静音。": {
       "localizations": {
         "en": {
@@ -1601,6 +1711,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Better echo cancellation on speakers and supports Voice Isolation, but lowers other apps' audio (music, video)."
+          }
+        }
+      }
+    },
+    "存储…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save…"
           }
         }
       }
@@ -2485,6 +2605,56 @@
         }
       }
     },
+    "服务器的图片存储空间已满，请联系管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server's image storage is full. Contact an admin."
+          }
+        }
+      }
+    },
+    "松开以添加图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop to add the image"
+          }
+        }
+      }
+    },
+    "查看大图": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View full size"
+          }
+        }
+      }
+    },
+    "移除图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove image"
+          }
+        }
+      }
+    },
+    "聊天图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat images"
+          }
+        }
+      }
+    },
     "还没有服务器": {
       "localizations": {
         "en": {
@@ -2551,6 +2721,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Remove from List"
+          }
+        }
+      }
+    },
+    "这台服务器不允许发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server doesn't allow images"
           }
         }
       }

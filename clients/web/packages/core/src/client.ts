@@ -76,7 +76,8 @@ import {
   type Welcome,
 } from '@hane/protocol';
 import type { IdentityStore, TrustStore } from '@hane/platform';
-import { candidateAddresses, controlUrl, hostPort, mediaUrl, parseAddress, type ServerAddress } from './address';
+import { candidateAddresses, controlUrl, hostPort, httpBase, mediaUrl, parseAddress, type ServerAddress } from './address';
+import { CHAT_IMAGE_FETCH_MAX, ChatImageError, chatImageErrorCode, isImageId, isRoomId, readLimited, sniffImage } from './images';
 import { firstByPriority } from './dial';
 import { LocalErrorCode, HaneError, isFatal } from './errors';
 import { e2eeKeySigInput, generateKeyExchange, type KeyExchange } from './e2ee';
@@ -156,6 +157,8 @@ export class OpenHaneClient {
   private address: ServerAddress | null = null;
   private identity: ServerIdentity | null = null;
   private resumeTicket: Uint8Array | null = null;
+  /** HTTP 接口（聊天图片）的凭据，Welcome 里下发 */
+  private apiToken = '';
   private nextId = 1;
   private pending = new Map<number, Pending>();
   private pingTimer: ReturnType<typeof setInterval> | null = null;
@@ -206,6 +209,7 @@ export class OpenHaneClient {
     this.address = parseAddress(params.address);
     this.identity = null;
     this.resumeTicket = null;
+    this.apiToken = '';
     this.store.setState({ ...initialState, status: 'connecting', address: this.address });
     // 每次连接一把新的密钥交换密钥；运行环境不支持 X25519（旧浏览器）时不声明 E2EE 能力
     this.keyExchange = await generateKeyExchange().catch(() => null);
@@ -435,6 +439,7 @@ export class OpenHaneClient {
 
   private onWelcome(w: Welcome) {
     this.resumeTicket = w.resumeTicket;
+    this.apiToken = w.apiToken;
     const prev = this.store.getState();
     const snap = snapshotState(w.snapshot);
     this.store.setState({
@@ -674,19 +679,62 @@ export class OpenHaneClient {
     return this.request({ case: 'updateSelf', value: create(UpdateSelfSchema, patch) });
   }
 
-  async sendChat(text: string, replyTo = 0n): Promise<ChatMessage | undefined> {
+  /** 发送聊天消息。imageId 是 uploadChatImage 返回的图片（有图片时 text 可以为空） */
+  async sendChat(text: string, opts: { replyTo?: bigint; imageId?: string } = {}): Promise<ChatMessage | undefined> {
     const s = this.store.getState();
     const roomId = s.media?.roomId ?? 'main';
     const clientMsgId = crypto.randomUUID();
     const r = await this.request({
       case: 'sendChat',
-      value: create(SendChatSchema, { roomId, text, clientMsgId, replyTo }),
+      value: create(SendChatSchema, { roomId, text, clientMsgId, replyTo: opts.replyTo ?? 0n, imageId: opts.imageId ?? '' }),
     });
     if (r.message) {
       const st = this.store.getState();
       this.store.setState({ chat: { ...st.chat, [roomId]: mergeChat(st.chat[roomId], [r.message]) } });
     }
     return r.message;
+  }
+
+  /** 上传聊天图片（PNG 或 JPEG），返回图片 ID，随后用 sendChat 发出。失败时抛出 ChatImageError */
+  async uploadChatImage(data: Blob): Promise<string> {
+    const roomId = this.store.getState().media?.roomId ?? 'main';
+    if (!this.address || !this.apiToken) throw new ChatImageError('failed');
+    let r: globalThis.Response;
+    try {
+      r = await fetch(`${httpBase(this.address)}/api/v1/chat/images?room=${encodeURIComponent(roomId)}`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${this.apiToken}`, 'Content-Type': data.type || 'application/octet-stream' },
+        body: data,
+        redirect: 'error',
+        signal: AbortSignal.timeout(180_000),
+      });
+    } catch {
+      throw new ChatImageError('failed');
+    }
+    let j: { id?: unknown; error?: unknown } = {};
+    try {
+      j = JSON.parse(new TextDecoder().decode(await readLimited(r, 4096))) as typeof j;
+    } catch {
+      // 响应不是 JSON：按状态码处理
+    }
+    if (!r.ok) throw new ChatImageError(r.status === 413 ? 'too_large' : chatImageErrorCode(j?.error));
+    if (!isImageId(j?.id)) throw new ChatImageError('failed');
+    return j.id;
+  }
+
+  /** 读取聊天图片，返回按文件头确定类型的 Blob。服务端的数据不可信：限制大小，只接受 PNG / JPEG */
+  async loadChatImage(roomId: string, imageId: string): Promise<Blob> {
+    if (!this.address || !this.apiToken || !isRoomId(roomId) || !isImageId(imageId)) throw new Error('unavailable');
+    const r = await fetch(`${httpBase(this.address)}/api/v1/chat/images/${roomId}/${imageId}`, {
+      headers: { Authorization: `Bearer ${this.apiToken}` },
+      redirect: 'error',
+      signal: AbortSignal.timeout(60_000),
+    });
+    if (!r.ok) throw new Error(String(r.status));
+    const bytes = await readLimited(r, CHAT_IMAGE_FETCH_MAX);
+    const type = sniffImage(bytes);
+    if (!type) throw new Error('not a valid image');
+    return new Blob([bytes as BlobPart], { type });
   }
 
   /** 加载 beforeId 之前的一页聊天（0 表示最新一页），合并进状态。 */

@@ -157,25 +157,3 @@ func TestRejectsBadLogos(t *testing.T) {
 		}
 	}
 }
-
-func TestDownscaleAveragesArea(t *testing.T) {
-	// 4×4 的棋盘（黑白相间）缩成 2×2：每个像素都是一半黑一半白的平均
-	src := image.NewRGBA(image.Rect(0, 0, 4, 4))
-	for y := range 4 {
-		for x := range 4 {
-			v := uint8(0)
-			if (x+y)%2 == 0 {
-				v = 255
-			}
-			src.SetRGBA(x, y, color.RGBA{v, v, v, 255})
-		}
-	}
-	dst := downscale(src, 2)
-	for y := range 2 {
-		for x := range 2 {
-			if c := dst.RGBAAt(x, y); c.R != 128 || c.A != 255 {
-				t.Fatalf("(%d,%d) = %v, want gray 128", x, y, c)
-			}
-		}
-	}
-}

@@ -6,6 +6,7 @@ import SwiftUI
 /// 开发与端到端检查用：HANE_AUTOCONNECT=地址|昵称 自动连接；HANE_SNAPSHOT_DIR=目录 时把主窗口渲染成 PNG 后退出；
 /// HANE_SNAPSHOT_SHARE=1 时用合成画面共享屏幕；HANE_SNAPSHOT_SHEET=admin 时进入会议后打开管理面板并另存一张面板截图
 /// （HANE_SNAPSHOT_ADMIN=分区 选择分区）；HANE_SNAPSHOT_CUSTOM=h265|h264 另存一张「自定义共享参数」面板的截图（选中这个编码器）；
+/// HANE_SNAPSHOT_PASTE=图片路径 进入会议后往聊天输入框粘贴图片，另存一张截图；
 /// HANE_SNAPSHOT_PANEL=mic|speaker 进入会议后模拟右键工具栏的麦克风 / 声音按钮，另存一张弹出面板的截图；
 /// HANE_SEED_BYTE=n 让多个实例使用不同的身份；HANE_SNAPSHOT_APPEARANCE=light|dark 指定外观。
 /// 应用只截取自己的窗口内容（cacheDisplay），不需要录屏权限。
@@ -42,6 +43,7 @@ enum SnapshotHarness {
             }
             try? await Task.sleep(for: .seconds(Double(env["HANE_SNAPSHOT_WAIT"] ?? "1") ?? 1))
             snapshot(to: dir, name: "meeting")
+            if let path = env["HANE_SNAPSHOT_PASTE"] { await pasteImage(path, dir: dir) }
             if let panel = env["HANE_SNAPSHOT_PANEL"] { await rightClickToolbar(panel == "speaker" ? 1 : 0, dir: dir, name: "panel-\(panel)") }
             if let codec = env["HANE_SNAPSHOT_CUSTOM"].flatMap(ShareCodec.init(rawValue:)) {
                 model.shareCustom.codec = codec
@@ -105,6 +107,37 @@ enum SnapshotHarness {
               let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
         view.cacheDisplay(in: view.bounds, to: rep)
         try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: dir).appendingPathComponent("\(name).png"))
+    }
+
+    /// HANE_SNAPSHOT_PASTE=图片路径：把图片放进测试剪贴板，聚焦聊天输入框后模拟 ⌘V，截图看预览
+    private static func pasteImage(_ path: String, dir: String) async {
+        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.frame.width > 400 }), let root = window.contentView?.superview,
+              let data = FileManager.default.contents(atPath: path)
+        else { return }
+        let pb = NSPasteboard(name: PasteImageCatcherView.testPasteboard)
+        pb.clearContents()
+        pb.setData(data, forType: path.hasSuffix(".png") ? .png : .tiff)
+        var fields: [NSView] = []
+        func walk(_ v: NSView) {
+            if let f = v as? NSTextField, f.isEditable { fields.append(f) } else if let t = v as? NSTextView, t.isEditable { fields.append(t) }
+            v.subviews.forEach(walk)
+        }
+        walk(root)
+        // 聊天输入框在窗口最右下
+        guard let field = fields.max(by: { $0.convert($0.bounds, to: nil).maxX < $1.convert($1.bounds, to: nil).maxX }) else {
+            FileHandle.standardError.write(Data("paste: no text field\n".utf8))
+            return
+        }
+        window.makeFirstResponder(field)
+        try? await Task.sleep(for: .seconds(0.5))
+        guard let event = NSEvent.keyEvent(with: .keyDown, location: .zero, modifierFlags: .command, timestamp: ProcessInfo.processInfo.systemUptime,
+                                           windowNumber: window.windowNumber, context: nil, characters: "v", charactersIgnoringModifiers: "v",
+                                           isARepeat: false, keyCode: 9)
+        else { return }
+        NSApp.postEvent(event, atStart: false)
+        try? await Task.sleep(for: .seconds(2))
+        snapshot(to: dir, name: "paste")
+        pb.releaseGlobally()
     }
 
     /// 单独渲染一个视图（popover 里的内容，主窗口截图里没有）：放进临时窗口后截取

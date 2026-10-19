@@ -71,7 +71,7 @@ func (h *Hub) onSettingsChanged(old, next *settings.Settings, keys []string) {
 	var info, policy, perms, rooms bool
 	for _, k := range keys {
 		switch {
-		case k == "server.name" || k == "server.welcome_message" || k == settings.PasswordKey || k == "identity.min_security_level" || k == "rooms.create_min_role":
+		case k == "server.name" || k == "server.welcome_message" || k == "chat.image_max_mb" || k == settings.PasswordKey || k == "identity.min_security_level" || k == "rooms.create_min_role":
 			info = true
 		case k == "rooms.main_name":
 			rooms = true

@@ -194,6 +194,12 @@ public nonisolated struct Openhane_V1_Welcome: @unchecked Sendable {
   /// Clears the value of `autoJoin`. Subsequent reads from it will return its default value.
   public mutating func clearAutoJoin() {_uniqueStorage()._autoJoin = nil}
 
+  /// HTTP 接口（聊天图片）的凭据：Authorization: Bearer <api_token>，会话结束即失效
+  public var apiToken: String {
+    get {_storage._apiToken}
+    set {_uniqueStorage()._apiToken = newValue}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -251,6 +257,9 @@ public nonisolated struct Openhane_V1_ServerInfo: Sendable {
 
   /// 创建临时房间所需的最低角色（客户端据此显示「新建房间」）
   public var roomCreateMinRole: Openhane_V1_Role = .unspecified
+
+  /// 聊天图片的大小上限；0 表示不允许发送图片
+  public var chatImageMaxBytes: UInt32 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -435,7 +444,7 @@ nonisolated extension Openhane_V1_ClientAuth: SwiftProtobuf.Message, SwiftProtob
 
 nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Welcome"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}session_id\0\u{1}uid\0\u{1}nickname\0\u{1}role\0\u{3}resume_ticket\0\u{1}resumed\0\u{1}snapshot\0\u{3}auto_join\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}session_id\0\u{1}uid\0\u{1}nickname\0\u{1}role\0\u{3}resume_ticket\0\u{1}resumed\0\u{1}snapshot\0\u{3}auto_join\0\u{3}api_token\0")
 
   fileprivate class _StorageClass {
     var _sessionID: String = String()
@@ -446,6 +455,7 @@ nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf.
     var _resumed: Bool = false
     var _snapshot: Openhane_V1_Snapshot? = nil
     var _autoJoin: Openhane_V1_JoinRoomResult? = nil
+    var _apiToken: String = String()
 
       // This property is used as the initial default value for new instances of the type.
       // The type itself is protecting the reference to its storage via CoW semantics.
@@ -464,6 +474,7 @@ nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf.
       _resumed = source._resumed
       _snapshot = source._snapshot
       _autoJoin = source._autoJoin
+      _apiToken = source._apiToken
     }
   }
 
@@ -490,6 +501,7 @@ nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf.
         case 6: try { try decoder.decodeSingularBoolField(value: &_storage._resumed) }()
         case 7: try { try decoder.decodeSingularMessageField(value: &_storage._snapshot) }()
         case 8: try { try decoder.decodeSingularMessageField(value: &_storage._autoJoin) }()
+        case 9: try { try decoder.decodeSingularStringField(value: &_storage._apiToken) }()
         default: break
         }
       }
@@ -526,6 +538,9 @@ nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf.
       try { if let v = _storage._autoJoin {
         try visitor.visitSingularMessageField(value: v, fieldNumber: 8)
       } }()
+      if !_storage._apiToken.isEmpty {
+        try visitor.visitSingularStringField(value: _storage._apiToken, fieldNumber: 9)
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
@@ -543,6 +558,7 @@ nonisolated extension Openhane_V1_Welcome: SwiftProtobuf.Message, SwiftProtobuf.
         if _storage._resumed != rhs_storage._resumed {return false}
         if _storage._snapshot != rhs_storage._snapshot {return false}
         if _storage._autoJoin != rhs_storage._autoJoin {return false}
+        if _storage._apiToken != rhs_storage._apiToken {return false}
         return true
       }
       if !storagesAreEqual {return false}
@@ -603,7 +619,7 @@ nonisolated extension Openhane_V1_Snapshot: SwiftProtobuf.Message, SwiftProtobuf
 
 nonisolated extension Openhane_V1_ServerInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ServerInfo"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}version\0\u{3}requires_password\0\u{3}min_security_level\0\u{3}welcome_message\0\u{3}protocol_min\0\u{3}protocol_max\0\u{3}room_create_min_role\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}name\0\u{1}version\0\u{3}requires_password\0\u{3}min_security_level\0\u{3}welcome_message\0\u{3}protocol_min\0\u{3}protocol_max\0\u{3}room_create_min_role\0\u{3}chat_image_max_bytes\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -619,6 +635,7 @@ nonisolated extension Openhane_V1_ServerInfo: SwiftProtobuf.Message, SwiftProtob
       case 6: try { try decoder.decodeSingularUInt32Field(value: &self.protocolMin) }()
       case 7: try { try decoder.decodeSingularUInt32Field(value: &self.protocolMax) }()
       case 8: try { try decoder.decodeSingularEnumField(value: &self.roomCreateMinRole) }()
+      case 9: try { try decoder.decodeSingularUInt32Field(value: &self.chatImageMaxBytes) }()
       default: break
       }
     }
@@ -649,6 +666,9 @@ nonisolated extension Openhane_V1_ServerInfo: SwiftProtobuf.Message, SwiftProtob
     if self.roomCreateMinRole != .unspecified {
       try visitor.visitSingularEnumField(value: self.roomCreateMinRole, fieldNumber: 8)
     }
+    if self.chatImageMaxBytes != 0 {
+      try visitor.visitSingularUInt32Field(value: self.chatImageMaxBytes, fieldNumber: 9)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -661,6 +681,7 @@ nonisolated extension Openhane_V1_ServerInfo: SwiftProtobuf.Message, SwiftProtob
     if lhs.protocolMin != rhs.protocolMin {return false}
     if lhs.protocolMax != rhs.protocolMax {return false}
     if lhs.roomCreateMinRole != rhs.roomCreateMinRole {return false}
+    if lhs.chatImageMaxBytes != rhs.chatImageMaxBytes {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

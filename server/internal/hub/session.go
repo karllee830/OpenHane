@@ -40,6 +40,7 @@ type Session struct {
 
 	conn   Conn        // nil 表示处于断线宽限期
 	ticket string      // 恢复凭证
+	apiKey string      // HTTP 接口（聊天图片）的凭据，会话存续期间不变
 	grace  *time.Timer // 宽限期计时器
 	seq    uint64      // 已发送的最后一个事件序号
 
@@ -47,6 +48,7 @@ type Session struct {
 	updateLimit ratelimit.Bucket
 	adminLimit  ratelimit.Bucket
 	keyLimit    ratelimit.Bucket
+	imageLimit  ratelimit.Bucket
 	// 进出房间、申请 / 释放共享、读聊天历史、兑换令牌：每次都可能触发全服广播、SFU 操作或数据库查询
 	actionLimit ratelimit.Bucket
 }
@@ -57,6 +59,7 @@ func newLimits(s *Session) {
 	s.adminLimit = ratelimit.Bucket{Rate: 5, Burst: 10}   // 每秒 5 次，允许管理面板打开时的突发
 	s.keyLimit = ratelimit.Bucket{Rate: 50, Burst: 200}   // E2EE 密钥包：进入大房间时要给每个成员各发一个
 	s.actionLimit = ratelimit.Bucket{Rate: 2, Burst: 6}   // 人手操作远到不了；防止恶意客户端高频进出房间刷广播
+	s.imageLimit = ratelimit.Bucket{Rate: 0.2, Burst: 5}  // 上传图片：连发 5 张，之后每 5 秒 1 张
 }
 
 func (s *Session) proto() *pb.Participant {
@@ -177,9 +180,14 @@ func shares(list []*share) []*pb.ShareInfo {
 	return out
 }
 
-func (r *Room) remember(m *pb.ChatMessage) {
+// remember 把消息放进内存里的最近聊天，返回被挤出去的消息
+func (r *Room) remember(m *pb.ChatMessage) []*pb.ChatMessage {
 	r.chat = append(r.chat, m)
-	if len(r.chat) > chatMemoryKeep {
-		r.chat = append(r.chat[:0:0], r.chat[len(r.chat)-chatMemoryKeep:]...)
+	if len(r.chat) <= chatMemoryKeep {
+		return nil
 	}
+	cut := len(r.chat) - chatMemoryKeep
+	dropped := append([]*pb.ChatMessage(nil), r.chat[:cut]...)
+	r.chat = append(r.chat[:0:0], r.chat[cut:]...)
+	return dropped
 }

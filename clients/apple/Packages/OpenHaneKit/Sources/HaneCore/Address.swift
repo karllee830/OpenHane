@@ -78,6 +78,8 @@ public struct ServerAddress: Hashable, Sendable {
 
     public var hostPort: String { host.contains(":") ? "[\(host)]:\(port)" : "\(host):\(port)" }
     public var controlURL: URL { URL(string: "\(secure ? "wss" : "ws")://\(hostPort)/ws")! }
+    /// HTTP 接口（聊天图片等）的地址前缀
+    public var httpBase: String { "\(secure ? "https" : "http")://\(hostPort)" }
     public var mediaURL: URL { URL(string: "\(secure ? "wss" : "ws")://\(hostPort)")! }
     /// 便于展示（默认端口省略）
     public var display: String { port == Self.defaultPort ? (host.contains(":") ? "[\(host)]" : host) : hostPort }

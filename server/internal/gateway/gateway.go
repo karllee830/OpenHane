@@ -54,8 +54,10 @@ type Handlers struct {
 	Web  http.Handler // / Web 客户端
 	Info func() Info
 	// Logo 返回服务器图标（数据目录里的 logo.png 等）；没有时返回 nil
-	Logo  func() *logo.Image
-	Ready func(ctx context.Context) error
+	Logo func() *logo.Image
+	// ChatImages 处理 /api/v1/chat/images（聊天图片的上传和读取）
+	ChatImages http.Handler
+	Ready      func(ctx context.Context) error
 	// Metrics 返回 Prometheus 文本格式的指标（HANE_METRICS=true 时提供 /metrics）
 	Metrics func(ctx context.Context) string
 }
@@ -151,6 +153,9 @@ func New(cfg *config.Config, tm *tlsmgr.Manager, h *Handlers, log *slog.Logger) 
 		w.Header().Set("Content-Type", "image/png")
 		http.ServeContent(w, r, "", img.ModTime, f)
 	})
+	chatImages := lazy(func() http.Handler { return h.ChatImages })
+	mux.Handle("/api/v1/chat/images", chatImages)
+	mux.Handle("/api/v1/chat/images/", chatImages)
 	mux.HandleFunc("GET /.well-known/openhane", func(w http.ResponseWriter, _ *http.Request) {
 		var p Range
 		if h.Info != nil {

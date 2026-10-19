@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/karllee830/OpenHane/server/internal/adminsock"
+	"github.com/karllee830/OpenHane/server/internal/chatimage"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
 	"github.com/karllee830/OpenHane/server/internal/geoip"
@@ -45,6 +46,7 @@ type App struct {
 	tls      *tlsmgr.Manager
 	gw       *gateway.Gateway
 	logo     *logo.Store
+	images   *chatimage.Store
 	media    media.Engine
 	hub      *hub.Hub
 
@@ -79,6 +81,9 @@ func (a *App) Run(ctx context.Context) error {
 	if err := a.loadServerState(ctx); err != nil {
 		return err
 	}
+	if err := a.openChatImages(ctx); err != nil {
+		return err
+	}
 
 	a.tls, err = tlsmgr.New(a.Cfg, a.Log)
 	if err != nil {
@@ -110,7 +115,8 @@ func (a *App) Run(ctx context.Context) error {
 	a.hub = hub.New(hub.Options{
 		Store: a.store, Media: a.media, Settings: a.settings, ServerID: a.serverID, Version: a.Version,
 		ProtocolMin: ProtocolMin, ProtocolMax: ProtocolMax, Log: a.Log,
-		GeoIP: geoip.Open(a.Cfg.DataDir, a.Log.With("component", "geoip")),
+		GeoIP:  geoip.Open(a.Cfg.DataDir, a.Log.With("component", "geoip")),
+		Images: a.images,
 	})
 	hubCtx, stopHub := context.WithCancel(context.Background())
 	defer stopHub()
@@ -127,6 +133,7 @@ func (a *App) Run(ctx context.Context) error {
 		ws.ConnLimit = ratelimit.NewWindow(a.Cfg.ConnPerMinute, time.Minute)
 	}
 	handlers.WS = ws
+	handlers.ChatImages = chatimage.Handler(a.images, a.hub, a.Log.With("component", "chatimage"))
 
 	go func() {
 		if err := a.gw.Serve(); err != nil {
@@ -194,6 +201,26 @@ func (a *App) loadServerState(ctx context.Context) error {
 	if err != nil {
 		a.Log.Warn("some stored settings are invalid and were reset to defaults", "err", err)
 	}
+	return nil
+}
+
+// openChatImages 打开聊天图片目录，删掉数据库里的聊天记录没有引用的图片
+// （上次运行时只在内存里的聊天、上传了没发出去的图片）
+func (a *App) openChatImages(ctx context.Context) error {
+	var err error
+	a.images, err = chatimage.Open(a.Cfg.DataDir, a.Log.With("component", "chatimage"))
+	if err != nil {
+		return fmt.Errorf("chat images: %w", err)
+	}
+	refs, err := a.store.ChatImages(ctx)
+	if err != nil {
+		return fmt.Errorf("chat images: %w", err)
+	}
+	keep := make(map[string]bool, len(refs))
+	for _, r := range refs {
+		keep[r.RoomID+"/"+r.ID] = true
+	}
+	a.images.Sweep(keep)
 	return nil
 }
 
@@ -270,8 +297,11 @@ func (a *App) maintenanceLoop(ctx context.Context) {
 		s := a.currentSettings()
 		now := time.Now()
 		if s.ChatRetentionDays > 0 {
-			if n, err := a.store.PurgeChat(ctx, now.AddDate(0, 0, -s.ChatRetentionDays).UnixMilli()); err == nil && n > 0 {
-				a.Log.Info("purged old chat messages", "count", n)
+			if n, images, err := a.store.PurgeChat(ctx, now.AddDate(0, 0, -s.ChatRetentionDays).UnixMilli()); err == nil && n > 0 {
+				for _, img := range images {
+					a.images.Delete(img.RoomID, img.ID)
+				}
+				a.Log.Info("purged old chat messages", "count", n, "images", len(images))
 			}
 		}
 		if n, err := a.store.PurgeAudit(ctx, now.AddDate(0, 0, -s.AuditRetentionDays).UnixMilli()); err == nil && n > 0 {

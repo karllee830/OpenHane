@@ -278,6 +278,7 @@ type Welcome struct {
 	Resumed       bool                   `protobuf:"varint,6,opt,name=resumed,proto3" json:"resumed,omitempty"`                              // 本次是否恢复了原有会话（房间、媒体会话保持不变）
 	Snapshot      *Snapshot              `protobuf:"bytes,7,opt,name=snapshot,proto3" json:"snapshot,omitempty"`                             // 总是完整快照（包括恢复会话时），客户端据此重建状态
 	AutoJoin      *JoinRoomResult        `protobuf:"bytes,8,opt,name=auto_join,json=autoJoin,proto3" json:"auto_join,omitempty"`             // 自动加入的房间（通常为主会议）；恢复会话时为当前房间
+	ApiToken      string                 `protobuf:"bytes,9,opt,name=api_token,json=apiToken,proto3" json:"api_token,omitempty"`             // HTTP 接口（聊天图片）的凭据：Authorization: Bearer <api_token>，会话结束即失效
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -368,6 +369,13 @@ func (x *Welcome) GetAutoJoin() *JoinRoomResult {
 	return nil
 }
 
+func (x *Welcome) GetApiToken() string {
+	if x != nil {
+		return x.ApiToken
+	}
+	return ""
+}
+
 // 服务器的完整状态快照；之后只推送增量事件。
 type Snapshot struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -447,6 +455,7 @@ type ServerInfo struct {
 	ProtocolMin       uint32                 `protobuf:"varint,6,opt,name=protocol_min,json=protocolMin,proto3" json:"protocol_min,omitempty"`
 	ProtocolMax       uint32                 `protobuf:"varint,7,opt,name=protocol_max,json=protocolMax,proto3" json:"protocol_max,omitempty"`
 	RoomCreateMinRole Role                   `protobuf:"varint,8,opt,name=room_create_min_role,json=roomCreateMinRole,proto3,enum=openhane.v1.Role" json:"room_create_min_role,omitempty"` // 创建临时房间所需的最低角色（客户端据此显示「新建房间」）
+	ChatImageMaxBytes uint32                 `protobuf:"varint,9,opt,name=chat_image_max_bytes,json=chatImageMaxBytes,proto3" json:"chat_image_max_bytes,omitempty"`                       // 聊天图片的大小上限；0 表示不允许发送图片
 	unknownFields     protoimpl.UnknownFields
 	sizeCache         protoimpl.SizeCache
 }
@@ -537,6 +546,13 @@ func (x *ServerInfo) GetRoomCreateMinRole() Role {
 	return Role_ROLE_UNSPECIFIED
 }
 
+func (x *ServerInfo) GetChatImageMaxBytes() uint32 {
+	if x != nil {
+		return x.ChatImageMaxBytes
+	}
+	return 0
+}
+
 var File_openhane_v1_handshake_proto protoreflect.FileDescriptor
 
 const file_openhane_v1_handshake_proto_rawDesc = "" +
@@ -564,7 +580,7 @@ const file_openhane_v1_handshake_proto_rawDesc = "" +
 	"\bnickname\x18\x05 \x01(\tR\bnickname\x12'\n" +
 	"\x0fserver_password\x18\x06 \x01(\tR\x0eserverPassword\x127\n" +
 	"\be2ee_key\x18\a \x01(\v2\x1c.openhane.v1.SignedPublicKeyR\ae2eeKey\x12\x1b\n" +
-	"\tpow_nonce\x18\b \x01(\fR\bpowNonce\"\xa9\x02\n" +
+	"\tpow_nonce\x18\b \x01(\fR\bpowNonce\"\xc6\x02\n" +
 	"\aWelcome\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x10\n" +
@@ -574,12 +590,13 @@ const file_openhane_v1_handshake_proto_rawDesc = "" +
 	"\rresume_ticket\x18\x05 \x01(\fR\fresumeTicket\x12\x18\n" +
 	"\aresumed\x18\x06 \x01(\bR\aresumed\x121\n" +
 	"\bsnapshot\x18\a \x01(\v2\x15.openhane.v1.SnapshotR\bsnapshot\x128\n" +
-	"\tauto_join\x18\b \x01(\v2\x1b.openhane.v1.JoinRoomResultR\bautoJoin\"\xbb\x01\n" +
+	"\tauto_join\x18\b \x01(\v2\x1b.openhane.v1.JoinRoomResultR\bautoJoin\x12\x1b\n" +
+	"\tapi_token\x18\t \x01(\tR\bapiToken\"\xbb\x01\n" +
 	"\bSnapshot\x12+\n" +
 	"\x04info\x18\x01 \x01(\v2\x17.openhane.v1.ServerInfoR\x04info\x12'\n" +
 	"\x05rooms\x18\x02 \x03(\v2\x11.openhane.v1.RoomR\x05rooms\x12<\n" +
 	"\fparticipants\x18\x03 \x03(\v2\x18.openhane.v1.ParticipantR\fparticipants\x12\x1b\n" +
-	"\tevent_seq\x18\x04 \x01(\x04R\beventSeq\"\xc8\x02\n" +
+	"\tevent_seq\x18\x04 \x01(\x04R\beventSeq\"\xf9\x02\n" +
 	"\n" +
 	"ServerInfo\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12\x18\n" +
@@ -589,7 +606,8 @@ const file_openhane_v1_handshake_proto_rawDesc = "" +
 	"\x0fwelcome_message\x18\x05 \x01(\tR\x0ewelcomeMessage\x12!\n" +
 	"\fprotocol_min\x18\x06 \x01(\rR\vprotocolMin\x12!\n" +
 	"\fprotocol_max\x18\a \x01(\rR\vprotocolMax\x12B\n" +
-	"\x14room_create_min_role\x18\b \x01(\x0e2\x11.openhane.v1.RoleR\x11roomCreateMinRoleB\xa4\x01\n" +
+	"\x14room_create_min_role\x18\b \x01(\x0e2\x11.openhane.v1.RoleR\x11roomCreateMinRole\x12/\n" +
+	"\x14chat_image_max_bytes\x18\t \x01(\rR\x11chatImageMaxBytesB\xa4\x01\n" +
 	"\x0fcom.openhane.v1B\x0eHandshakeProtoP\x01Z4github.com/karllee830/OpenHane/server/internal/pb;pb\xa2\x02\x03OXX\xaa\x02\vOpenhane.V1\xca\x02\vOpenhane\\V1\xe2\x02\x17Openhane\\V1\\GPBMetadata\xea\x02\fOpenhane::V1b\x06proto3"
 
 var (

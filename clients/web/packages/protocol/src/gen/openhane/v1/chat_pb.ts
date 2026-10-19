@@ -10,7 +10,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file openhane/v1/chat.proto.
  */
 export const file_openhane_v1_chat: GenFile = /*@__PURE__*/
-  fileDesc("ChZvcGVuaGFuZS92MS9jaGF0LnByb3RvEgtvcGVuaGFuZS52MSK8AQoLQ2hhdE1lc3NhZ2USCgoCaWQYASABKAMSDwoHcm9vbV9pZBgCIAEoCRIZChFzZW5kZXJfc2Vzc2lvbl9pZBgDIAEoCRISCgpzZW5kZXJfdWlkGAQgASgJEhMKC3NlbmRlcl9uYW1lGAUgASgJEgwKBHRleHQYBiABKAkSEAoIcmVwbHlfdG8YByABKAMSFQoNY3JlYXRlZF9hdF9tcxgIIAEoAxIVCg1jbGllbnRfbXNnX2lkGAkgASgJIlIKCFNlbmRDaGF0Eg8KB3Jvb21faWQYASABKAkSDAoEdGV4dBgCIAEoCRIVCg1jbGllbnRfbXNnX2lkGAMgASgJEhAKCHJlcGx5X3RvGAQgASgDIjsKDlNlbmRDaGF0UmVzdWx0EikKB21lc3NhZ2UYASABKAsyGC5vcGVuaGFuZS52MS5DaGF0TWVzc2FnZSJDCg5HZXRDaGF0SGlzdG9yeRIPCgdyb29tX2lkGAEgASgJEhEKCWJlZm9yZV9pZBgCIAEoAxINCgVsaW1pdBgDIAEoDSJUChRHZXRDaGF0SGlzdG9yeVJlc3VsdBIqCghtZXNzYWdlcxgBIAMoCzIYLm9wZW5oYW5lLnYxLkNoYXRNZXNzYWdlEhAKCGhhc19tb3JlGAIgASgIQp8BCg9jb20ub3BlbmhhbmUudjFCCUNoYXRQcm90b1ABWjRnaXRodWIuY29tL2thcmxsZWU4MzAvT3BlbkhhbmUvc2VydmVyL2ludGVybmFsL3BiO3BiogIDT1hYqgILT3BlbmhhbmUuVjHKAgtPcGVuaGFuZVxWMeICF09wZW5oYW5lXFYxXEdQQk1ldGFkYXRh6gIMT3BlbmhhbmU6OlYxYgZwcm90bzM");
+  fileDesc("ChZvcGVuaGFuZS92MS9jaGF0LnByb3RvEgtvcGVuaGFuZS52MSLjAQoLQ2hhdE1lc3NhZ2USCgoCaWQYASABKAMSDwoHcm9vbV9pZBgCIAEoCRIZChFzZW5kZXJfc2Vzc2lvbl9pZBgDIAEoCRISCgpzZW5kZXJfdWlkGAQgASgJEhMKC3NlbmRlcl9uYW1lGAUgASgJEgwKBHRleHQYBiABKAkSEAoIcmVwbHlfdG8YByABKAMSFQoNY3JlYXRlZF9hdF9tcxgIIAEoAxIVCg1jbGllbnRfbXNnX2lkGAkgASgJEiUKBWltYWdlGAogASgLMhYub3BlbmhhbmUudjEuQ2hhdEltYWdlIkQKCUNoYXRJbWFnZRIKCgJpZBgBIAEoCRINCgV3aWR0aBgCIAEoDRIOCgZoZWlnaHQYAyABKA0SDAoEc2l6ZRgEIAEoDSJkCghTZW5kQ2hhdBIPCgdyb29tX2lkGAEgASgJEgwKBHRleHQYAiABKAkSFQoNY2xpZW50X21zZ19pZBgDIAEoCRIQCghyZXBseV90bxgEIAEoAxIQCghpbWFnZV9pZBgFIAEoCSI7Cg5TZW5kQ2hhdFJlc3VsdBIpCgdtZXNzYWdlGAEgASgLMhgub3BlbmhhbmUudjEuQ2hhdE1lc3NhZ2UiQwoOR2V0Q2hhdEhpc3RvcnkSDwoHcm9vbV9pZBgBIAEoCRIRCgliZWZvcmVfaWQYAiABKAMSDQoFbGltaXQYAyABKA0iVAoUR2V0Q2hhdEhpc3RvcnlSZXN1bHQSKgoIbWVzc2FnZXMYASADKAsyGC5vcGVuaGFuZS52MS5DaGF0TWVzc2FnZRIQCghoYXNfbW9yZRgCIAEoCEKfAQoPY29tLm9wZW5oYW5lLnYxQglDaGF0UHJvdG9QAVo0Z2l0aHViLmNvbS9rYXJsbGVlODMwL09wZW5IYW5lL3NlcnZlci9pbnRlcm5hbC9wYjtwYqICA09YWKoCC09wZW5oYW5lLlYxygILT3BlbmhhbmVcVjHiAhdPcGVuaGFuZVxWMVxHUEJNZXRhZGF0YeoCDE9wZW5oYW5lOjpWMWIGcHJvdG8z");
 
 /**
  * @generated from message openhane.v1.ChatMessage
@@ -66,6 +66,13 @@ export type ChatMessage = Message<"openhane.v1.ChatMessage"> & {
    * @generated from field: string client_msg_id = 9;
    */
   clientMsgId: string;
+
+  /**
+   * 附带的图片；有图片时 text 可以为空
+   *
+   * @generated from field: openhane.v1.ChatImage image = 10;
+   */
+  image?: ChatImage | undefined;
 };
 
 /**
@@ -74,6 +81,42 @@ export type ChatMessage = Message<"openhane.v1.ChatMessage"> & {
  */
 export const ChatMessageSchema: GenMessage<ChatMessage> = /*@__PURE__*/
   messageDesc(file_openhane_v1_chat, 0);
+
+/**
+ * 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
+ *
+ * @generated from message openhane.v1.ChatImage
+ */
+export type ChatImage = Message<"openhane.v1.ChatImage"> & {
+  /**
+   * @generated from field: string id = 1;
+   */
+  id: string;
+
+  /**
+   * @generated from field: uint32 width = 2;
+   */
+  width: number;
+
+  /**
+   * @generated from field: uint32 height = 3;
+   */
+  height: number;
+
+  /**
+   * 字节数
+   *
+   * @generated from field: uint32 size = 4;
+   */
+  size: number;
+};
+
+/**
+ * Describes the message openhane.v1.ChatImage.
+ * Use `create(ChatImageSchema)` to create a new message.
+ */
+export const ChatImageSchema: GenMessage<ChatImage> = /*@__PURE__*/
+  messageDesc(file_openhane_v1_chat, 1);
 
 /**
  * @generated from message openhane.v1.SendChat
@@ -98,6 +141,13 @@ export type SendChat = Message<"openhane.v1.SendChat"> & {
    * @generated from field: int64 reply_to = 4;
    */
   replyTo: bigint;
+
+  /**
+   * 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
+   *
+   * @generated from field: string image_id = 5;
+   */
+  imageId: string;
 };
 
 /**
@@ -105,7 +155,7 @@ export type SendChat = Message<"openhane.v1.SendChat"> & {
  * Use `create(SendChatSchema)` to create a new message.
  */
 export const SendChatSchema: GenMessage<SendChat> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_chat, 1);
+  messageDesc(file_openhane_v1_chat, 2);
 
 /**
  * @generated from message openhane.v1.SendChatResult
@@ -122,7 +172,7 @@ export type SendChatResult = Message<"openhane.v1.SendChatResult"> & {
  * Use `create(SendChatResultSchema)` to create a new message.
  */
 export const SendChatResultSchema: GenMessage<SendChatResult> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_chat, 2);
+  messageDesc(file_openhane_v1_chat, 3);
 
 /**
  * @generated from message openhane.v1.GetChatHistory
@@ -153,7 +203,7 @@ export type GetChatHistory = Message<"openhane.v1.GetChatHistory"> & {
  * Use `create(GetChatHistorySchema)` to create a new message.
  */
 export const GetChatHistorySchema: GenMessage<GetChatHistory> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_chat, 3);
+  messageDesc(file_openhane_v1_chat, 4);
 
 /**
  * @generated from message openhane.v1.GetChatHistoryResult
@@ -177,5 +227,5 @@ export type GetChatHistoryResult = Message<"openhane.v1.GetChatHistoryResult"> &
  * Use `create(GetChatHistoryResultSchema)` to create a new message.
  */
 export const GetChatHistoryResultSchema: GenMessage<GetChatHistoryResult> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_chat, 4);
+  messageDesc(file_openhane_v1_chat, 5);
 

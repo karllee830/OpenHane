@@ -201,11 +201,22 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	}
 	text := strings.TrimSpace(m.GetText())
 	st := h.Settings()
-	if text == "" || !utf8.ValidString(text) || utf8.RuneCountInString(text) > st.ChatMaxLength {
+	if !utf8.ValidString(text) || utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && m.GetImageId() == "") {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is empty or too long")
 	}
 	if len(m.GetClientMsgId()) > 64 {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "client_msg_id too long")
+	}
+	var image *pb.ChatImage
+	if id := m.GetImageId(); id != "" {
+		// 只能发自己刚上传到这个房间、还没发出去的图片
+		p := h.pendingImages[id]
+		if p == nil || p.session != s.ID || p.room != room.ID {
+			return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown image")
+		}
+		p.timer.Stop()
+		delete(h.pendingImages, id)
+		image = &pb.ChatImage{Id: id, Width: uint32(p.img.Width), Height: uint32(p.img.Height), Size: uint32(p.img.Size)}
 	}
 	h.chatSeq++
 	msg := &pb.ChatMessage{
@@ -218,21 +229,37 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 		ReplyTo:         m.GetReplyTo(),
 		CreatedAtMs:     h.now().UnixMilli(),
 		ClientMsgId:     m.GetClientMsgId(),
+		Image:           image,
 	}
 	// 只持久化主会议（临时房间的聊天只在内存）；同步写入，保证历史查询能立即看到
-	if room.Kind == pb.RoomKind_ROOM_KIND_MAIN && st.ChatRetentionDays > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		err := h.store.InsertChat(ctx, &store.ChatMessage{
+	persisted := room.Kind == pb.RoomKind_ROOM_KIND_MAIN && st.ChatRetentionDays > 0
+	if persisted {
+		row := &store.ChatMessage{
 			ID: msg.Id, RoomID: msg.RoomId, SenderUID: msg.SenderUid, SenderName: msg.SenderName,
 			Body: msg.Text, ReplyTo: msg.ReplyTo, CreatedAt: msg.CreatedAtMs,
-		})
+		}
+		if image != nil {
+			row.ImageID, row.ImageWidth, row.ImageHeight, row.ImageSize = image.Id, int64(image.Width), int64(image.Height), int64(image.Size)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		err := h.store.InsertChat(ctx, row)
 		cancel()
 		if err != nil {
 			h.log.Error("chat persist failed", "err", err)
+			if image != nil {
+				h.deleteImage(room.ID, image.Id)
+			}
 			return errInternal()
 		}
+	} else if image != nil {
+		h.memImages[image.Id] = room.ID
 	}
-	room.remember(msg)
+	for _, old := range room.remember(msg) {
+		if id := old.GetImage().GetId(); id != "" && h.memImages[id] != "" {
+			delete(h.memImages, id)
+			h.deleteImage(room.ID, id)
+		}
+	}
 	h.broadcast(h.inRoom(room.ID), &pb.Event{Body: &pb.Event_ChatMessage{ChatMessage: msg}})
 	return &pb.Response{Body: &pb.Response_SendChat{SendChat: &pb.SendChatResult{Message: msg}}}
 }
@@ -264,10 +291,14 @@ func (h *Hub) handleChatHistory(s *Session, c Conn, id uint32, q *pb.GetChatHist
 		}
 		res := &pb.GetChatHistoryResult{HasMore: more}
 		for _, r := range rows {
-			res.Messages = append(res.Messages, &pb.ChatMessage{
+			m := &pb.ChatMessage{
 				Id: r.ID, RoomId: r.RoomID, SenderUid: r.SenderUID, SenderName: r.SenderName,
 				Text: r.Body, ReplyTo: r.ReplyTo, CreatedAtMs: r.CreatedAt,
-			})
+			}
+			if r.ImageID != "" {
+				m.Image = &pb.ChatImage{Id: r.ImageID, Width: uint32(r.ImageWidth), Height: uint32(r.ImageHeight), Size: uint32(r.ImageSize)}
+			}
+			res.Messages = append(res.Messages, m)
 		}
 		reply(c, id, &pb.Response{Body: &pb.Response_GetChatHistory{GetChatHistory: res}})
 		return nil
