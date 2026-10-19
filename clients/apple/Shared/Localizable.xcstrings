@@ -4274,6 +4274,16 @@
           }
         }
       }
+    },
+    "没有找到麦克风，只能收听": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No microphone found. You can only listen."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -49,6 +49,8 @@ public final class MediaSession {
     public private(set) var localThresholdDb: Double = -55
     public private(set) var transmitting = false
     public private(set) var micError: String?
+    /// 系统里没有音频输入设备（例如没接麦克风的 Mac mini）：不发布麦克风，只能收听。接上设备后自动发布
+    public private(set) var micUnavailable = false
     /// 每人音量（按媒体 identity），0–2，默认 1
     public private(set) var volumes: [String: Double] = [:]
     public var mode: VoiceMode = .voice {
@@ -333,7 +335,16 @@ public final class MediaSession {
         Int(d.components.seconds * 1000 + d.components.attoseconds / 1_000_000_000_000_000)
     }
 
+    /// 有没有音频输入设备。没有时不能开麦克风：LiveKit 会把不存在的输入接进音频引擎，AVAudioEngine 抛异常直接闪退
+    private static var hasAudioInput: Bool { AVCaptureDevice.default(for: .audio) != nil }
+
     private func publishMicrophone(_ r: LiveKit.Room, policy: MediaPolicy) async {
+        guard Self.hasAudioInput else {
+            micUnavailable = true
+            micError = nil
+            return
+        }
+        micUnavailable = false
         // 同一个房间的麦克风发布不并发：两次 setMicrophone 撞在一起时，其中一次会等不到服务器的回应而超时
         let id = ObjectIdentifier(r)
         guard !publishingMic.contains(id) else { return }
@@ -489,6 +500,10 @@ public final class MediaSession {
             return
         }
         guard let r = room, r.connectionState == .connected else { return }
+        if !muted, !Self.hasAudioInput {
+            micUnavailable = true
+            return
+        }
         _ = try? await r.localParticipant.setMicrophone(enabled: !muted)
     }
 
@@ -735,7 +750,7 @@ public final class MediaSession {
         if on {
             mixer.micVolume = micMuted ? 0 : 1
             mixer.appVolume = 1
-            if micMuted { _ = try? await r.localParticipant.setMicrophone(enabled: true) }
+            if micMuted, Self.hasAudioInput { _ = try? await r.localParticipant.setMicrophone(enabled: true) }
             if let pub = r.localParticipant.audioTracks.first as? LocalTrackPublication {
                 await pub.setAudioEncoding(maxBitrate: 128_000)
             }
@@ -974,6 +989,10 @@ public final class MediaSession {
         }.value
         if lists.inputs.map(\.deviceId) != inputDevices.map(\.deviceId) || lists.inputs.map(\.name) != inputDevices.map(\.name) { inputDevices = lists.inputs }
         if lists.outputs.map(\.deviceId) != outputDevices.map(\.deviceId) || lists.outputs.map(\.name) != outputDevices.map(\.name) { outputDevices = lists.outputs }
+        // 之前没有麦克风、现在接上了：补发布
+        if micUnavailable, Self.hasAudioInput, let r = connectedRoom, let policy = session.state.media?.policy {
+            await publishMicrophone(r, policy: policy)
+        }
     }
 
     @ObservationIgnored private var watchingDevices = false

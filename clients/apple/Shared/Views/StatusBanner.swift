@@ -15,6 +15,9 @@ struct StatusBanner: View {
             } else if model.media.status == .connecting {
                 pill("正在建立语音通道…", icon: "waveform", tint: .secondary, busy: true)
             }
+            if model.media.micUnavailable {
+                pill("没有找到麦克风，只能收听", icon: "mic.slash.fill", tint: .orange)
+            }
             if let e = model.media.micError {
                 pill("麦克风出错：\(e)", icon: "mic.slash.fill", tint: .red)
             }
