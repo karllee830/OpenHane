@@ -29,12 +29,12 @@ export function StatusBanner() {
   if (micError)
     items.push({
       tone: 'error',
-      text: micError === 'permission-denied' ? t('mic.permissionDenied') : micError === 'no-device' ? t('mic.noDevice') : t('mic.error', { message: micError }),
+      text: micError === 'permission-denied' ? t('mic.permissionDenied') : micError === 'no-device' ? t('mic.noDevice') : micError === 'busy' ? t('mic.busy') : t('mic.error', { message: micError }),
     });
   if (cameraError)
     items.push({
       tone: 'error',
-      text: cameraError === 'permission-denied' ? t('camera.permissionDenied') : cameraError === 'no-device' ? t('camera.noDevice') : cameraError === 'not-allowed' ? t('camera.notAllowed') : cameraError,
+      text: cameraError === 'permission-denied' ? t('camera.permissionDenied') : cameraError === 'no-device' ? t('camera.noDevice') : cameraError === 'not-allowed' ? t('camera.notAllowed') : cameraError === 'busy' ? t('camera.busy') : cameraError === 'disconnected' ? t('camera.disconnected') : cameraError,
     });
   if (needsUnlock) items.push({ tone: 'warn', text: t('audio.unlock'), onClick: () => void media.unlockAudio(), testId: 'audio-unlock' });
   if (update?.status === 'ready') items.push({ tone: 'info', text: t('update.ready', { version: update.version ?? '' }), onClick: () => platform.updates?.install(), testId: 'update-ready', icon: <RefreshCw size={15} className="shrink-0 text-accent" aria-hidden /> });

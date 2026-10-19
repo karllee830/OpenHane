@@ -4165,12 +4165,22 @@
         }
       }
     },
-    "没有找到麦克风，只能收听": {
+    "没有找到麦克风，只能收听。接上麦克风后会自动开启。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "No microphone found. You can only listen."
+            "value": "No microphone found. You can only listen; it turns on automatically once one is connected."
+          }
+        }
+      }
+    },
+    "摄像头已断开，已自动关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera was disconnected and turned off"
           }
         }
       }

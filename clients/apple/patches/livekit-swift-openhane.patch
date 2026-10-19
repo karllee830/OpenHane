@@ -1,3 +1,27 @@
+diff --git a/Sources/LiveKit/Audio/MixerEngineObserver.swift b/Sources/LiveKit/Audio/MixerEngineObserver.swift
+index 3e4e2c2..d7d3ac3 100644
+--- a/Sources/LiveKit/Audio/MixerEngineObserver.swift
++++ b/Sources/LiveKit/Audio/MixerEngineObserver.swift
+@@ -204,9 +204,16 @@ public final class MixerEngineObserver: AudioEngineObserver, Loggable {
+ 
+         // src is not null if device rendering mode.
+         if let src {
+-            log("Connecting src (device) to micMixer -> mainMixer")
+-            // mic (device) -> micMixer -> mainMixer
+-            engine.connect(src, to: micMixerNode, format: format)
++            // No input device (or the last one was just unplugged): the input node has no channels and
++            // connecting it makes AVAudioEngine raise an Objective-C exception that crashes the app.
++            let deviceFormat = src.outputFormat(forBus: 0)
++            if deviceFormat.channelCount > 0, deviceFormat.sampleRate > 0 {
++                log("Connecting src (device) to micMixer -> mainMixer")
++                // mic (device) -> micMixer -> mainMixer
++                engine.connect(src, to: micMixerNode, format: format)
++            } else {
++                log("Input device has no channels, skipping device input", .warning)
++            }
+         }
+ 
+         log("Connecting micAudio (player) to micMixer -> mainMixer")
 diff --git a/Sources/LiveKit/Core/SignalClient.swift b/Sources/LiveKit/Core/SignalClient.swift
 index c98e1d7..97de7b2 100644
 --- a/Sources/LiveKit/Core/SignalClient.swift
@@ -13,7 +37,7 @@ index c98e1d7..97de7b2 100644
                  throw LiveKitError(.network, internalError: connectionError)
              } catch let error as LiveKitError where error.type == .serviceNotFound {
 diff --git a/Sources/LiveKit/E2EE/E2EEManager.swift b/Sources/LiveKit/E2EE/E2EEManager.swift
-index 4796dfb..81e3f43 100644
+index 4796dfb..289e12d 100644
 --- a/Sources/LiveKit/E2EE/E2EEManager.swift
 +++ b/Sources/LiveKit/E2EE/E2EEManager.swift
 @@ -78,6 +78,8 @@ public class E2EEManager: NSObject, @unchecked Sendable, ObservableObject, Logga
@@ -134,7 +158,7 @@ index e4c4f95..e6b6957 100644
          func setConnectContinuation(_ continuation: CheckedContinuation<Void, Error>) {
              _continuation.mutate { $0 = continuation }
 diff --git a/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift b/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
-index 356e8c1..81bbfa3 100644
+index 356e8c1..7c88a80 100644
 --- a/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
 +++ b/Sources/LiveKit/TrackPublications/LocalTrackPublication.swift
 @@ -17,6 +17,8 @@

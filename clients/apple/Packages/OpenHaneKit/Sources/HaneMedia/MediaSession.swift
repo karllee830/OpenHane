@@ -339,6 +339,7 @@ public final class MediaSession {
     private static var hasAudioInput: Bool { AVCaptureDevice.default(for: .audio) != nil }
 
     private func publishMicrophone(_ r: LiveKit.Room, policy: MediaPolicy) async {
+        watchDevices()
         guard Self.hasAudioInput else {
             micUnavailable = true
             micError = nil
@@ -520,6 +521,7 @@ public final class MediaSession {
             switch chooseCamera(candidates, defaultID: AVCaptureDevice.default(for: .video)?.uniqueID) {
             case let .success(i):
                 device = devices[i]
+                watchCameraDisconnect()
             case let .failure(reason):
                 cameraUnavailable = reason
                 cameraOn = false
@@ -535,12 +537,30 @@ public final class MediaSession {
                 publishOptions: VideoPublishOptions(simulcast: true)
             )
             cameraOn = on
+            cameraDeviceID = on ? device?.uniqueID : nil
             cameraError = nil
         } catch {
             cameraOn = false
             cameraError = error.localizedDescription
         }
         refreshVideoTracks()
+    }
+
+    /// 正在使用的摄像头（macOS 自己挑选的设备）；被拔掉时据此关闭摄像头
+    @ObservationIgnored private var cameraDeviceID: String?
+    @ObservationIgnored private var cameraDisconnectObserver: NSObjectProtocol?
+
+    /// 摄像头被拔掉后 LiveKit 的轨道还在发布，只是一直没有新画面：主动关闭并提示
+    private func watchCameraDisconnect() {
+        guard cameraDisconnectObserver == nil else { return }
+        cameraDisconnectObserver = NotificationCenter.default.addObserver(forName: AVCaptureDevice.wasDisconnectedNotification, object: nil, queue: .main) { [weak self] note in
+            let id = (note.object as? AVCaptureDevice)?.uniqueID
+            Task { @MainActor in
+                guard let self, self.cameraOn, let id, id == self.cameraDeviceID else { return }
+                await self.setCameraEnabled(false)
+                self.cameraUnavailable = .disconnected
+            }
+        }
     }
 
     // MARK: 屏幕共享
@@ -975,24 +995,42 @@ public final class MediaSession {
     public private(set) var outputDevices: [AudioDevice] = []
     public func selectInput(_ d: AudioDevice) { AudioManager.shared.inputDevice = d }
     public func selectOutput(_ d: AudioDevice) { AudioManager.shared.outputDevice = d }
+    /// 改回跟随系统默认设备
+    public func selectDefaultInput() { if let d = inputDevices.first(where: \.isDefault) { selectInput(d) } }
+    public func selectDefaultOutput() { if let d = outputDevices.first(where: \.isDefault) { selectOutput(d) } }
 
     /// 在后台线程读取设备列表：每次读取都是对 WebRTC 内部线程的同步调用，共享屏幕时它忙着编码，在主线程上读会卡住界面。
     /// 第一次调用后跟随系统的设备变化（插拔耳机等）自动刷新
     public func refreshAudioDevices() async {
         struct Lists: @unchecked Sendable { let inputs, outputs: [AudioDevice] }
-        if !watchingDevices {
-            watchingDevices = true
-            AudioManager.shared.onDeviceUpdate = { [weak self] _ in Task { @MainActor in await self?.refreshAudioDevices() } }
-        }
+        watchDevices()
         let lists = await Task.detached(priority: .userInitiated) {
-            Lists(inputs: AudioManager.shared.inputDevices, outputs: AudioManager.shared.outputDevices)
+            let m = AudioManager.shared
+            let lists = Lists(inputs: m.inputDevices, outputs: m.outputDevices)
+            // 选中的设备被拔掉了：改回系统默认，不让音频引擎继续指向不存在的设备
+            if !lists.inputs.contains(where: { $0.deviceId == m.inputDevice.deviceId }), let d = lists.inputs.first(where: \.isDefault) { m.inputDevice = d }
+            if !lists.outputs.contains(where: { $0.deviceId == m.outputDevice.deviceId }), let d = lists.outputs.first(where: \.isDefault) { m.outputDevice = d }
+            return lists
         }.value
         if lists.inputs.map(\.deviceId) != inputDevices.map(\.deviceId) || lists.inputs.map(\.name) != inputDevices.map(\.name) { inputDevices = lists.inputs }
         if lists.outputs.map(\.deviceId) != outputDevices.map(\.deviceId) || lists.outputs.map(\.name) != outputDevices.map(\.name) { outputDevices = lists.outputs }
-        // 之前没有麦克风、现在接上了：补发布
-        if micUnavailable, Self.hasAudioInput, let r = connectedRoom, let policy = session.state.media?.policy {
+        guard let r = connectedRoom else { return }
+        if micUnavailable, Self.hasAudioInput, let policy = session.state.media?.policy {
+            // 之前没有麦克风、现在接上了：补发布
             await publishMicrophone(r, policy: policy)
+        } else if !micUnavailable, !Self.hasAudioInput, !sharingAudio,
+                  let pub = r.localParticipant.audioTracks.first as? LocalTrackPublication {
+            // 会议中拔掉了最后一个麦克风：取消发布，只能收听（LiveKit 补丁已保证音频引擎不会因此闪退）
+            micUnavailable = true
+            try? await r.localParticipant.unpublish(publication: pub)
         }
+    }
+
+    /// 跟随系统的音频设备变化（插拔麦克风、耳机）刷新设备列表并处理麦克风，只注册一次
+    private func watchDevices() {
+        guard !watchingDevices else { return }
+        watchingDevices = true
+        AudioManager.shared.onDeviceUpdate = { [weak self] _ in Task { @MainActor in await self?.refreshAudioDevices() } }
     }
 
     @ObservationIgnored private var watchingDevices = false

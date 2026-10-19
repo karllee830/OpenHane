@@ -22,6 +22,7 @@ import {
   Room,
   RoomEvent,
   Track,
+  TrackEvent,
   createLocalAudioTrack,
   type AudioProcessorOptions,
   type Participant,
@@ -240,12 +241,21 @@ export class MediaSession {
     };
     this.unsubClient = this.client.store.subscribe(follow);
     follow();
+    navigator.mediaDevices?.addEventListener('devicechange', this.onDeviceChange);
   }
+
+  /** 插上麦克风：之前因为没有设备而没能发布麦克风的，现在补发布 */
+  private readonly onDeviceChange = () => {
+    const room = this.room;
+    if (this.state.getState().micError !== 'no-device' || !room || room.state !== ConnectionState.Connected) return;
+    if (!room.localParticipant.getTrackPublication(Track.Source.Microphone)) void this.publishMic(room);
+  };
 
   /** 离开：断开媒体，释放麦克风和音频上下文。 */
   async stop(): Promise<void> {
     await this.stopScreenShare().catch(() => undefined);
     this.stopped = true;
+    navigator.mediaDevices?.removeEventListener('devicechange', this.onDeviceChange);
     this.unsubClient?.();
     this.unsubClient = null;
     if (this.retryTimer) clearTimeout(this.retryTimer);
@@ -588,6 +598,16 @@ export class MediaSession {
 
   // ---------- 摄像头 ----------
 
+  /** getUserMedia 的错误 → 界面显示用的代码 */
+  private static deviceError(e: unknown): string {
+    const name = (e as DOMException)?.name;
+    if (name === 'NotAllowedError') return 'permission-denied';
+    if (name === 'NotFoundError') return 'no-device';
+    // 设备被别的程序占用，或者驱动出错
+    if (name === 'NotReadableError' || name === 'AbortError') return 'busy';
+    return String(e);
+  }
+
   /** 开关摄像头：分辨率和帧率受服务器策略限制；≥ 540p 时三层 simulcast（避开两层） */
   async setCameraEnabled(on: boolean): Promise<void> {
     const room = await this.connectedRoom();
@@ -605,9 +625,14 @@ export class MediaSession {
         { videoCodec: 'vp8', simulcast: maxH >= 540, videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360] },
       );
       this.state.setState({ cameraOn: on, cameraError: null });
+      // 摄像头在会议中被拔掉：轨道结束后不会再有画面，关掉并提示
+      const track = on ? room.localParticipant.getTrackPublication(Track.Source.Camera)?.track : undefined;
+      track?.once(TrackEvent.Ended, () => {
+        if (!this.state.getState().cameraOn) return;
+        void this.setCameraEnabled(false).then(() => this.state.setState({ cameraError: 'disconnected' }));
+      });
     } catch (e) {
-      const name = (e as DOMException)?.name;
-      this.state.setState({ cameraOn: false, cameraError: name === 'NotAllowedError' ? 'permission-denied' : name === 'NotFoundError' ? 'no-device' : String(e) });
+      this.state.setState({ cameraOn: false, cameraError: MediaSession.deviceError(e) });
     }
   }
 
@@ -788,6 +813,8 @@ export class MediaSession {
           channelCount: 1,
         });
         this.micTrack.setAudioContext(this.ctx);
+        const track = this.micTrack;
+        track.on(TrackEvent.Ended, () => void this.onMicEnded(room, track));
         this.processor = new VoiceTrackProcessor(
           () => this.state.getState().prefs,
           (v) => this.attachVoice(v),
@@ -804,9 +831,28 @@ export class MediaSession {
       });
       this.state.setState({ micError: null });
     } catch (e) {
-      const name = (e as DOMException)?.name;
-      this.state.setState({ micError: name === 'NotAllowedError' ? 'permission-denied' : name === 'NotFoundError' ? 'no-device' : String(e) });
+      this.state.setState({ micError: MediaSession.deviceError(e) });
     }
+  }
+
+  /** 麦克风轨道结束（设备被拔掉）：还有别的麦克风就换到默认设备；一个都没有了就取消发布，接上后由 devicechange 补发布 */
+  private async onMicEnded(room: Room, track: LocalAudioTrack) {
+    if (this.micTrack !== track || this.room !== room) return;
+    const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+    if (devices.some((d) => d.kind === 'audioinput')) {
+      try {
+        await track.restartTrack({ deviceId: 'default' });
+        return;
+      } catch {
+        // 换设备也失败：按没有麦克风处理
+      }
+    }
+    if (this.micTrack !== track) return;
+    this.micTrack = null;
+    await room.localParticipant.unpublishTrack(track).catch(() => undefined);
+    await track.stopProcessor().catch(() => undefined);
+    track.stop();
+    this.state.setState({ micError: 'no-device' });
   }
 
   private attachVoice(v: VoiceProcessorNode) {

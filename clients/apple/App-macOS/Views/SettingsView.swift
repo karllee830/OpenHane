@@ -16,12 +16,20 @@ struct SettingsView: View {
         Form {
             Section {
                 Picker("输入设备", selection: Binding(get: { model.media.inputDevices.first { $0.deviceId == AudioDeviceSelection.input }?.deviceId ?? "" },
-                                                   set: { id in if let d = model.media.inputDevices.first(where: { $0.deviceId == id }) { model.media.selectInput(d); AudioDeviceSelection.input = id; devicesTick += 1 } })) {
+                                                   set: { id in
+                                                       if id.isEmpty { model.media.selectDefaultInput() } else if let d = model.media.inputDevices.first(where: { $0.deviceId == id }) { model.media.selectInput(d) } else { return }
+                                                       AudioDeviceSelection.input = id
+                                                       devicesTick += 1
+                                                   })) {
                     Text("系统默认").tag("")
                     ForEach(model.media.inputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
                 }
                 Picker("输出设备", selection: Binding(get: { model.media.outputDevices.first { $0.deviceId == AudioDeviceSelection.output }?.deviceId ?? "" },
-                                                    set: { id in if let d = model.media.outputDevices.first(where: { $0.deviceId == id }) { model.media.selectOutput(d); AudioDeviceSelection.output = id; devicesTick += 1 } })) {
+                                                    set: { id in
+                                                        if id.isEmpty { model.media.selectDefaultOutput() } else if let d = model.media.outputDevices.first(where: { $0.deviceId == id }) { model.media.selectOutput(d) } else { return }
+                                                        AudioDeviceSelection.output = id
+                                                        devicesTick += 1
+                                                    })) {
                     Text("系统默认").tag("")
                     ForEach(model.media.outputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
                 }
