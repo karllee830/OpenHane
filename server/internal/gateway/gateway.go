@@ -25,6 +25,8 @@ type Info struct {
 	Protocol         Range  `json:"protocol"`
 	RequiresPassword bool   `json:"requires_password"`
 	WebClient        bool   `json:"web_client"`
+	// Online 是在线人数（客户端的服务器列表里显示）
+	Online int `json:"online"`
 }
 
 type Range struct {
@@ -112,6 +114,8 @@ func New(cfg *config.Config, tm *tlsmgr.Manager, h *Handlers, log *slog.Logger) 
 		})
 	}
 	mux.HandleFunc("GET /api/v1/info", func(w http.ResponseWriter, _ *http.Request) {
+		// 公开信息，不带凭据：允许任意来源读取（桌面版和网页版的服务器列表据此显示在线人数和延迟）
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		if h.Info == nil {
 			unavailable(w, nil)
 			return

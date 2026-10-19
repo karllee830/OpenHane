@@ -52,6 +52,13 @@ public final class TrustStore: @unchecked Sendable {
         }
     }
 
+    /// 只检查、不记住：CA 签发的有效证书，或与已记住的指纹一致（服务器列表探测延迟用，不能替用户信任新证书）
+    public func isTrusted(_ trust: SecTrust, hostPort: String) -> Bool {
+        if SecTrustEvaluateWithError(trust, nil) { return true }
+        guard let spki = Self.spki(trust) else { return false }
+        return lock.withLock { pins[hostPort.lowercased()] } == Self.format(spki)
+    }
+
     /// 生成给 URLSession / LiveKit SDK 使用的信任回调（回调里只有主机名，端口由调用方提供）。
     public func evaluator(port: Int) -> @Sendable (SecTrust, String) -> Bool {
         { [self] trust, host in

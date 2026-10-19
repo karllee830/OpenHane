@@ -76,6 +76,8 @@ type Hub struct {
 
 	settings   atomic.Pointer[settings.Settings]
 	settingsMu sync.Mutex // 串行化设置修改（计算 → 持久化 → 生效）
+	// 在线会话数（含重连宽限期内的），供公开信息接口读取，不经过 Hub 协程
+	online atomic.Int32
 
 	// 以下只在 Hub 协程中访问
 	sessions map[string]*Session // 会话 ID → 会话
@@ -115,6 +117,9 @@ func New(opt Options) *Hub {
 	h.rooms[MainRoomID] = &Room{ID: MainRoomID, Kind: pb.RoomKind_ROOM_KIND_MAIN, CreatedAt: h.now(), Overrides: &pb.RoomOverrides{}, decodable: baselineDecodable}
 	return h
 }
+
+// Online 返回在线会话数（任意协程可调用）。
+func (h *Hub) Online() int { return int(h.online.Load()) }
 
 // Settings 返回当前设置快照（任意协程可调用）。
 func (h *Hub) Settings() *settings.Settings { return h.settings.Load() }

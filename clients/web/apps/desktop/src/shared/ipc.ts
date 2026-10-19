@@ -32,6 +32,8 @@ export interface TofuMismatchMsg {
 
 export interface TrayStateMsg {
   connected: boolean;
+  /** 界面在会议页（已连接或正在重连）：主窗口用会议页的大小 */
+  meeting: boolean;
   muted: boolean;
   deafened: boolean;
   serverName?: string;

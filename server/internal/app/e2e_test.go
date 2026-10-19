@@ -78,6 +78,17 @@ func TestEndToEndMedia(t *testing.T) {
 		}
 	}
 
+	// /api/v1/info：公开的在线人数，允许跨域读取
+	iresp, err := http.Get(base + "/api/v1/info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ibody, _ := io.ReadAll(iresp.Body)
+	iresp.Body.Close()
+	if iresp.Header.Get("Access-Control-Allow-Origin") != "*" || !strings.Contains(string(ibody), `"online":2`) {
+		t.Fatalf("info: %v %s", iresp.Header, ibody)
+	}
+
 	grant := alice.Welcome.GetAutoJoin().GetMedia()
 	if grant.GetToken() == "" {
 		t.Fatal("no media token")

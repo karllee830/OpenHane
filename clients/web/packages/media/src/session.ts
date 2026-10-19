@@ -40,6 +40,8 @@ export interface AudioPrefs {
   threshold: 'auto' | number;
   inputDeviceId: string;
   outputDeviceId: string;
+  /** 摄像头；旧版本保存的设置里没有 */
+  cameraDeviceId?: string;
   /** 戴耳机时可以关闭回声消除，音质更自然 */
   headphones: boolean;
 }
@@ -619,9 +621,10 @@ export class MediaSession {
     const maxH = cam?.maxHeight || 720;
     const preset = maxH >= 720 ? VideoPresets.h720 : maxH >= 540 ? VideoPresets.h540 : VideoPresets.h360;
     try {
+      const deviceId = this.state.getState().prefs.cameraDeviceId;
       await room.localParticipant.setCameraEnabled(
         on,
-        { resolution: { ...preset.resolution, frameRate: Math.min(cam?.maxFps || 30, 30) } },
+        { deviceId: deviceId && deviceId !== 'default' ? deviceId : undefined, resolution: { ...preset.resolution, frameRate: Math.min(cam?.maxFps || 30, 30) } },
         { videoCodec: 'vp8', simulcast: maxH >= 540, videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360] },
       );
       this.state.setState({ cameraOn: on, cameraError: null });
@@ -901,6 +904,9 @@ export class MediaSession {
       await this.room.switchActiveDevice('audioinput', prefs.inputDeviceId).catch(() => undefined);
     }
     if (patch.outputDeviceId !== undefined) for (const el of this.audioEls.values()) await this.applyOutputDevice(el);
+    if (patch.cameraDeviceId !== undefined && this.room && this.state.getState().cameraOn) {
+      await this.room.switchActiveDevice('videoinput', prefs.cameraDeviceId || 'default').catch(() => undefined);
+    }
     if (patch.headphones !== undefined && this.micTrack) {
       await this.micTrack.restartTrack({ echoCancellation: !prefs.headphones, noiseSuppression: false, autoGainControl: true });
     }
@@ -936,9 +942,9 @@ export class MediaSession {
   }
 
   /** 列出音频设备（需要已获得麦克风权限才有设备名称）。 */
-  static async devices(): Promise<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[] }> {
+  static async devices(): Promise<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[]; cameras: MediaDeviceInfo[] }> {
     const all = await navigator.mediaDevices.enumerateDevices();
-    return { inputs: all.filter((d) => d.kind === 'audioinput'), outputs: all.filter((d) => d.kind === 'audiooutput') };
+    return { inputs: all.filter((d) => d.kind === 'audioinput'), outputs: all.filter((d) => d.kind === 'audiooutput'), cameras: all.filter((d) => d.kind === 'videoinput') };
   }
 
   /** 用于诊断：当前的 Room（测试和连接信息页）。 */

@@ -40,8 +40,13 @@ async function launch(userData: string): Promise<{ app: ElectronApplication; win
 
 async function connect(win: Page) {
   await win.getByTestId('address').fill(`127.0.0.1:${server.port}`);
-  await win.getByTestId('nickname').fill('桌面用户');
   await win.getByTestId('connect').click();
+  // 第一次使用还没有昵称：在弹出的对话框里填写
+  const nickname = win.getByTestId('nickname');
+  if (await nickname.waitFor({ timeout: 2000 }).then(() => true, () => false)) {
+    await nickname.fill('桌面用户');
+    await win.getByTestId('join-submit').click();
+  }
 }
 
 test('desktop app: TOFU pinning, sandbox, share picker + content protection, persistent identity, fingerprint change warning', async () => {

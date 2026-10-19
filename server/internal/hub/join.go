@@ -87,6 +87,7 @@ func (h *Hub) join(p JoinParams) (*Session, *pb.Error) {
 		s.State.MicMuted = true
 	}
 	h.sessions[s.ID] = s
+	h.online.Store(int32(len(h.sessions)))
 	h.byTicket[s.ticket] = s
 	h.byMedia[s.MediaID] = s
 	s.ShareMediaID = s.MediaID + "#s"
@@ -236,6 +237,7 @@ func (h *Hub) removeSession(s *Session, reason string) {
 	}
 	h.releaseShare(s, false)
 	delete(h.sessions, s.ID)
+	h.online.Store(int32(len(h.sessions)))
 	delete(h.byTicket, s.ticket)
 	delete(h.byMedia, s.MediaID)
 	delete(h.byMedia, s.ShareMediaID)

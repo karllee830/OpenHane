@@ -2,274 +2,306 @@ import AppKit
 import HaneCore
 import SwiftUI
 
-/// 连接页：输入地址 → 输入昵称 → 连接。
-/// 有最近连接、窗口又够宽时分成两栏（与 Xcode 的欢迎窗口相同：左边是操作，右边是最近项目）。
+/// 主页：上方是地址栏（连接按钮在框内右侧），下面是服务器列表（收藏的置顶），点一下即可连接。
+/// 每台服务器记住自己的昵称；还缺昵称或服务器密码时先弹出对话框补上。右上角是设置。
 struct ConnectView: View {
     @Environment(AppModel.self) private var model
+    @Environment(\.openWindow) private var openWindow
     @State private var address = ""
-    @State private var password = ""
-    @State private var showPassword = false
-    @FocusState private var focus: Field?
-    private enum Field { case address, nickname, password }
+    @State private var connectingTo = ""
+    @State private var join: JoinTarget?
+    @State private var editing: RecentServer?
+    @FocusState private var addressFocused: Bool
 
     private var busy: Bool { model.session.status == .connecting }
-    private var needsPassword: Bool {
-        showPassword || model.connectError?.code == .passwordRequired || model.connectError?.code == .passwordInvalid
-            // 已知需要密码的服务器直接显示密码框，不必先失败一次；邀请链接免密码
-            || (model.linkInvite == nil && model.recentServer(for: address)?.needsPassword == true)
-    }
-    private var canConnect: Bool {
-        !busy && !address.trimmingCharacters(in: .whitespaces).isEmpty && !model.nickname.trimmingCharacters(in: .whitespaces).isEmpty
-    }
+    private var query: AddressQuery { AddressQuery(address, model: model) }
 
     var body: some View {
-        GeometryReader { geo in
-            ScrollView {
-                let twoColumns = geo.size.width >= 860 && !model.recentServers.isEmpty
-                VStack(spacing: 28) {
-                    BrandHeader()
-                    if twoColumns {
-                        HStack(alignment: .top, spacing: 20) {
-                            form.frame(width: 400)
-                            recents.frame(width: 340)
-                        }
-                    } else {
-                        VStack(spacing: 16) {
-                            form
-                            if !model.recentServers.isEmpty { recents }
-                        }
-                        .frame(maxWidth: 420)
-                    }
-                    Label("你的身份保存在钥匙串中，并通过 iCloud 钥匙串在你的设备之间同步。", systemImage: "checkmark.shield")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
+        VStack(spacing: 0) {
+            HStack {
+                BrandBar(markSize: 22)
+                Spacer()
+                SettingsLink {
+                    Image(systemName: "gearshape")
+                        .font(.system(size: 14))
+                        .frame(width: 26, height: 26)
+                        .contentShape(Rectangle())
                 }
+                .buttonStyle(.borderless)
+                .help("设置")
+                .accessibilityLabel("设置")
+                .accessibilityIdentifier("home-settings")
+            }
+            .padding(.leading, 20)
+            .padding(.trailing, 14)
+            .padding(.top, 4)
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 0) {
+                    addressBar
+                    hints
+                    if model.recentServers.isEmpty {
+                        empty
+                    } else if query.shown.isEmpty {
+                        Text("列表里没有匹配的服务器，按回车连接这个地址。")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 22)
+                            .padding(.horizontal, 4)
+                    } else {
+                        section("服务器列表", systemImage: "server.rack", servers: query.shown)
+                    }
+                }
+                .frame(maxWidth: 600)
                 .padding(.horizontal, 24)
-                .padding(.vertical, 32)
-                .frame(maxWidth: .infinity, minHeight: geo.size.height)
-                .animation(.snappy(duration: 0.25), value: needsPassword)
-                .animation(.snappy(duration: 0.25), value: model.connectError)
+                .padding(.top, 24)
+                .padding(.bottom, 24)
+                .frame(maxWidth: .infinity)
             }
             .scrollBounceBehavior(.basedOnSize)
+
+            HStack(alignment: .firstTextBaseline, spacing: 16) {
+                Label("你的身份保存在钥匙串中，并通过 iCloud 钥匙串在你的设备之间同步。", systemImage: "checkmark.shield")
+                    .lineLimit(2)
+                Spacer(minLength: 0)
+                Button("关于羽见") { openWindow(id: "about") }
+                    .buttonStyle(.link)
+                    .foregroundStyle(.secondary)
+                    .fixedSize()
+                    .accessibilityIdentifier("about-open")
+            }
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+            .padding(.horizontal, 20)
+            .padding(.vertical, 10)
         }
         .background(Backdrop())
+        .hideWindowTitle()
+        .animation(.snappy(duration: 0.25), value: model.connectError)
+        .animation(.snappy(duration: 0.25), value: model.recentServers)
+        .sheet(item: $join) { JoinSheet(target: $0) }
+        .sheet(item: $editing) { EditServerSheet(server: $0) }
+        .task { await model.watchServerStatus() }
         .onChange(of: model.linkAddress) { _, a in if let a { address = a } }
         .onAppear {
             if let a = model.linkAddress { address = a }
-            if address.isEmpty { address = model.recentServers.first?.address ?? "" }
-            focus = address.isEmpty ? .address : model.nickname.trimmingCharacters(in: .whitespaces).isEmpty ? .nickname : needsPassword ? .password : .nickname
-        }
-        .onChange(of: model.connectError) { _, err in
-            if err?.code == .passwordRequired || err?.code == .passwordInvalid {
-                showPassword = true
-                focus = .password
-            }
+            if model.recentServers.isEmpty || model.linkAddress != nil { addressFocused = true }
         }
     }
 
-    // MARK: 连接表单
+    // MARK: 地址栏
 
-    private var form: some View {
-        @Bindable var model = model
-        return VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text("连接到服务器")
-                    .font(.title3.weight(.semibold))
-                Text("填写服务器地址和昵称即可加入，不需要注册。")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            if model.linkInvite != nil { InviteBanner() }
-
-            labeled("服务器地址") {
-                InputBox(focused: focus == .address) {
-                    Image(systemName: "server.rack").foregroundStyle(.secondary).frame(width: 20).accessibilityHidden(true)
-                    TextField("服务器地址", text: $address, prompt: Text("例如 meet.example.com 或 203.0.113.10:9800"))
-                        .focused($focus, equals: .address)
-                        .accessibilityIdentifier("address")
-                    if let a = try? ServerAddress.parse(address) {
-                        Image(systemName: a.secure ? "lock.fill" : "lock.open.fill")
-                            .foregroundStyle(a.secure ? Color.green : Color.orange)
-                            .help(a.secure ? L("加密连接") : L("未加密的连接（http://），只建议在本机或内网测试时使用。"))
-                            .accessibilityLabel(a.secure ? L("加密连接") : L("未加密的连接（http://），只建议在本机或内网测试时使用。"))
+    private var addressBar: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "server.rack")
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
+                .accessibilityHidden(true)
+            // 占位文字自己画：plain 样式的 prompt 在这里显示成正文颜色
+            TextField("搜索或输入服务器地址", text: $address, prompt: Text(verbatim: ""))
+                .textFieldStyle(.plain)
+                .font(.system(size: 13))
+                .focused($addressFocused)
+                .onSubmit { open(query.target) }
+                .onExitCommand { address = "" }
+                .background(alignment: .leading) {
+                    if address.isEmpty {
+                        Text("搜索或输入服务器地址")
+                            .font(.system(size: 13))
+                            .foregroundStyle(.tertiary)
+                            .allowsHitTesting(false)
+                            .accessibilityHidden(true)
                     }
                 }
+                .accessibilityIdentifier("address")
+            if query.isAddress, let a = try? ServerAddress.parse(address) {
+                Image(systemName: a.secure ? "lock.fill" : "lock.open.fill")
+                    .foregroundStyle(a.secure ? Color.green : Color.orange)
+                    .help(a.secure ? L("加密连接") : L("未加密的连接（http://），只建议在本机或内网测试时使用。"))
+                    .accessibilityLabel(a.secure ? L("加密连接") : L("未加密的连接（http://），只建议在本机或内网测试时使用。"))
             }
-            if ServerAddress.isInsecure(address) {
+            Button { open(query.target) } label: {
+                HStack(spacing: 5) {
+                    if busy, connectingTo == query.target {
+                        ProgressView().controlSize(.small)
+                    }
+                    Text("连接")
+                    Image(systemName: "arrow.right")
+                }
+                .padding(.horizontal, 4)
+            }
+            .buttonStyle(.borderedProminent)
+            .keyboardShortcut(.defaultAction)
+            .disabled(busy || address.trimmingCharacters(in: .whitespaces).isEmpty)
+            .accessibilityIdentifier("connect")
+        }
+        .focusEffectDisabled()
+        .padding(.leading, 12)
+        .padding(.trailing, 5)
+        .frame(height: 40)
+        .background(RoundedRectangle(cornerRadius: 11, style: .continuous).fill(Color(nsColor: .textBackgroundColor)))
+        .overlay {
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .strokeBorder(addressFocused ? Color.accentColor : Color(nsColor: .separatorColor), lineWidth: addressFocused ? 1.5 : 1)
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(Color.accentColor.opacity(addressFocused ? 0.25 : 0), lineWidth: 3.5)
+                .padding(-2)
+        }
+        .shadow(color: .black.opacity(0.05), radius: 8, y: 3)
+        .animation(.easeOut(duration: 0.15), value: addressFocused)
+    }
+
+    /// 地址栏下面：未加密提示、邀请提示、连接失败的原因（补填对话框打开时显示在对话框里）
+    @ViewBuilder private var hints: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            if query.isAddress, ServerAddress.isInsecure(address) {
                 Text("未加密的连接（http://），只建议在本机或内网测试时使用。")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .padding(.top, -8)
             }
-
-            labeled("昵称") {
-                InputBox(focused: focus == .nickname) {
-                    NicknameAvatar(name: model.nickname).frame(width: 20)
-                    TextField("昵称", text: $model.nickname, prompt: Text("其他人看到的名字"))
-                        .focused($focus, equals: .nickname)
-                        .accessibilityIdentifier("nickname")
-                }
+            if model.linkInvite != nil { InviteBanner() }
+            if let err = model.connectError, join == nil {
+                ConnectErrorView(error: err).transition(.opacity)
             }
-
-            if needsPassword {
-                labeled("服务器密码") {
-                    InputBox(focused: focus == .password) {
-                        Image(systemName: "key.fill").foregroundStyle(.secondary).frame(width: 20).accessibilityHidden(true)
-                        SecureField("服务器密码", text: $password, prompt: Text("向服务器管理员索取"))
-                            .focused($focus, equals: .password)
-                            .accessibilityIdentifier("password")
-                    }
-                }
-                .transition(.opacity.combined(with: .move(edge: .top)))
-            }
-
-            if let err = model.connectError {
-                ConnectErrorView(error: err)
-                    .transition(.opacity)
-            }
-
-            Button { connect() } label: {
-                HStack(spacing: 6) {
-                    if busy {
-                        ProgressView().controlSize(.small)
-                        Text("正在连接…")
-                    } else {
-                        Text("连接")
-                        Image(systemName: "arrow.right")
-                    }
-                }
-                .frame(maxWidth: .infinity)
-            }
-            .buttonStyle(.borderedProminent)
-            .controlSize(.extraLarge)
-            .keyboardShortcut(.defaultAction)
-            .disabled(!canConnect)
-            .accessibilityIdentifier("connect")
         }
-        .textFieldStyle(.plain)
-        .onSubmit { connect() }
-        .padding(24)
-        .background(Card())
+        .padding(.top, 10)
+        .padding(.horizontal, 2)
     }
 
-    private func labeled(_ title: LocalizedStringKey, @ViewBuilder content: () -> some View) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title).font(.callout.weight(.medium))
-            content()
-        }
-    }
+    // MARK: 服务器列表
 
-    // MARK: 最近连接
-
-    private var recents: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Label("最近连接", systemImage: "clock.arrow.circlepath")
-                .font(.subheadline.weight(.medium))
+    private func section(_ title: LocalizedStringKey, systemImage: String, servers: [RecentServer]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: systemImage)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
-                .padding(.horizontal, 8)
-                .padding(.bottom, 4)
-            ForEach(model.recentServers) { server in
-                RecentServerRow(server: server, disabled: busy, connect: { pick(server) }, forget: { model.forget(server) })
+                .padding(.horizontal, 4)
+            VStack(spacing: 2) {
+                ForEach(servers) { server in
+                    ServerRow(server: server,
+                              nickname: model.nickname(for: server.address),
+                              status: model.serverStatus[server.address],
+                              connecting: busy && connectingTo == server.address,
+                              disabled: busy,
+                              highlighted: server.address == query.target,
+                              connect: { open(server.address) },
+                              favorite: { model.toggleFavorite(server) },
+                              edit: { editing = server },
+                              forget: { model.forget(server) })
+                }
             }
+            .padding(6)
+            .background(Card())
         }
-        .padding(12)
-        .background(Card())
+        .padding(.top, 22)
     }
 
-    /// 点一下最近连接直接连接；还缺昵称或密码时先补上
-    private func pick(_ server: RecentServer) {
-        address = server.address
-        if model.nickname.trimmingCharacters(in: .whitespaces).isEmpty {
-            focus = .nickname
-        } else if server.needsPassword, model.linkInvite == nil, password.isEmpty {
-            focus = .password
-        } else {
-            connect(to: server.address)
+    private var empty: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "server.rack")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+                .frame(width: 44, height: 44)
+                .background(Color.primary.opacity(0.06), in: Circle())
+                .padding(.bottom, 2)
+            Text("还没有服务器")
+                .font(.callout.weight(.medium))
+            Text("在上方输入服务器地址开始连接；连接过的服务器会显示在这里，可以收藏和加备注。")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: 320)
         }
+        .padding(.vertical, 36)
+        .frame(maxWidth: .infinity)
+        .background {
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .strokeBorder(Color.primary.opacity(0.12), style: StrokeStyle(lineWidth: 1, dash: [5, 4]))
+        }
+        .padding(.top, 24)
+        .accessibilityElement(children: .combine)
     }
 
-    private func connect(to target: String? = nil) {
-        let a = (target ?? address).trimmingCharacters(in: .whitespaces)
-        guard !busy, !a.isEmpty, !model.nickname.trimmingCharacters(in: .whitespaces).isEmpty else { return }
-        Task { await model.connect(address: a, password: password) }
+    private func open(_ target: String) {
+        let a = target.trimmingCharacters(in: .whitespaces)
+        guard !busy, !a.isEmpty else { return }
+        connectingTo = a
+        Task {
+            join = await model.open(a)
+            connectingTo = ""
+        }
     }
 }
 
-/// 带图标的输入框：图标在框内左侧，获得焦点时描边变成强调色
-private struct InputBox<Content: View>: View {
-    var focused: Bool
-    @ViewBuilder var content: Content
-
-    var body: some View {
-        HStack(spacing: 8) { content }
-            .focusEffectDisabled()
-            .padding(.horizontal, 10)
-            .frame(height: 34)
-            .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color(nsColor: .textBackgroundColor)))
-            .overlay {
-                RoundedRectangle(cornerRadius: 8, style: .continuous)
-                    .strokeBorder(focused ? Color.accentColor : Color(nsColor: .separatorColor), lineWidth: focused ? 1.5 : 1)
-            }
-            .background {
-                RoundedRectangle(cornerRadius: 11, style: .continuous)
-                    .stroke(Color.accentColor.opacity(focused ? 0.25 : 0), lineWidth: 3.5)
-                    .padding(-2)
-            }
-            .animation(.easeOut(duration: 0.15), value: focused)
-    }
-}
-
-/// 最近连接的一行：悬停时高亮并显示「移除」，右键菜单可以拷贝地址
-private struct RecentServerRow: View {
+/// 列表的一行：悬停时高亮；右侧的星星收藏，「…」和右键菜单里可以改备注和昵称、复制地址、移除
+private struct ServerRow: View {
     let server: RecentServer
+    let nickname: String
+    let status: ServerStatus?
+    let connecting: Bool
     let disabled: Bool
+    /// 在地址栏按回车会连这一台（搜索时高亮）
+    let highlighted: Bool
     let connect: () -> Void
+    let favorite: () -> Void
+    let edit: () -> Void
     let forget: () -> Void
     @State private var hovering = false
 
     var body: some View {
-        Button(action: connect) {
-            RecentServerLabel(server: server)
-                .padding(.vertical, 6)
-                .padding(.leading, 8)
-                .padding(.trailing, 32)
-                .background {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(Color.accentColor.opacity(hovering && !disabled ? 0.1 : 0))
-                }
-        }
-        .buttonStyle(.plain)
-        .disabled(disabled)
-        .overlay(alignment: .trailing) {
-            if hovering {
-                Button(action: forget) {
-                    Image(systemName: "xmark")
-                        .font(.caption.weight(.semibold))
-                        .frame(width: 22, height: 22)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.borderless)
-                .foregroundStyle(.secondary)
-                .padding(.trailing, 8)
-                .help("从最近连接中移除")
-                .accessibilityLabel("从最近连接中移除")
+        HStack(spacing: 4) {
+            Button(action: connect) {
+                ServerRowLabel(server: server, nickname: nickname, status: status, connecting: connecting, tileSize: 32)
+                    .padding(.vertical, 4)
+                    .padding(.leading, 8)
             }
+            .buttonStyle(.plain)
+            .disabled(disabled)
+            FavoriteStar(favorite: server.favorite, toggle: favorite)
+            Menu {
+                actions
+            } label: {
+                Image(systemName: "ellipsis")
+                    .frame(width: 24, height: 24)
+                    .contentShape(Rectangle())
+            }
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .foregroundStyle(.secondary)
+            .padding(.trailing, 6)
+            .help("更多操作")
+            .accessibilityLabel("更多操作")
+            .accessibilityIdentifier("server-menu")
+        }
+        .background {
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(Color.accentColor.opacity(highlighted ? 0.12 : hovering && !disabled ? 0.08 : 0))
         }
         .onHover { hovering = $0 }
         .help(server.address)
         .contextMenu {
             Button("连接", action: connect).disabled(disabled)
-            Button("复制地址") {
-                NSPasteboard.general.clearContents()
-                NSPasteboard.general.setString(server.address, forType: .string)
-            }
             Divider()
-            Button("从最近连接中移除", role: .destructive, action: forget)
+            actions
         }
-        .accessibilityAction(named: Text("从最近连接中移除"), forget)
+        .accessibilityElement(children: .combine)
+        .accessibilityAction(named: Text(server.favoriteAction), favorite)
+        .accessibilityAction(named: Text("备注和昵称…"), edit)
+        .accessibilityAction(named: Text("从列表中移除"), forget)
         .accessibilityIdentifier("recent-server")
+    }
+
+    @ViewBuilder private var actions: some View {
+        Button("备注和昵称…", systemImage: "square.and.pencil", action: edit)
+        Button("复制地址", systemImage: "doc.on.doc") {
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(server.address, forType: .string)
+        }
+        Divider()
+        Button("从列表中移除", systemImage: "trash", role: .destructive, action: forget)
     }
 }
 
@@ -278,11 +310,11 @@ private struct Card: View {
     @Environment(\.colorScheme) private var scheme
 
     var body: some View {
-        let shape = RoundedRectangle(cornerRadius: 16, style: .continuous)
+        let shape = RoundedRectangle(cornerRadius: 12, style: .continuous)
         shape
             .fill(scheme == .dark ? Color.white.opacity(0.05) : Color(nsColor: .controlBackgroundColor))
             .overlay(shape.strokeBorder(Color.primary.opacity(scheme == .dark ? 0.1 : 0.08)))
-            .shadow(color: .black.opacity(scheme == .dark ? 0.25 : 0.06), radius: 14, y: 6)
+            .shadow(color: .black.opacity(scheme == .dark ? 0.2 : 0.04), radius: 10, y: 4)
     }
 }
 
@@ -296,5 +328,17 @@ private struct Backdrop: View {
                 .frame(height: 420)
         }
         .ignoresSafeArea()
+    }
+}
+
+private extension View {
+    /// 主页左上角已经有标识，不再显示窗口标题，标题栏透明（背景延伸上去）。macOS 14 没有这些接口，保留标题
+    @ViewBuilder func hideWindowTitle() -> some View {
+        if #available(macOS 15.0, *) {
+            toolbar(removing: .title)
+                .toolbarBackgroundVisibility(.hidden, for: .windowToolbar)
+        } else {
+            self
+        }
     }
 }

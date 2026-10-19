@@ -1565,16 +1565,6 @@
         }
       }
     },
-    "填写服务器地址和昵称即可加入，不需要注册。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter the server address and a nickname to join. No account needed."
-          }
-        }
-      }
-    },
     "复制": {
       "localizations": {
         "en": {
@@ -2495,12 +2485,232 @@
         }
       }
     },
-    "最近连接": {
+    "还没有服务器": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recent servers"
+            "value": "No servers yet"
+          }
+        }
+      }
+    },
+    "在上方输入服务器地址开始连接；连接过的服务器会显示在这里，可以收藏和加备注。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a server address above to connect. Servers you connect to show up here, where you can favorite them and add notes."
+          }
+        }
+      }
+    },
+    "更多操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More actions"
+          }
+        }
+      }
+    },
+    "取消收藏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "备注和昵称…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note and Nickname…"
+          }
+        }
+      }
+    },
+    "备注和昵称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note and Nickname"
+          }
+        }
+      }
+    },
+    "从列表中移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from List"
+          }
+        }
+      }
+    },
+    "连接到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to %@"
+          }
+        }
+      }
+    },
+    "正在检测…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        }
+      }
+    },
+    "无法连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unreachable"
+          }
+        }
+      }
+    },
+    "延迟 %lld ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latency %lld ms"
+          }
+        }
+      }
+    },
+    "%lld 人在线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld online"
+          }
+        }
+      }
+    },
+    "昵称 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickname %@"
+          }
+        }
+      }
+    },
+    "默认：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default: %@"
+          }
+        }
+      }
+    },
+    "代替服务器名称显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown instead of the server name"
+          }
+        }
+      }
+    },
+    "备注": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
+    "未连接的摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected camera"
+          }
+        }
+      }
+    },
+    "音频输出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Output"
+          }
+        }
+      }
+    },
+    "麦克风和扬声器跟随系统：接上耳机或连上蓝牙设备后自动切换。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone and speaker follow the system and switch automatically when you plug in headphones or connect a Bluetooth device."
+          }
+        }
+      }
+    },
+    "服务器列表": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servers"
+          }
+        }
+      }
+    },
+    "搜索或输入服务器地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or enter an address"
+          }
+        }
+      }
+    },
+    "列表里没有匹配的服务器，按回车连接这个地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching servers. Press Return to connect to this address."
+          }
+        }
+      }
+    },
+    "加入收藏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
           }
         }
       }
@@ -4165,26 +4375,6 @@
         }
       }
     },
-    "没有找到麦克风，只能收听。接上麦克风后会自动开启。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No microphone found. You can only listen; it turns on automatically once one is connected."
-          }
-        }
-      }
-    },
-    "摄像头已断开，已自动关闭": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The camera was disconnected and turned off"
-          }
-        }
-      }
-    },
     "点击复制 IP 地址": {
       "localizations": {
         "en": {
@@ -4201,6 +4391,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copied"
+          }
+        }
+      }
+    },
+    "没有找到麦克风，只能收听。接上麦克风后会自动开启。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No microphone found. You can only listen; it turns on automatically once one is connected."
+          }
+        }
+      }
+    },
+    "摄像头已断开，已自动关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera was disconnected and turned off"
           }
         }
       }

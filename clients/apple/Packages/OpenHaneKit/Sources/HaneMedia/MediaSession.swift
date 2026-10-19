@@ -518,7 +518,7 @@ public final class MediaSession {
         if on {
             let devices = (try? await CameraCapturer.captureDevices()) ?? []
             let candidates = devices.map { CameraCandidate(id: $0.uniqueID, connected: $0.isConnected, suspended: $0.isSuspended) }
-            switch chooseCamera(candidates, defaultID: AVCaptureDevice.default(for: .video)?.uniqueID) {
+            switch chooseCamera(candidates, defaultID: preferredCameraID ?? AVCaptureDevice.default(for: .video)?.uniqueID) {
             case let .success(i):
                 device = devices[i]
                 watchCameraDisconnect()
@@ -544,6 +544,17 @@ public final class MediaSession {
             cameraError = error.localizedDescription
         }
         refreshVideoTracks()
+    }
+
+    /// 设置里选的摄像头（AVCaptureDevice.uniqueID）；nil 表示系统默认。不可用时自动换一个能用的
+    @ObservationIgnored public var preferredCameraID: String?
+
+    /// 换摄像头：正开着时重新打开，立即换成新设备
+    public func setPreferredCamera(_ id: String?) async {
+        preferredCameraID = id
+        guard cameraOn else { return }
+        await setCameraEnabled(false)
+        await setCameraEnabled(true)
     }
 
     /// 正在使用的摄像头（macOS 自己挑选的设备）；被拔掉时据此关闭摄像头

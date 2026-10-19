@@ -19,9 +19,9 @@ struct OpenHaneApp: App {
             RootView()
                 .environment(model)
                 .onOpenURL { model.handle(url: $0) }
-                .frame(minWidth: 720, minHeight: 480)
         }
-        .defaultSize(width: 1100, height: 720)
+        // 第一次打开时的大小（主页）；之后由 RootView 按主页 / 会议页分别调整
+        .defaultSize(WindowSizes.size(.home, area: NSScreen.main?.visibleFrame.size ?? CGSize(width: 1920, height: 1050)))
         .commands {
             CommandGroup(replacing: .newItem) {}
             CommandGroup(replacing: .appInfo) {
@@ -58,15 +58,58 @@ struct OpenHaneApp: App {
 
 struct RootView: View {
     @Environment(AppModel.self) private var model
+    /// 显示会议页：跟随 isInMeeting。进入会议时先把窗口换成会议页的大小再切换（会议页的三栏在太窄的窗口里会让 AppKit 布局死循环）
+    @State private var showMeeting = false
+    @State private var window: NSWindow?
+
+    private var mode: WindowSizes.Mode { showMeeting ? .meeting : .home }
 
     var body: some View {
         Group {
-            if model.isInMeeting { MeetingView() } else { ConnectView() }
+            if showMeeting { MeetingView() } else { ConnectView() }
+        }
+        .frame(minWidth: WindowSizes.minSize(mode).width, minHeight: WindowSizes.minSize(mode).height)
+        .background(WindowReader(window: $window))
+        // 拿到窗口时换成当前页面的大小（上次可能是在会议页里退出的）
+        .onChange(of: window) { _, w in
+            guard let w else { return }
+            if model.isInMeeting != showMeeting { setMeeting(model.isInMeeting) } else { WindowSizes.apply(mode, to: w) }
+        }
+        .onChange(of: model.isInMeeting) { _, inMeeting in setMeeting(inMeeting) }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didEndLiveResizeNotification)) { note in
+            if let window, note.object as? NSWindow === window { WindowSizes.remember(mode, window: window) }
         }
         .sheet(item: Binding(get: { model.tofuMismatch.map(MismatchItem.init) }, set: { if $0 == nil { model.tofuMismatch = nil } })) { item in
             TofuWarningView(mismatch: item.m).environment(model).interactiveDismissDisabled()
         }
         .task { await SnapshotHarness.runIfRequested(model) }
+    }
+
+    /// 进入会议：先放大窗口再显示会议页；离开会议：先换回主页（放宽最小尺寸）再缩小窗口
+    private func setMeeting(_ inMeeting: Bool) {
+        guard inMeeting != showMeeting else { return }
+        if inMeeting {
+            if let window { WindowSizes.apply(.meeting, to: window) }
+            showMeeting = true
+        } else {
+            showMeeting = false
+            DispatchQueue.main.async { if let window { WindowSizes.apply(.home, to: window) } }
+        }
+    }
+}
+
+/// 取得视图所在的窗口
+private struct WindowReader: NSViewRepresentable {
+    @Binding var window: NSWindow?
+
+    func makeNSView(context _: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async { window = view.window }
+        return view
+    }
+
+    func updateNSView(_ view: NSView, context _: Context) {
+        if view.window !== window { DispatchQueue.main.async { window = view.window } }
     }
 }
 

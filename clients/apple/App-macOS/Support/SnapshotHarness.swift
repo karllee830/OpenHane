@@ -71,8 +71,7 @@ enum SnapshotHarness {
 
     private static func autoconnect(_ model: AppModel, _ spec: String) async {
         let parts = spec.split(separator: "|", maxSplits: 1).map(String.init)
-        if parts.count == 2 { model.nickname = parts[1] }
-        await model.connect(address: parts[0], password: "")
+        await model.connect(address: parts[0], password: "", nickname: parts.count == 2 ? parts[1] : nil)
     }
 
     /// 单独渲染一个视图（popover 里的内容，主窗口截图里没有）：放进临时窗口后截取

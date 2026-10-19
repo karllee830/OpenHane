@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var recording = false
     @State private var monitor: Any?
     @State private var devicesTick = 0
+    @State private var cameras: [AVCaptureDevice] = []
 
     var body: some View {
         @Bindable var model = model
@@ -33,6 +34,17 @@ struct SettingsView: View {
                     Text("系统默认").tag("")
                     ForEach(model.media.outputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
                 }
+            }
+            Section {
+                Picker("摄像头", selection: $model.cameraID) {
+                    Text("系统默认").tag("")
+                    ForEach(cameras, id: \.uniqueID) { Text($0.localizedName).tag($0.uniqueID) }
+                    // 选过的摄像头现在没接上：仍然显示，不让选择框变成空白
+                    if !model.cameraID.isEmpty, !cameras.contains(where: { $0.uniqueID == model.cameraID }) {
+                        Text("未连接的摄像头").tag(model.cameraID)
+                    }
+                }
+                .accessibilityIdentifier("camera-select")
             }
             Section("回声消除") {
                 Picker("回声消除", selection: $model.echoProcessing) {
@@ -104,6 +116,10 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .frame(width: 480)
         .task { await model.media.refreshAudioDevices() }
+        // 摄像头列表：打开设置时读一次，插拔时更新
+        .onAppear { cameras = Self.videoDevices() }
+        .onReceive(NotificationCenter.default.publisher(for: AVCaptureDevice.wasConnectedNotification)) { _ in cameras = Self.videoDevices() }
+        .onReceive(NotificationCenter.default.publisher(for: AVCaptureDevice.wasDisconnectedNotification)) { _ in cameras = Self.videoDevices() }
         .onDisappear(perform: stopRecording)
     }
 
@@ -152,6 +168,13 @@ struct LevelMeter: View {
         }
         .frame(height: 10)
         .accessibilityLabel(Text("输入电平"))
+    }
+}
+
+extension SettingsView {
+    /// 可选的摄像头：内置、外接和连续互通相机
+    static func videoDevices() -> [AVCaptureDevice] {
+        AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .external, .continuityCamera], mediaType: .video, position: .unspecified).devices
     }
 }
 

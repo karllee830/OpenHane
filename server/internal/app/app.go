@@ -228,7 +228,15 @@ func (a *App) info() gateway.Info {
 		Protocol:         gateway.Range{Min: ProtocolMin, Max: ProtocolMax},
 		RequiresPassword: s.ServerPassword != "",
 		WebClient:        webui.Available(),
+		Online:           a.online(),
 	}
+}
+
+func (a *App) online() int {
+	if a.hub == nil {
+		return 0
+	}
+	return a.hub.Online()
 }
 
 // certReloadLoop：file 模式下每分钟检查证书文件是否更新（例如 certbot 续期后），收到 SIGHUP 时立即检查，无需重启。
