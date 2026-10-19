@@ -18,6 +18,7 @@ import (
 	"github.com/karllee830/OpenHane/server/internal/adminsock"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/hub"
 	"github.com/karllee830/OpenHane/server/internal/media"
 	"github.com/karllee830/OpenHane/server/internal/ratelimit"
@@ -108,6 +109,7 @@ func (a *App) Run(ctx context.Context) error {
 	a.hub = hub.New(hub.Options{
 		Store: a.store, Media: a.media, Settings: a.settings, ServerID: a.serverID, Version: a.Version,
 		ProtocolMin: ProtocolMin, ProtocolMax: ProtocolMax, Log: a.Log,
+		GeoIP: geoip.Open(a.Cfg.DataDir, a.Log.With("component", "geoip")),
 	})
 	hubCtx, stopHub := context.WithCancel(context.Background())
 	defer stopHub()

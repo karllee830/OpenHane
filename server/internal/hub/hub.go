@@ -14,6 +14,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/media"
 	"github.com/karllee830/OpenHane/server/internal/pb"
 	"github.com/karllee830/OpenHane/server/internal/perm"
@@ -59,6 +60,7 @@ type Options struct {
 	ResumeGrace   time.Duration // 测试时可缩短
 	ShareGrace    time.Duration // 测试时可缩短（默认 ShareRepublishGrace）
 	StoreClientIP func() bool
+	GeoIP         *geoip.DB // nil 表示不查归属地
 }
 
 type Hub struct {

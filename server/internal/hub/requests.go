@@ -152,6 +152,10 @@ func (h *Hub) dispatch(s *Session, c Conn, req *pb.Request) *pb.Response {
 		return h.handleListInvites(c, req.GetId())
 	case *pb.Request_RevokeInvite:
 		return h.handleRevokeInvite(s, c, req.GetId(), b.RevokeInvite)
+	case *pb.Request_GetSessionInfo:
+		return h.handleSessionInfo(b.GetSessionInfo)
+	case *pb.Request_DownloadIpv6GeoDb:
+		return h.handleDownloadIPv6GeoDB(s, c, req.GetId())
 	}
 	return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown request")
 }

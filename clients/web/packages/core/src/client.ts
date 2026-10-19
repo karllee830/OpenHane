@@ -20,9 +20,12 @@ import {
   RevokeInviteSchema,
   RoomOverridesSchema,
   SetRoleSchema,
+  GetSessionInfoSchema,
+  DownloadIPv6GeoDBSchema,
   UpdateRoomSchema,
   type AuditEntry,
   type BanInfo,
+  type GetSessionInfoResult,
   type CreateRoomResult,
   type Identity,
   type InviteInfo,
@@ -640,13 +643,14 @@ export class OpenHaneClient {
   /** 发送请求并等待响应；失败时 reject HaneError。 */
   async request<C extends NonNullable<RequestBody['case']>>(
     body: Extract<RequestBody, { case: C }>,
+    timeoutMs = REQUEST_TIMEOUT,
   ): Promise<ResultOf<C>> {
     const id = this.nextId++;
     const resp = await new Promise<Response>((resolve, reject) => {
       const timer = setTimeout(() => {
         this.pending.delete(id);
         reject(new HaneError(LocalErrorCode.TIMEOUT, 'request timeout'));
-      }, REQUEST_TIMEOUT);
+      }, timeoutMs);
       this.pending.set(id, { resolve, reject, timer });
       if (!this.send({ case: 'request', value: create(RequestSchema, { id, body }) })) {
         clearTimeout(timer);
@@ -817,6 +821,16 @@ export class OpenHaneClient {
 
   async setRole(uid: string, role: Role): Promise<void> {
     await this.request({ case: 'setRole', value: create(SetRoleSchema, { uid, role }) });
+  }
+
+  /** 在线会话的 IP、归属地和往返延迟 */
+  async getSessionInfo(sessionId: string): Promise<GetSessionInfoResult> {
+    return this.request({ case: 'getSessionInfo', value: create(GetSessionInfoSchema, { sessionId }) });
+  }
+
+  /** 让服务器下载 IPv6 归属地库（约 37 MB），完成后才返回 */
+  async downloadIPv6GeoDB(): Promise<void> {
+    await this.request({ case: 'downloadIpv6GeoDb', value: create(DownloadIPv6GeoDBSchema) }, 10 * 60_000);
   }
 
   async listBans(): Promise<BanInfo[]> {

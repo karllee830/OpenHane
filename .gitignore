@@ -9,6 +9,8 @@ node_modules/
 dist/
 # 例外：服务端嵌入网页版的目录必须存在（目录里的 .gitignore 只保留占位文件），否则 go build 找不到 embed 目标
 !server/internal/webui/dist/
+# 同理：服务端内嵌的 IPv4 归属地库目录（库文件由 server/scripts/fetch-geoip.sh 下载，不入库）
+!server/internal/geoip/data/
 .build/
 DerivedData/
 

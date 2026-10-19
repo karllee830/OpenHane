@@ -14,7 +14,7 @@ import type { Message } from "@bufbuild/protobuf";
  * Describes the file openhane/v1/admin.proto.
  */
 export const file_openhane_v1_admin: GenFile = /*@__PURE__*/
-  fileDesc("ChdvcGVuaGFuZS92MS9hZG1pbi5wcm90bxILb3BlbmhhbmUudjEiDQoLR2V0U2V0dGluZ3MifgoRR2V0U2V0dGluZ3NSZXN1bHQSOgoGdmFsdWVzGAEgAygLMioub3BlbmhhbmUudjEuR2V0U2V0dGluZ3NSZXN1bHQuVmFsdWVzRW50cnkaLQoLVmFsdWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJ1Cg5VcGRhdGVTZXR0aW5ncxI1CgVwYXRjaBgBIAMoCzImLm9wZW5oYW5lLnYxLlVwZGF0ZVNldHRpbmdzLlBhdGNoRW50cnkaLAoKUGF0Y2hFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIoQBChRVcGRhdGVTZXR0aW5nc1Jlc3VsdBI9CgZ2YWx1ZXMYASADKAsyLS5vcGVuaGFuZS52MS5VcGRhdGVTZXR0aW5nc1Jlc3VsdC5WYWx1ZXNFbnRyeRotCgtWYWx1ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIsUBCglUb2tlbkluZm8SCgoCaWQYASABKAkSHwoEcm9sZRgCIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUSEAoIbWF4X3VzZXMYAyABKA0SEgoKdXNlZF9jb3VudBgEIAEoDRIVCg1leHBpcmVzX2F0X21zGAUgASgDEhIKCmNyZWF0ZWRfYnkYBiABKAkSFQoNY3JlYXRlZF9hdF9tcxgHIAEoAxIVCg1yZXZva2VkX2F0X21zGAggASgDEgwKBG5vdGUYCSABKAkiZgoLQ3JlYXRlVG9rZW4SHwoEcm9sZRgBIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUSEAoIbWF4X3VzZXMYAiABKA0SFgoOZXhwaXJlc19pbl9zZWMYAyABKA0SDAoEbm90ZRgEIAEoCSJIChFDcmVhdGVUb2tlblJlc3VsdBINCgV0b2tlbhgBIAEoCRIkCgRpbmZvGAIgASgLMhYub3BlbmhhbmUudjEuVG9rZW5JbmZvIgwKCkxpc3RUb2tlbnMiOgoQTGlzdFRva2Vuc1Jlc3VsdBImCgZ0b2tlbnMYASADKAsyFi5vcGVuaGFuZS52MS5Ub2tlbkluZm8iGQoLUmV2b2tlVG9rZW4SCgoCaWQYASABKAkiEwoRUmV2b2tlVG9rZW5SZXN1bHQiNwoHU2V0Um9sZRILCgN1aWQYASABKAkSHwoEcm9sZRgCIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUiDwoNU2V0Um9sZVJlc3VsdCKhAQoISWRlbnRpdHkSCwoDdWlkGAEgASgJEh8KBHJvbGUYAiABKA4yES5vcGVuaGFuZS52MS5Sb2xlEhUKDWxhc3Rfbmlja25hbWUYAyABKAkSGAoQZmlyc3Rfc2Vlbl9hdF9tcxgEIAEoAxIXCg9sYXN0X3NlZW5fYXRfbXMYBSABKAMSDwoHbGFzdF9pcBgGIAEoCRIMCgRub3RlGAcgASgJIlAKDkxpc3RJZGVudGl0aWVzEh8KBHJvbGUYASABKA4yES5vcGVuaGFuZS52MS5Sb2xlEg0KBWxpbWl0GAIgASgNEg4KBm9mZnNldBgDIAEoDSJQChRMaXN0SWRlbnRpdGllc1Jlc3VsdBIpCgppZGVudGl0aWVzGAEgAygLMhUub3BlbmhhbmUudjEuSWRlbnRpdHkSDQoFdG90YWwYAiABKA0iOgoRU2VydmVySW5mb1VwZGF0ZWQSJQoEaW5mbxgBIAEoCzIXLm9wZW5oYW5lLnYxLlNlcnZlckluZm8ilAEKDFNlcnZlck5vdGljZRIsCgRraW5kGAEgASgOMh4ub3BlbmhhbmUudjEuU2VydmVyTm90aWNlLktpbmQSDAoEdGV4dBgCIAEoCSJICgRLaW5kEhQKEEtJTkRfVU5TUEVDSUZJRUQQABIVChFLSU5EX0FOTk9VTkNFTUVOVBABEhMKD0tJTkRfUkVTVEFSVElORxACQqABCg9jb20ub3BlbmhhbmUudjFCCkFkbWluUHJvdG9QAVo0Z2l0aHViLmNvbS9rYXJsbGVlODMwL09wZW5IYW5lL3NlcnZlci9pbnRlcm5hbC9wYjtwYqICA09YWKoCC09wZW5oYW5lLlYxygILT3BlbmhhbmVcVjHiAhdPcGVuaGFuZVxWMVxHUEJNZXRhZGF0YeoCDE9wZW5oYW5lOjpWMWIGcHJvdG8z", [file_openhane_v1_handshake, file_openhane_v1_session]);
+  fileDesc("ChdvcGVuaGFuZS92MS9hZG1pbi5wcm90bxILb3BlbmhhbmUudjEiDQoLR2V0U2V0dGluZ3MifgoRR2V0U2V0dGluZ3NSZXN1bHQSOgoGdmFsdWVzGAEgAygLMioub3BlbmhhbmUudjEuR2V0U2V0dGluZ3NSZXN1bHQuVmFsdWVzRW50cnkaLQoLVmFsdWVzRW50cnkSCwoDa2V5GAEgASgJEg0KBXZhbHVlGAIgASgJOgI4ASJ1Cg5VcGRhdGVTZXR0aW5ncxI1CgVwYXRjaBgBIAMoCzImLm9wZW5oYW5lLnYxLlVwZGF0ZVNldHRpbmdzLlBhdGNoRW50cnkaLAoKUGF0Y2hFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIoQBChRVcGRhdGVTZXR0aW5nc1Jlc3VsdBI9CgZ2YWx1ZXMYASADKAsyLS5vcGVuaGFuZS52MS5VcGRhdGVTZXR0aW5nc1Jlc3VsdC5WYWx1ZXNFbnRyeRotCgtWYWx1ZXNFbnRyeRILCgNrZXkYASABKAkSDQoFdmFsdWUYAiABKAk6AjgBIsUBCglUb2tlbkluZm8SCgoCaWQYASABKAkSHwoEcm9sZRgCIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUSEAoIbWF4X3VzZXMYAyABKA0SEgoKdXNlZF9jb3VudBgEIAEoDRIVCg1leHBpcmVzX2F0X21zGAUgASgDEhIKCmNyZWF0ZWRfYnkYBiABKAkSFQoNY3JlYXRlZF9hdF9tcxgHIAEoAxIVCg1yZXZva2VkX2F0X21zGAggASgDEgwKBG5vdGUYCSABKAkiZgoLQ3JlYXRlVG9rZW4SHwoEcm9sZRgBIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUSEAoIbWF4X3VzZXMYAiABKA0SFgoOZXhwaXJlc19pbl9zZWMYAyABKA0SDAoEbm90ZRgEIAEoCSJIChFDcmVhdGVUb2tlblJlc3VsdBINCgV0b2tlbhgBIAEoCRIkCgRpbmZvGAIgASgLMhYub3BlbmhhbmUudjEuVG9rZW5JbmZvIgwKCkxpc3RUb2tlbnMiOgoQTGlzdFRva2Vuc1Jlc3VsdBImCgZ0b2tlbnMYASADKAsyFi5vcGVuaGFuZS52MS5Ub2tlbkluZm8iGQoLUmV2b2tlVG9rZW4SCgoCaWQYASABKAkiEwoRUmV2b2tlVG9rZW5SZXN1bHQiNwoHU2V0Um9sZRILCgN1aWQYASABKAkSHwoEcm9sZRgCIAEoDjIRLm9wZW5oYW5lLnYxLlJvbGUiDwoNU2V0Um9sZVJlc3VsdCKhAQoISWRlbnRpdHkSCwoDdWlkGAEgASgJEh8KBHJvbGUYAiABKA4yES5vcGVuaGFuZS52MS5Sb2xlEhUKDWxhc3Rfbmlja25hbWUYAyABKAkSGAoQZmlyc3Rfc2Vlbl9hdF9tcxgEIAEoAxIXCg9sYXN0X3NlZW5fYXRfbXMYBSABKAMSDwoHbGFzdF9pcBgGIAEoCRIMCgRub3RlGAcgASgJIlAKDkxpc3RJZGVudGl0aWVzEh8KBHJvbGUYASABKA4yES5vcGVuaGFuZS52MS5Sb2xlEg0KBWxpbWl0GAIgASgNEg4KBm9mZnNldBgDIAEoDSJQChRMaXN0SWRlbnRpdGllc1Jlc3VsdBIpCgppZGVudGl0aWVzGAEgAygLMhUub3BlbmhhbmUudjEuSWRlbnRpdHkSDQoFdG90YWwYAiABKA0iJAoOR2V0U2Vzc2lvbkluZm8SEgoKc2Vzc2lvbl9pZBgBIAEoCSKJAQoUR2V0U2Vzc2lvbkluZm9SZXN1bHQSCgoCaXAYASABKAkSDwoHY291bnRyeRgCIAEoCRIQCghwcm92aW5jZRgDIAEoCRIMCgRjaXR5GAQgASgJEgsKA2lzcBgFIAEoCRIOCgZydHRfbXMYBiABKA0SFwoPaXB2Nl9kYl9taXNzaW5nGAcgASgIIhMKEURvd25sb2FkSVB2Nkdlb0RCIhkKF0Rvd25sb2FkSVB2Nkdlb0RCUmVzdWx0IjoKEVNlcnZlckluZm9VcGRhdGVkEiUKBGluZm8YASABKAsyFy5vcGVuaGFuZS52MS5TZXJ2ZXJJbmZvIpQBCgxTZXJ2ZXJOb3RpY2USLAoEa2luZBgBIAEoDjIeLm9wZW5oYW5lLnYxLlNlcnZlck5vdGljZS5LaW5kEgwKBHRleHQYAiABKAkiSAoES2luZBIUChBLSU5EX1VOU1BFQ0lGSUVEEAASFQoRS0lORF9BTk5PVU5DRU1FTlQQARITCg9LSU5EX1JFU1RBUlRJTkcQAkKgAQoPY29tLm9wZW5oYW5lLnYxQgpBZG1pblByb3RvUAFaNGdpdGh1Yi5jb20va2FybGxlZTgzMC9PcGVuSGFuZS9zZXJ2ZXIvaW50ZXJuYWwvcGI7cGKiAgNPWFiqAgtPcGVuaGFuZS5WMcoCC09wZW5oYW5lXFYx4gIXT3BlbmhhbmVcVjFcR1BCTWV0YWRhdGHqAgxPcGVuaGFuZTo6VjFiBnByb3RvMw", [file_openhane_v1_handshake, file_openhane_v1_session]);
 
 /**
  * 服务器设置以「键 → JSON 值」表示，键名见管理员手册（https://github.com/karllee830/OpenHane/wiki/Admin-Guide）第 10 节。
@@ -404,6 +404,106 @@ export const ListIdentitiesResultSchema: GenMessage<ListIdentitiesResult> = /*@_
   messageDesc(file_openhane_v1_admin, 15);
 
 /**
+ * 在线会话的连接信息：IP、归属地（服务端内置的离线库）和控制连接的往返延迟。
+ *
+ * @generated from message openhane.v1.GetSessionInfo
+ */
+export type GetSessionInfo = Message<"openhane.v1.GetSessionInfo"> & {
+  /**
+   * @generated from field: string session_id = 1;
+   */
+  sessionId: string;
+};
+
+/**
+ * Describes the message openhane.v1.GetSessionInfo.
+ * Use `create(GetSessionInfoSchema)` to create a new message.
+ */
+export const GetSessionInfoSchema: GenMessage<GetSessionInfo> = /*@__PURE__*/
+  messageDesc(file_openhane_v1_admin, 16);
+
+/**
+ * @generated from message openhane.v1.GetSessionInfoResult
+ */
+export type GetSessionInfoResult = Message<"openhane.v1.GetSessionInfoResult"> & {
+  /**
+   * @generated from field: string ip = 1;
+   */
+  ip: string;
+
+  /**
+   * 归属地，查不到的部分为空；名称是中文
+   *
+   * @generated from field: string country = 2;
+   */
+  country: string;
+
+  /**
+   * @generated from field: string province = 3;
+   */
+  province: string;
+
+  /**
+   * @generated from field: string city = 4;
+   */
+  city: string;
+
+  /**
+   * @generated from field: string isp = 5;
+   */
+  isp: string;
+
+  /**
+   * 0 表示还没测到
+   *
+   * @generated from field: uint32 rtt_ms = 6;
+   */
+  rttMs: number;
+
+  /**
+   * IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+   *
+   * @generated from field: bool ipv6_db_missing = 7;
+   */
+  ipv6DbMissing: boolean;
+};
+
+/**
+ * Describes the message openhane.v1.GetSessionInfoResult.
+ * Use `create(GetSessionInfoResultSchema)` to create a new message.
+ */
+export const GetSessionInfoResultSchema: GenMessage<GetSessionInfoResult> = /*@__PURE__*/
+  messageDesc(file_openhane_v1_admin, 17);
+
+/**
+ * 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。
+ *
+ * @generated from message openhane.v1.DownloadIPv6GeoDB
+ */
+export type DownloadIPv6GeoDB = Message<"openhane.v1.DownloadIPv6GeoDB"> & {
+};
+
+/**
+ * Describes the message openhane.v1.DownloadIPv6GeoDB.
+ * Use `create(DownloadIPv6GeoDBSchema)` to create a new message.
+ */
+export const DownloadIPv6GeoDBSchema: GenMessage<DownloadIPv6GeoDB> = /*@__PURE__*/
+  messageDesc(file_openhane_v1_admin, 18);
+
+/**
+ * @generated from message openhane.v1.DownloadIPv6GeoDBResult
+ */
+export type DownloadIPv6GeoDBResult = Message<"openhane.v1.DownloadIPv6GeoDBResult"> & {
+};
+
+/**
+ * Describes the message openhane.v1.DownloadIPv6GeoDBResult.
+ * Use `create(DownloadIPv6GeoDBResultSchema)` to create a new message.
+ */
+export const DownloadIPv6GeoDBResultSchema: GenMessage<DownloadIPv6GeoDBResult> = /*@__PURE__*/
+  messageDesc(file_openhane_v1_admin, 19);
+
+/**
  * @generated from message openhane.v1.ServerInfoUpdated
  */
 export type ServerInfoUpdated = Message<"openhane.v1.ServerInfoUpdated"> & {
@@ -418,7 +518,7 @@ export type ServerInfoUpdated = Message<"openhane.v1.ServerInfoUpdated"> & {
  * Use `create(ServerInfoUpdatedSchema)` to create a new message.
  */
 export const ServerInfoUpdatedSchema: GenMessage<ServerInfoUpdated> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_admin, 16);
+  messageDesc(file_openhane_v1_admin, 20);
 
 /**
  * @generated from message openhane.v1.ServerNotice
@@ -440,7 +540,7 @@ export type ServerNotice = Message<"openhane.v1.ServerNotice"> & {
  * Use `create(ServerNoticeSchema)` to create a new message.
  */
 export const ServerNoticeSchema: GenMessage<ServerNotice> = /*@__PURE__*/
-  messageDesc(file_openhane_v1_admin, 17);
+  messageDesc(file_openhane_v1_admin, 21);
 
 /**
  * @generated from enum openhane.v1.ServerNotice.Kind
@@ -466,5 +566,5 @@ export enum ServerNotice_Kind {
  * Describes the enum openhane.v1.ServerNotice.Kind.
  */
 export const ServerNotice_KindSchema: GenEnum<ServerNotice_Kind> = /*@__PURE__*/
-  enumDesc(file_openhane_v1_admin, 17, 0);
+  enumDesc(file_openhane_v1_admin, 21, 0);
 

@@ -69,6 +69,8 @@ message Request {
     CreateInvite create_invite = 111;
     ListInvites list_invites = 112;
     RevokeInvite revoke_invite = 113;
+    GetSessionInfo get_session_info = 114;
+    DownloadIPv6GeoDB download_ipv6_geo_db = 115;
   }
 }
 
@@ -112,6 +114,8 @@ message Response {
     CreateInviteResult create_invite = 111;
     ListInvitesResult list_invites = 112;
     RevokeInviteResult revoke_invite = 113;
+    GetSessionInfoResult get_session_info = 114;
+    DownloadIPv6GeoDBResult download_ipv6_geo_db = 115;
   }
 }
 

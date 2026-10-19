@@ -15,6 +15,7 @@ replace github.com/pion/ice/v4 => github.com/livekit/ice/v4 v4.4.0-warp.3
 require (
 	github.com/go-logr/logr v1.4.4
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
+	github.com/lionsoul2014/ip2region/binding/golang v0.0.0-20261018023631-f8b0792b0cd7
 	github.com/livekit/livekit-server v1.13.9
 	github.com/livekit/protocol v1.52.2-0.20261007103317-a935cd67c29a
 	github.com/livekit/server-sdk-go/v2 v2.19.0

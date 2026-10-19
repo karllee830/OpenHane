@@ -363,13 +363,13 @@ public final class ServerSession {
 
     // MARK: 请求
 
-    /// 发送请求并等待响应（10 秒超时）；失败时抛出 HaneError。
-    public func request(_ body: Openhane_V1_Request.OneOf_Body) async throws -> Openhane_V1_Response {
+    /// 发送请求并等待响应（默认 10 秒超时）；失败时抛出 HaneError。
+    public func request(_ body: Openhane_V1_Request.OneOf_Body, timeout: Double = 10) async throws -> Openhane_V1_Response {
         guard let c = conn, status == .connected else { throw HaneError.connectionLost }
         let id = nextID
         nextID &+= 1
         let req = Openhane_V1_Envelope.with { $0.request = .with { $0.id = id; $0.body = body } }
-        return try await withTimeout(seconds: 10, onTimeout: { [weak self] in self?.pending[id] = nil }) { [self] in
+        return try await withTimeout(seconds: timeout, onTimeout: { [weak self] in self?.pending[id] = nil }) { [self] in
             try await withCheckedThrowingContinuation { cont in
                 pending[id] = cont
                 Task {
@@ -616,6 +616,18 @@ public extension ServerSession {
             $0.uid = uid
             $0.role = role
         }))
+    }
+
+    /// 在线会话的 IP、归属地和往返延迟
+    func sessionInfo(_ sessionID: String) async throws -> Openhane_V1_GetSessionInfoResult {
+        let r = try await request(.getSessionInfo(.with { $0.sessionID = sessionID }))
+        if case let .getSessionInfo(x) = r.body { return x }
+        return .init()
+    }
+
+    /// 让服务器下载 IPv6 归属地库（约 37 MB），完成后才返回
+    func downloadIPv6GeoDB() async throws {
+        _ = try await request(.downloadIpv6GeoDb(.init()), timeout: 600)
     }
 
     func listBans() async throws -> [Openhane_V1_BanInfo] {

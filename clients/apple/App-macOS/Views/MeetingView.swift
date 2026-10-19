@@ -203,7 +203,8 @@ struct MemberRow: View {
     let p: Participant
     let isSelf: Bool
     let onKickBan: (ModerationSheet.Kind) -> Void
-    @State private var showVolume = false
+    @State private var showMenu = false
+    @State private var showGeoAlert = false
 
     var body: some View {
         let perms = model.session.state.permissions
@@ -218,28 +219,95 @@ struct MemberRow: View {
             StatusIcons(p: p)
         }
         .contentShape(Rectangle())
-        .onTapGesture { if !isSelf { showVolume = true } }
-        .popover(isPresented: $showVolume, arrowEdge: .trailing) {
-            let v = model.media.volumes[p.mediaIdentity] ?? 1
-            VStack(alignment: .leading) {
-                Text(p.nickname).font(.headline)
-                Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
-                Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
-                    .frame(width: 200)
-            }
-            .padding()
+        // 左键、右键都打开同一个弹出框
+        .onTapGesture { if !isSelf { showMenu = true } }
+        .overlay { if !isSelf { RightClickCatcher { showMenu = true } } }
+        .popover(isPresented: $showMenu, arrowEdge: .trailing) {
+            MemberPopover(p: p, onKickBan: onKickBan, onDownloadV6: { showMenu = false; showGeoAlert = true })
         }
-        .contextMenu {
-            if !isSelf { Button("调整音量…") { showVolume = true } }
-            ModerationMenuItems(p: p, onKickBan: onKickBan)
-        }
+        .ipv6GeoAlert(isPresented: $showGeoAlert, model: model)
         .accessibilityElement(children: .combine)
+        .accessibilityAction(named: Text("成员菜单")) { if !isSelf { showMenu = true } }
         // 自己可以拖到别的房间（等同于进入）；主持人可以拖动角色更低的人
         if isSelf || perms.canKick(p) {
             row.draggable(p.sessionID)
         } else {
             row
         }
+    }
+}
+
+/// 成员弹出框：音量、主持和管理员操作、连接信息（仅管理员）
+struct MemberPopover: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let p: Participant
+    let onKickBan: (ModerationSheet.Kind) -> Void
+    let onDownloadV6: () -> Void
+
+    var body: some View {
+        let v = model.media.volumes[p.mediaIdentity] ?? 1
+        VStack(alignment: .leading, spacing: 6) {
+            Text(p.nickname).font(.headline)
+            Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
+            Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
+            VStack(alignment: .leading, spacing: 2) {
+                ModerationMenuItems(p: p, onKickBan: onKickBan, onAction: { dismiss() })
+            }
+            .buttonStyle(PopoverRowButtonStyle())
+            .menuStyle(.borderlessButton)
+            .menuIndicator(.hidden)
+            if model.session.state.permissions.role == .admin {
+                Divider()
+                MemberInfoView(p: p, onDownloadV6: onDownloadV6)
+            }
+        }
+        .padding(12)
+        .frame(width: 240)
+    }
+}
+
+/// 弹出框里像菜单项一样的整行按钮
+private struct PopoverRowButtonStyle: ButtonStyle {
+    @State private var hover = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .labelStyle(.titleAndIcon)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 5).fill(Color.primary.opacity(configuration.isPressed ? 0.12 : hover ? 0.06 : 0)))
+            .contentShape(Rectangle())
+            .onHover { hover = $0 }
+            .foregroundStyle(configuration.role == .destructive ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+    }
+}
+
+/// SwiftUI 没有右键手势：透明的 NSView 只在右键时接收点击，左键和拖动照常交给下面的视图
+private struct RightClickCatcher: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context: Context) -> CatcherView { CatcherView(action: action) }
+    func updateNSView(_ view: CatcherView, context: Context) { view.action = action }
+
+    final class CatcherView: NSView {
+        var action: () -> Void
+        init(action: @escaping () -> Void) {
+            self.action = action
+            super.init(frame: .zero)
+        }
+
+        @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            switch NSApp.currentEvent?.type {
+            case .rightMouseDown, .rightMouseUp: super.hitTest(point)
+            default: nil
+            }
+        }
+
+        override func rightMouseDown(with event: NSEvent) { action() }
     }
 }
 

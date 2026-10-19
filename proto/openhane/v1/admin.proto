@@ -85,6 +85,27 @@ message ListIdentitiesResult {
   uint32 total = 2;
 }
 
+// 在线会话的连接信息：IP、归属地（服务端内置的离线库）和控制连接的往返延迟。
+message GetSessionInfo {
+  string session_id = 1;
+}
+
+message GetSessionInfoResult {
+  string ip = 1;
+  // 归属地，查不到的部分为空；名称是中文
+  string country = 2;
+  string province = 3;
+  string city = 4;
+  string isp = 5;
+  uint32 rtt_ms = 6; // 0 表示还没测到
+  bool ipv6_db_missing = 7; // IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+}
+
+// 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。
+message DownloadIPv6GeoDB {}
+
+message DownloadIPv6GeoDBResult {}
+
 message ServerInfoUpdated {
   ServerInfo info = 1;
 }

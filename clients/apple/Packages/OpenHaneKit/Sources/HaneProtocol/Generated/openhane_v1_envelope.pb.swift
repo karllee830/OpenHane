@@ -379,6 +379,22 @@ public nonisolated struct Openhane_V1_Request: Sendable {
     set {body = .revokeInvite(newValue)}
   }
 
+  public var getSessionInfo: Openhane_V1_GetSessionInfo {
+    get {
+      if case .getSessionInfo(let v)? = body {return v}
+      return Openhane_V1_GetSessionInfo()
+    }
+    set {body = .getSessionInfo(newValue)}
+  }
+
+  public var downloadIpv6GeoDb: Openhane_V1_DownloadIPv6GeoDB {
+    get {
+      if case .downloadIpv6GeoDb(let v)? = body {return v}
+      return Openhane_V1_DownloadIPv6GeoDB()
+    }
+    set {body = .downloadIpv6GeoDb(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public nonisolated enum OneOf_Body: Equatable, Sendable {
@@ -412,6 +428,8 @@ public nonisolated struct Openhane_V1_Request: Sendable {
     case createInvite(Openhane_V1_CreateInvite)
     case listInvites(Openhane_V1_ListInvites)
     case revokeInvite(Openhane_V1_RevokeInvite)
+    case getSessionInfo(Openhane_V1_GetSessionInfo)
+    case downloadIpv6GeoDb(Openhane_V1_DownloadIPv6GeoDB)
 
   }
 
@@ -683,6 +701,22 @@ public nonisolated struct Openhane_V1_Response: @unchecked Sendable {
     set {_uniqueStorage()._body = .revokeInvite(newValue)}
   }
 
+  public var getSessionInfo: Openhane_V1_GetSessionInfoResult {
+    get {
+      if case .getSessionInfo(let v)? = _storage._body {return v}
+      return Openhane_V1_GetSessionInfoResult()
+    }
+    set {_uniqueStorage()._body = .getSessionInfo(newValue)}
+  }
+
+  public var downloadIpv6GeoDb: Openhane_V1_DownloadIPv6GeoDBResult {
+    get {
+      if case .downloadIpv6GeoDb(let v)? = _storage._body {return v}
+      return Openhane_V1_DownloadIPv6GeoDBResult()
+    }
+    set {_uniqueStorage()._body = .downloadIpv6GeoDb(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public nonisolated enum OneOf_Body: Equatable, Sendable {
@@ -716,6 +750,8 @@ public nonisolated struct Openhane_V1_Response: @unchecked Sendable {
     case createInvite(Openhane_V1_CreateInviteResult)
     case listInvites(Openhane_V1_ListInvitesResult)
     case revokeInvite(Openhane_V1_RevokeInviteResult)
+    case getSessionInfo(Openhane_V1_GetSessionInfoResult)
+    case downloadIpv6GeoDb(Openhane_V1_DownloadIPv6GeoDBResult)
 
   }
 
@@ -1139,7 +1175,7 @@ nonisolated extension Openhane_V1_Envelope: SwiftProtobuf.Message, SwiftProtobuf
 
 nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Request"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{9}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{9}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0\u{3}get_session_info\0\u{3}download_ipv6_geo_db\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -1538,6 +1574,32 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
           self.body = .revokeInvite(v)
         }
       }()
+      case 114: try {
+        var v: Openhane_V1_GetSessionInfo?
+        var hadOneofValue = false
+        if let current = self.body {
+          hadOneofValue = true
+          if case .getSessionInfo(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.body = .getSessionInfo(v)
+        }
+      }()
+      case 115: try {
+        var v: Openhane_V1_DownloadIPv6GeoDB?
+        var hadOneofValue = false
+        if let current = self.body {
+          hadOneofValue = true
+          if case .downloadIpv6GeoDb(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.body = .downloadIpv6GeoDb(v)
+        }
+      }()
       default: break
       }
     }
@@ -1672,6 +1734,14 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
       guard case .revokeInvite(let v)? = self.body else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 113)
     }()
+    case .getSessionInfo?: try {
+      guard case .getSessionInfo(let v)? = self.body else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 114)
+    }()
+    case .downloadIpv6GeoDb?: try {
+      guard case .downloadIpv6GeoDb(let v)? = self.body else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 115)
+    }()
     case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -1687,7 +1757,7 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
 
 nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Response"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}error\0\u{4}\u{8}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}error\0\u{4}\u{8}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0\u{3}get_session_info\0\u{3}download_ipv6_geo_db\0")
 
   fileprivate class _StorageClass {
     var _id: UInt32 = 0
@@ -2116,6 +2186,32 @@ nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf
             _storage._body = .revokeInvite(v)
           }
         }()
+        case 114: try {
+          var v: Openhane_V1_GetSessionInfoResult?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .getSessionInfo(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .getSessionInfo(v)
+          }
+        }()
+        case 115: try {
+          var v: Openhane_V1_DownloadIPv6GeoDBResult?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .downloadIpv6GeoDb(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .downloadIpv6GeoDb(v)
+          }
+        }()
         default: break
         }
       }
@@ -2254,6 +2350,14 @@ nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf
       case .revokeInvite?: try {
         guard case .revokeInvite(let v)? = _storage._body else { preconditionFailure() }
         try visitor.visitSingularMessageField(value: v, fieldNumber: 113)
+      }()
+      case .getSessionInfo?: try {
+        guard case .getSessionInfo(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 114)
+      }()
+      case .downloadIpv6GeoDb?: try {
+        guard case .downloadIpv6GeoDb(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 115)
       }()
       case nil: break
       }

@@ -259,11 +259,13 @@ struct ModerationSheet: View {
     }
 }
 
-/// 成员的主持操作菜单项（macOS 右键菜单、iOS 长按菜单共用）
+/// 成员的主持操作和管理员操作（macOS 成员弹出框、iOS 长按菜单共用）
 struct ModerationMenuItems: View {
     @Environment(AppModel.self) private var model
     let p: Participant
     let onKickBan: (ModerationSheet.Kind) -> Void
+    /// 每个操作执行后调用（弹出框里用来关闭弹出框）
+    var onAction: () -> Void = {}
 
     var body: some View {
         let state = model.session.state
@@ -292,15 +294,90 @@ struct ModerationMenuItems: View {
             }
             if perms.canKick(p) {
                 Divider()
-                Button(role: .destructive) { onKickBan(.kick) } label: { Label("踢出服务器…", systemImage: "person.fill.xmark") }
-                Button(role: .destructive) { onKickBan(.ban) } label: { Label("封禁…", systemImage: "nosign") }
+                Button(role: .destructive) { onAction(); onKickBan(.kick) } label: { Label("踢出服务器…", systemImage: "person.fill.xmark") }
+                Button(role: .destructive) { onAction(); onKickBan(.ban) } label: { Label("封禁…", systemImage: "nosign") }
+            }
+        }
+        if perms.role == .admin, p.sessionID != state.me?.sessionID {
+            Divider()
+            if p.role == .admin {
+                Button { setRole(.member) } label: { Label("取消管理员", systemImage: "person.badge.minus") }
+            } else {
+                Button { setRole(.admin) } label: { Label("设为管理员", systemImage: "person.badge.shield.checkmark") }
             }
         }
     }
 
+    private func setRole(_ role: Role) {
+        let name = p.nickname
+        run {
+            try await model.session.setRole(uid: p.uid, role: role)
+            model.notice = role == .admin ? L("已将 \(name) 设为管理员") : L("已取消 \(name) 的管理员")
+        }
+    }
+
     private func run(_ f: @escaping () async throws -> Void) {
+        onAction()
         Task {
             do { try await f() } catch let e as HaneError { model.notice = describe(e) } catch {}
+        }
+    }
+}
+
+/// 成员的连接信息（仅管理员）：IP、归属地和往返延迟。IPv6 地址在服务器没有 IPv6 库时提示下载
+struct MemberInfoView: View {
+    @Environment(AppModel.self) private var model
+    let p: Participant
+    let onDownloadV6: () -> Void
+    @State private var info: Openhane_V1_GetSessionInfoResult?
+    @State private var error: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let error {
+                Text(error).foregroundStyle(.red)
+            } else if let info {
+                Text(verbatim: info.ip.isEmpty ? L("IP 未知") : info.ip).font(.caption.monospaced()).foregroundStyle(.primary).textSelection(.enabled)
+                if info.ipv6DbMissing {
+                    Button("IPv6 归属地需要下载数据库", action: onDownloadV6).buttonStyle(.borderless).font(.caption)
+                } else {
+                    let place = [info.country, info.province, info.city].filter { !$0.isEmpty }.joined(separator: " ")
+                    let line = [place, info.isp].filter { !$0.isEmpty }.joined(separator: " · ")
+                    if !line.isEmpty { Text(verbatim: line) }
+                }
+                Text(info.rttMs > 0 ? L("延迟 \(Int(info.rttMs)) ms") : L("延迟测量中"))
+                Text("以上信息仅管理员可见").font(.caption2).foregroundStyle(.tertiary).padding(.top, 2)
+            } else {
+                Text("正在获取连接信息…")
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .task(id: p.sessionID) {
+            do { info = try await model.session.sessionInfo(p.sessionID) } catch let e as HaneError { error = describe(e) } catch {}
+        }
+    }
+}
+
+extension View {
+    /// 下载 IPv6 归属地库的确认弹窗
+    func ipv6GeoAlert(isPresented: Binding<Bool>, model: AppModel) -> some View {
+        alert("下载 IPv6 归属地库", isPresented: isPresented) {
+            Button("下载") {
+                model.notice = L("正在下载 IPv6 归属地库…")
+                Task {
+                    do {
+                        try await model.session.downloadIPv6GeoDB()
+                        model.notice = L("IPv6 归属地库已下载")
+                    } catch let e as HaneError {
+                        model.notice = L("下载失败：\(describe(e))。也可以手动把 ip2region_v6.xdb 放进服务器的数据目录，然后重启服务器。")
+                    } catch {}
+                }
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("服务器内置的归属地库只包含 IPv4。IPv6 库约 37 MB，会从 GitHub 下载到服务器的数据目录，之后一直可用（Docker 部署时数据目录需要持久化，否则重建容器后要重新下载）。")
         }
     }
 }

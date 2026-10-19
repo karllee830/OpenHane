@@ -3475,16 +3475,6 @@
         }
       }
     },
-    "调整音量…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adjust volume…"
-          }
-        }
-      }
-    },
     "踢出": {
       "localizations": {
         "en": {
@@ -4111,6 +4101,176 @@
           "stringUnit": {
             "state": "translated",
             "value": "Receive beta versions"
+          }
+        }
+      }
+    },
+    "IP 未知": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP unknown"
+          }
+        }
+      }
+    },
+    "IPv6 归属地库已下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6 location database downloaded"
+          }
+        }
+      }
+    },
+    "IPv6 归属地需要下载数据库": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6 location needs a database download"
+          }
+        }
+      }
+    },
+    "下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        }
+      }
+    },
+    "下载 IPv6 归属地库": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download the IPv6 location database"
+          }
+        }
+      }
+    },
+    "下载失败：%@。也可以手动把 ip2region_v6.xdb 放进服务器的数据目录，然后重启服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed: %@. You can also put ip2region_v6.xdb into the server's data directory and restart the server."
+          }
+        }
+      }
+    },
+    "以上信息仅管理员可见": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only admins can see this"
+          }
+        }
+      }
+    },
+    "取消管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove admin"
+          }
+        }
+      }
+    },
+    "已取消 %@ 的管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is no longer an admin"
+          }
+        }
+      }
+    },
+    "已将 %@ 设为管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is now an admin"
+          }
+        }
+      }
+    },
+    "延迟 %lld ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latency %lld ms"
+          }
+        }
+      }
+    },
+    "延迟测量中": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Measuring latency"
+          }
+        }
+      }
+    },
+    "成员菜单": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Member menu"
+          }
+        }
+      }
+    },
+    "服务器内置的归属地库只包含 IPv4。IPv6 库约 37 MB，会从 GitHub 下载到服务器的数据目录，之后一直可用（Docker 部署时数据目录需要持久化，否则重建容器后要重新下载）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server's built-in location database only covers IPv4. The IPv6 database (about 37 MB) is downloaded from GitHub into the server's data directory and kept there. With Docker, keep the data directory on a persistent volume, or it has to be downloaded again after the container is recreated."
+          }
+        }
+      }
+    },
+    "正在下载 IPv6 归属地库…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the IPv6 location database…"
+          }
+        }
+      }
+    },
+    "正在获取连接信息…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading connection info…"
+          }
+        }
+      }
+    },
+    "设为管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make admin"
           }
         }
       }

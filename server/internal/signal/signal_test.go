@@ -16,6 +16,7 @@ import (
 	"github.com/karllee830/OpenHane/server/internal/client"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/hub"
 	"github.com/karllee830/OpenHane/server/internal/identity"
 	"github.com/karllee830/OpenHane/server/internal/media"
@@ -56,6 +57,7 @@ func setup(t *testing.T) *env {
 		Store: st, Media: fake, Settings: settings.Defaults(), ServerID: []byte("0123456789abcdef"),
 		Version: "test", ProtocolMin: 1, ProtocolMax: 1, Log: log,
 		HashPassword: settings.HashPassword, ResumeGrace: 300 * time.Millisecond, ShareGrace: 300 * time.Millisecond,
+		GeoIP: geoip.Open(dir, log),
 	})
 	go h.Run(ctx)
 	sig := signal.NewServer(h, st, tm, log)
@@ -182,6 +184,50 @@ func TestJoinChatAndPresence(t *testing.T) {
 	}
 	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_JoinRoom{JoinRoom: &pb.JoinRoom{RoomId: "nope"}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_ROOM_NOT_FOUND {
 		t.Fatal(err)
+	}
+}
+
+func TestSessionInfo(t *testing.T) {
+	e := setup(t)
+	a := e.mustDial(1, "Owner")
+	b := e.mustDial(2, "Guest")
+	info := func(c *client.Client, id string) (*pb.GetSessionInfoResult, error) {
+		r, err := c.Request(ctx(t), &pb.Request{Body: &pb.Request_GetSessionInfo{GetSessionInfo: &pb.GetSessionInfo{SessionId: id}}})
+		return r.GetGetSessionInfo(), err
+	}
+	// 只有管理员能看
+	if _, err := info(b, a.Welcome.GetSessionId()); client.Code(err) != pb.ErrorCode_ERROR_CODE_PERMISSION_DENIED {
+		t.Fatal(err)
+	}
+	if err := e.store.SetRole(ctx(t), a.Welcome.GetUid(), perm.Admin); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.hub.SetRole(a.Welcome.GetUid(), perm.Admin); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := a.WaitEvent(ctx(t), func(ev *pb.Event) bool { return ev.GetRoleChanged().GetRole() == pb.Role_ROLE_ADMIN }); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := info(a, "nope"); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
+		t.Fatal(err)
+	}
+	// 连接建立时服务端立即发出第一个 ping，客户端回 pong 后就有往返延迟
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		r, err := info(a, b.Welcome.GetSessionId())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if r.GetIp() != "127.0.0.1" || r.GetIpv6DbMissing() {
+			t.Fatalf("info: %v", r)
+		}
+		if r.GetRttMs() > 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("no rtt measured: %v", r)
+		}
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 
