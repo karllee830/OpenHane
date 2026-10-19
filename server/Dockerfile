@@ -7,7 +7,7 @@
 # 网页版的 AI 降噪（WASM + 模型）需要先在构建上下文里生成：clients/deepfilter/build.sh web（CI 和发布流程会做；没有时镜像照常构建，只是不带 AI 降噪）。
 # 多平台构建（buildx --platform linux/amd64,linux/arm64）时，网页版和 Go 编译都在构建机的原生架构上执行，
 # Go 交叉编译出目标架构，避免在 QEMU 模拟下编译。需要 BuildKit（Docker 23 起默认）。
-FROM --platform=$BUILDPLATFORM node:24-alpine AS web
+FROM --platform=$BUILDPLATFORM node:26-alpine AS web
 WORKDIR /src/clients/web
 COPY clients/web/ ./
 ARG VERSION=dev
