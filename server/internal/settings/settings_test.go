@@ -101,3 +101,33 @@ func TestPassword(t *testing.T) {
 		t.Fatal("verify")
 	}
 }
+
+func TestServerNameDefaultAndOverride(t *testing.T) {
+	t.Cleanup(func() { defaultServerName = "OpenHane" })
+	if err := SetDefaultServerName("  研发组 "); err != nil {
+		t.Fatal(err)
+	}
+	if Defaults().ServerName != "研发组" {
+		t.Fatalf("env default: %q", Defaults().ServerName)
+	}
+	if SetDefaultServerName("a\u202eb") == nil || SetDefaultServerName(strings.Repeat("字", MaxServerNameRunes+1)) == nil {
+		t.Fatal("invalid HANE_SERVER_NAME should be rejected")
+	}
+	// 管理员设置的名称优先，并按规则规范化
+	s, stored, err := Defaults().Apply(Patch{"server.name": `"  测试服 "`}, nil)
+	if err != nil || s.ServerName != "测试服" || stored["server.name"] != `"测试服"` {
+		t.Fatalf("admin name: %q %v %v", s.ServerName, stored, err)
+	}
+	if _, _, err := Defaults().Apply(Patch{"server.name": `"a\u200bb"`}, nil); err == nil {
+		t.Fatal("invisible characters should be rejected")
+	}
+	// 恢复默认：回到 HANE_SERVER_NAME
+	s, stored, err = s.Apply(Patch{"server.name": "null"}, nil)
+	if err != nil || s.ServerName != "研发组" || stored["server.name"] != "" {
+		t.Fatalf("reset: %q %v %v", s.ServerName, stored, err)
+	}
+	// 数据库里没有保存名称时也用 HANE_SERVER_NAME
+	if s, _ := FromStored(map[string]string{}); s.ServerName != "研发组" {
+		t.Fatalf("from stored: %q", s.ServerName)
+	}
+}

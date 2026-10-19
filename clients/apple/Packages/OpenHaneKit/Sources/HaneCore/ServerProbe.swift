@@ -8,11 +8,14 @@ public struct ServerStatus: Equatable, Sendable {
     public var online: Int?
     /// 服务器图标的地址（服务器设置了图标时；地址里带上摘要，换了图标地址就变）
     public var logo: URL?
+    /// 服务器名称（清洗过；默认名称当作没有）
+    public var name: String
 
-    public init(latencyMs: Int?, online: Int? = nil, logo: URL? = nil) {
+    public init(latencyMs: Int?, online: Int? = nil, logo: URL? = nil, name: String = "") {
         self.latencyMs = latencyMs
         self.online = online
         self.logo = logo
+        self.name = name
     }
 
     public static let unreachable = ServerStatus(latencyMs: nil)
@@ -64,13 +67,15 @@ public enum ServerProbe {
             let info = try await fetch(url, session)
             let ms = (ContinuousClock.now - start).components
             let logo = logoURL(info.logo, relativeTo: url)
-            return ServerStatus(latencyMs: max(1, Int(ms.seconds * 1000 + ms.attoseconds / 1_000_000_000_000_000)), online: info.online, logo: logo)
+            return ServerStatus(latencyMs: max(1, Int(ms.seconds * 1000 + ms.attoseconds / 1_000_000_000_000_000)), online: info.online, logo: logo,
+                                name: DisplayName.serverName(info.name ?? ""))
         } catch {
             return nil
         }
     }
 
     private struct Info: Decodable {
+        var name: String?
         var online: Int?
         var logo: String?
     }

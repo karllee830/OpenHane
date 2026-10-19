@@ -20,10 +20,18 @@ public struct RecentServer: Codable, Hashable, Sendable, Identifiable {
 
     public var id: String { address }
 
-    /// 列表里显示的名称：备注 → 服务器名称 → 地址
+    /// 列表和会议里显示的名称：有备注时显示备注，否则显示服务器名称，都没有时显示地址
     public var title: String {
         let n = note.trimmingCharacters(in: .whitespaces)
-        return !n.isEmpty ? n : !name.isEmpty ? name : address
+        let server = DisplayName.serverName(name)
+        return !n.isEmpty ? n : !server.isEmpty ? server : address
+    }
+
+    /// 有备注时，备注旁边以灰色小字显示的服务器名称（与备注相同时不重复）
+    public var subtitle: String {
+        let n = note.trimmingCharacters(in: .whitespaces)
+        let server = DisplayName.serverName(name)
+        return !n.isEmpty && !server.isEmpty && server != n ? server : ""
     }
 
     public init(address: String, name: String = "", lastUsed: Date? = nil, needsPassword: Bool = false,

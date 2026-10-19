@@ -218,9 +218,19 @@ struct ServerRowLabel: View {
             }
             .frame(width: tileSize, height: tileSize)
             VStack(alignment: .leading, spacing: 2) {
-                Text(server.title)
-                    .fontWeight(.medium)
-                    .lineLimit(1)
+                // 有备注时备注是标题，服务器名称以灰色小字跟在右边、底部对齐；放不下时服务器名称先截断
+                HStack(alignment: .firstTextBaseline, spacing: 6) {
+                    Text(verbatim: server.title)
+                        .fontWeight(.medium)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                    if !server.subtitle.isEmpty {
+                        Text(verbatim: server.subtitle)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(1)
+                    }
+                }
                 detail
                     .font(.caption)
                     .foregroundStyle(.secondary)

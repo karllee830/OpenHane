@@ -124,7 +124,7 @@ struct MenuBarContent: View {
 
     var body: some View {
         if model.isInMeeting {
-            Text(model.session.state.serverInfo.name)
+            Text(verbatim: model.meetingTitle)
             Divider()
             Toggle("静音", isOn: Binding(get: { model.media.micMuted }, set: { v in Task { await model.setMuted(v) } }))
             Toggle("关闭声音", isOn: Binding(get: { model.media.deafened }, set: { v in Task { await model.setDeafened(v) } }))

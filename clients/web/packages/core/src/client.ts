@@ -81,6 +81,7 @@ import { firstByPriority } from './dial';
 import { LocalErrorCode, HaneError, isFatal } from './errors';
 import { e2eeKeySigInput, generateKeyExchange, type KeyExchange } from './e2ee';
 import { authSigInput, deriveIdentity, sign, toHex, type ServerIdentity } from './identity';
+import { withCleanName } from './names';
 import { createClientStore, initialState, mergeChat, snapshotState, type ClientStore } from './state';
 
 type RequestBody = Request['body'];
@@ -409,7 +410,7 @@ export class OpenHaneClient {
     if (!this.identity || this.store.getState().serverId !== toHex(ch.serverId)) {
       this.identity = await deriveIdentity(seed, ch.serverId);
     }
-    this.store.setState({ serverId: toHex(ch.serverId), serverInfo: ch.info ?? null });
+    this.store.setState({ serverId: toHex(ch.serverId), serverInfo: withCleanName(ch.info) });
     const seen = (await this.opt.trust?.seenSpki(hostPort(this.address!))) ?? ZERO_SPKI;
     const ts = BigInt(this.now);
     const signature = await sign(this.identity.privateKey, authSigInput(ch.serverId, ch.nonce, seen, ts));
@@ -629,7 +630,7 @@ export class OpenHaneClient {
         return;
       }
       case 'serverInfoUpdated':
-        this.store.setState({ serverInfo: b.value.info ?? s.serverInfo });
+        this.store.setState({ serverInfo: withCleanName(b.value.info) ?? s.serverInfo });
         return;
       case 'youWereMoved':
         // 被移动、移出房间、房间关闭：事件附带新房间的媒体令牌，媒体会话据此直接切换

@@ -12,6 +12,8 @@ import (
 	"slices"
 	"sort"
 	"strings"
+
+	"github.com/karllee830/OpenHane/server/internal/identity"
 )
 
 type Settings struct {
@@ -61,9 +63,28 @@ type Settings struct {
 	BandwidthBudgetMbps int    `json:"bandwidth.egress_budget_mbps"`
 }
 
+// MaxServerNameRunes 是服务器名称的长度上限（客户端的服务器列表和会议侧栏里显示）。
+const MaxServerNameRunes = 32
+
+// defaultServerName 是管理员没有设置名称时用的名称：HANE_SERVER_NAME，没有设置环境变量时是「OpenHane」。
+// 管理员在管理面板里设置的名称优先；恢复默认就回到这里。只在启动时由 SetDefaultServerName 设置一次
+var defaultServerName = "OpenHane"
+
+// SetDefaultServerName 设置管理员没有设置名称时用的名称（HANE_SERVER_NAME），按服务器名称的规则检查。
+func SetDefaultServerName(name string) error {
+	n, ok := identity.NormalizeDisplayName(name, MaxServerNameRunes)
+	if !ok {
+		return errServerName
+	}
+	defaultServerName = n
+	return nil
+}
+
+var errServerName = fmt.Errorf("server.name: must be 1–%d characters without control or invisible characters", MaxServerNameRunes)
+
 func Defaults() *Settings {
 	return &Settings{
-		ServerName:           "OpenHane",
+		ServerName:           defaultServerName,
 		MaxClients:           100,
 		AudioPreset:          "standard",
 		AudioMaxBitrateKbps:  32,
@@ -212,6 +233,13 @@ func (s *Settings) Apply(p Patch, hashPassword func(string) (string, error)) (*S
 		if err := next.set(k, raw); err != nil {
 			return nil, nil, err
 		}
+		if k == "server.name" && raw != "null" {
+			n, ok := identity.NormalizeDisplayName(next.ServerName, MaxServerNameRunes)
+			if !ok {
+				return nil, nil, errServerName
+			}
+			next.ServerName = n
+		}
 		if raw == "null" {
 			stored[k] = ""
 		} else {
@@ -244,8 +272,8 @@ func (s *Settings) Validate() error {
 	roles := []string{"member", "moderator", "admin"}
 	return errors.Join(
 		func() error {
-			if n := len([]rune(strings.TrimSpace(s.ServerName))); n == 0 || n > 64 {
-				return errors.New("server.name: must be 1–64 characters")
+			if _, ok := identity.NormalizeDisplayName(s.ServerName, MaxServerNameRunes); !ok {
+				return errServerName
 			}
 			return nil
 		}(),

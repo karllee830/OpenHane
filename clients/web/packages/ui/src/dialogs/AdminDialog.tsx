@@ -45,7 +45,7 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
 // ---------- 服务器设置：字段描述表 ----------
 
 type Spec =
-  | { key: string; label: MessageKey; kind: 'text' | 'textarea'; testId?: string }
+  | { key: string; label: MessageKey; kind: 'text' | 'textarea'; testId?: string; maxLength?: number; placeholder?: MessageKey }
   | { key: string; label: MessageKey; kind: 'number'; min?: number; max?: number }
   | { key: string; label: MessageKey; kind: 'bool' }
   | { key: string; label: MessageKey; kind: 'select'; options: [string, MessageKey][]; testId?: string };
@@ -58,7 +58,7 @@ const roleOptions: [string, MessageKey][] = [
 
 const SETTINGS: Record<'general' | 'audio' | 'media' | 'rooms' | 'security', Spec[]> = {
   general: [
-    { key: 'server.name', label: 'admin.name', kind: 'text', testId: 'admin-name' },
+    { key: 'server.name', label: 'admin.name', kind: 'text', testId: 'admin-name', maxLength: 32, placeholder: 'admin.nameDefault' },
     { key: 'server.welcome_message', label: 'admin.welcome', kind: 'textarea' },
     { key: 'server.max_clients', label: 'admin.maxClients', kind: 'number', min: 1 },
     { key: 'join.force_mute', label: 'admin.forceMute', kind: 'bool' },
@@ -161,6 +161,8 @@ function Settings({ tab }: { tab: keyof typeof SETTINGS }) {
   const save = async (clearPassword = false) => {
     const patch: Record<string, string> = {};
     for (const [k, v] of Object.entries(draft)) patch[k] = JSON.stringify(v);
+    // 服务器名称留空：恢复默认名称（HANE_SERVER_NAME，没有设置时是 OpenHane）
+    if (typeof draft['server.name'] === 'string' && !draft['server.name'].trim()) patch['server.name'] = 'null';
     if (password) patch['server.password'] = JSON.stringify(password);
     if (clearPassword) patch['server.password'] = 'null';
     if (!Object.keys(patch).length) return;
@@ -210,7 +212,14 @@ function Settings({ tab }: { tab: keyof typeof SETTINGS }) {
       default:
         return (
           <Field key={s.key} label={t(s.label)}>
-            <input className={input} value={String(val(s.key) ?? '')} onChange={(e) => set(s.key, e.target.value)} data-testid={s.testId} />
+            <input
+              className={input}
+              value={String(val(s.key) ?? '')}
+              onChange={(e) => set(s.key, e.target.value)}
+              maxLength={s.maxLength}
+              placeholder={s.placeholder && t(s.placeholder)}
+              data-testid={s.testId}
+            />
           </Field>
         );
     }

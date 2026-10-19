@@ -45,7 +45,7 @@ final class LiveActivityController {
             let id = a.id
             Task.detached { await Self.find(id)?.update(ActivityContent(state: state, staleDate: nil)) }
         } else {
-            let attributes = MeetingActivityAttributes(serverName: model.session.state.serverInfo.name)
+            let attributes = MeetingActivityAttributes(serverName: model.meetingTitle)
             do {
                 activity = try Activity.request(attributes: attributes, content: ActivityContent(state: state, staleDate: nil))
             } catch {

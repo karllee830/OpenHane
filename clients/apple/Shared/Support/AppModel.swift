@@ -216,7 +216,7 @@ final class AppModel {
             nickname = nick
             // 默认名称与应用同名，记下来没有意义：列表里改为显示地址。每台服务器记住自己用的昵称
             recentServers = RecentServers.remember(
-                RecentServer(address: address, name: info.name == "OpenHane" ? "" : info.name, lastUsed: Date(), needsPassword: info.requiresPassword, nickname: nick),
+                RecentServer(address: address, name: DisplayName.serverName(info.name), lastUsed: Date(), needsPassword: info.requiresPassword, nickname: nick),
                 in: recentServers)
             didEnterMeeting()
         } catch let HaneError.fingerprintChanged(m) {
@@ -260,7 +260,7 @@ final class AppModel {
                     group.addTask { [trust = session.trust] in
                         let s = await ServerProbe.probe(address, trust: trust)
                         await MainActor.run { self.serverStatus[address] = s }
-                        await self.updateLogo(address, status: s)
+                        await self.updateFromProbe(address, status: s)
                     }
                 }
             }

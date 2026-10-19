@@ -40,7 +40,7 @@ struct MeetingView: View {
                 ChatView().inspectorColumnWidth(min: 260, ideal: 320, max: 480)
             }
         }
-        .navigationTitle(model.session.state.serverInfo.name)
+        .navigationTitle(model.meetingTitle)
         .toolbar { ControlBar(sheet: $sheet) }
         .sheet(item: $sheet) { s in
             switch s {
@@ -110,7 +110,7 @@ struct SidebarView: View {
                 Image(systemName: model.session.address?.secure == false ? "lock.open" : "lock.fill")
                     .foregroundStyle(model.session.address?.secure == false ? .orange : .green)
                 if let logo = model.currentServerLogo { ServerLogoImage(data: logo, size: 20) }
-                Text(state.serverInfo.name).font(.headline).lineLimit(1)
+                Text(verbatim: model.meetingTitle).font(.headline).lineLimit(1)
                 Spacer()
                 if perms.isModerator, state.rooms.values.contains(where: { $0.kind == .temporary }) {
                     Button { run { _ = try await model.session.recallAll() } } label: { Image(systemName: "arrow.uturn.backward") }

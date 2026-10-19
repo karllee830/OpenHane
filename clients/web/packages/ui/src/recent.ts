@@ -1,6 +1,6 @@
 // 服务器列表（主页）：最近连接过的服务器和收藏的服务器。记录地址、服务器名称、上次连接时间、是否需要服务器密码，
 // 以及用户自己加的备注和在这台服务器上用的昵称。
-import { hostPort, parseAddress } from '@hane/core';
+import { cleanDisplayName, hostPort, parseAddress } from '@hane/core';
 import type { KeyValueStore } from '@hane/platform';
 
 export interface RecentServer {
@@ -25,6 +25,27 @@ export interface RecentServer {
 /** 没有收藏的服务器最多保留几条 */
 export const MAX_RECENT = 5;
 const KEY = 'recentServers';
+
+/** 服务器的默认名称（与产品同名）：没有意义，列表和标题里改为显示备注或地址 */
+const DEFAULT_SERVER_NAME = 'OpenHane';
+
+/** 服务端给的服务器名称：清洗后（见 cleanDisplayName）；是默认名称时当作没有名称 */
+export function cleanServerName(raw: unknown): string {
+  const name = cleanDisplayName(raw);
+  return name === DEFAULT_SERVER_NAME ? '' : name;
+}
+
+/** 列表和会议里显示的名称：有备注时显示备注，否则显示服务器名称，都没有时显示地址 */
+export function serverTitle(r: Pick<RecentServer, 'note' | 'name' | 'address'>): string {
+  return r.note?.trim() || cleanServerName(r.name) || r.address;
+}
+
+/** 有备注时，备注旁边以灰色小字显示的服务器名称（与备注相同时不重复） */
+export function serverSubtitle(r: Pick<RecentServer, 'note' | 'name'>): string {
+  const note = r.note?.trim();
+  const name = cleanServerName(r.name);
+  return note && name && name !== note ? name : '';
+}
 /** 旧版本只保存地址列表 */
 const LEGACY_KEY = 'recent';
 
@@ -82,7 +103,7 @@ export function rememberServer(storage: KeyValueStore, entry: RecentServer): Rec
 }
 
 /** 修改一条记录（收藏、备注、昵称）；位置不变 */
-export function updateServer(storage: KeyValueStore, address: string, patch: Partial<Pick<RecentServer, 'favorite' | 'note' | 'nickname' | 'logo'>>): RecentServer[] {
+export function updateServer(storage: KeyValueStore, address: string, patch: Partial<Pick<RecentServer, 'favorite' | 'note' | 'nickname' | 'logo' | 'name'>>): RecentServer[] {
   const list = trim(
     loadRecent(storage).map((r) => {
       if (r.address !== address) return r;

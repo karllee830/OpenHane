@@ -5,13 +5,11 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/netip"
 	"os"
 	ossignal "os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -182,25 +180,15 @@ func (a *App) loadServerState(ctx context.Context) error {
 		return fmt.Errorf("corrupt server_id in database: %q", idHex)
 	}
 
+	// HANE_SERVER_NAME：管理员没有在管理面板里设置名称时用它；面板里设置的名称优先
+	if a.Cfg.ServerName != "" {
+		if err := settings.SetDefaultServerName(a.Cfg.ServerName); err != nil {
+			return fmt.Errorf("HANE_SERVER_NAME: %w", err)
+		}
+	}
 	stored, err := a.store.LoadSettings(ctx)
 	if err != nil {
 		return err
-	}
-	// HANE_INITIAL_SERVER_NAME 只在首次启动时写入，之后以管理面板中的设置为准
-	if a.Cfg.InitialServerName != "" {
-		if _, err := a.store.GetMeta(ctx, "initial_name_applied"); errors.Is(err, store.ErrNotFound) {
-			_, kv, err := settings.Defaults().Apply(settings.Patch{"server.name": strconv.Quote(a.Cfg.InitialServerName)}, settings.HashPassword)
-			if err != nil {
-				return fmt.Errorf("HANE_INITIAL_SERVER_NAME: %w", err)
-			}
-			if err := a.store.PutSettings(ctx, kv, store.SystemCreator); err != nil {
-				return err
-			}
-			if _, err := a.store.GetOrInitMeta(ctx, "initial_name_applied", func() string { return "1" }); err != nil {
-				return err
-			}
-			stored["server.name"] = kv["server.name"]
-		}
 	}
 	a.settings, err = settings.FromStored(stored)
 	if err != nil {

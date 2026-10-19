@@ -30,7 +30,7 @@ struct MeetingView: View {
                 ControlBar(sheet: $sheet)
             }
             // 顶栏显示的是下面的自定义标题；这里的标题用于 iPad 的窗口和应用切换器
-            .navigationTitle(model.session.state.serverInfo.name)
+            .navigationTitle(model.meetingTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -50,11 +50,11 @@ struct MeetingView: View {
                                 Text(state.roomName(state.media?.roomID ?? "main")).font(.headline).lineLimit(1)
                                 Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
                             }
-                            Text(state.serverInfo.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                            Text(verbatim: model.meetingTitle).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel([state.roomName(state.media?.roomID ?? "main"), state.serverInfo.name].joined(separator: ", "))
+                    .accessibilityLabel([state.roomName(state.media?.roomID ?? "main"), model.meetingTitle].joined(separator: ", "))
                     .accessibilityHint("房间与成员")
                 }
                 ToolbarItem(placement: .topBarTrailing) { E2EEBadge() }
@@ -493,7 +493,7 @@ struct SettingsSheet: View {
 
     /// 服务器名称和控制连接延迟
     private var detail: String {
-        let name = model.session.state.serverInfo.name
+        let name = model.meetingTitle
         guard let rtt = model.session.rttMs else { return name }
         return "\(name) · \(rtt) ms"
     }

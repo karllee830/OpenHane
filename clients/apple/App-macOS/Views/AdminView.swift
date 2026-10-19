@@ -113,7 +113,7 @@ struct AdminView: View {
     private var generalForm: some View {
         Form {
             Section {
-                TextField("服务器名称", text: $name, prompt: Text(verbatim: "OpenHane"))
+                TextField("服务器名称", text: $name, prompt: Text("留空则用默认名称（环境变量 HANE_SERVER_NAME）"))
                 TextField("欢迎语", text: $welcome, prompt: Text("用户连接后显示在会议界面顶部"), axis: .vertical)
                     .lineLimit(2 ... 4)
             }
@@ -226,7 +226,8 @@ struct AdminView: View {
 
     private func save(_ override: [String: String]?) async {
         var patch = override ?? [
-            "server.name": encode(name), "server.welcome_message": encode(welcome),
+            // 服务器名称留空：恢复默认名称（HANE_SERVER_NAME，没有设置时是 OpenHane）
+            "server.name": name.trimmingCharacters(in: .whitespaces).isEmpty ? "null" : encode(name), "server.welcome_message": encode(welcome),
             "server.max_clients": encode(maxClients), "join.force_mute": encode(forceMute), "audio.preset": encode(preset),
         ]
         if override == nil, !password.isEmpty { patch["server.password"] = encode(password) }

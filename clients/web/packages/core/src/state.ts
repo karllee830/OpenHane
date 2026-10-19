@@ -11,6 +11,7 @@ import type {
 import { createStore } from 'zustand/vanilla';
 import type { HaneError } from './errors';
 import type { ServerAddress } from './address';
+import { withCleanName } from './names';
 
 export type ConnectionStatus =
   | 'idle' // 未连接
@@ -81,7 +82,7 @@ export function snapshotState(snap: Snapshot | undefined): Pick<ClientState, 'se
   const participants: Record<string, Participant> = {};
   for (const r of snap?.rooms ?? []) rooms[r.id] = r;
   for (const p of snap?.participants ?? []) participants[p.sessionId] = p;
-  return { serverInfo: snap?.info ?? null, rooms, participants };
+  return { serverInfo: withCleanName(snap?.info), rooms, participants };
 }
 
 /** 按 id 合并聊天消息（去重、升序、截断）。 */

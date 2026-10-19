@@ -2,6 +2,7 @@
 // 服务端返回的内容一律不信任：限制读取的字节数、不跟随重定向，图标先校验文件头（PNG、尺寸）再显示。
 import { candidateAddresses, hostPort, parseAddress, type ServerAddress } from '@hane/core';
 import { useEffect, useState } from 'react';
+import { cleanServerName } from './recent';
 
 export interface ServerStatus {
   /** 往返延迟（毫秒）；null 表示连不上 */
@@ -10,6 +11,8 @@ export interface ServerStatus {
   online?: number;
   /** 服务器图标的地址（服务器设置了图标时；地址里带上摘要，换了图标地址就变） */
   logo?: string;
+  /** 服务器名称（清洗过；默认名称当作没有） */
+  name?: string;
 }
 
 const TIMEOUT_MS = 4000;
@@ -81,6 +84,7 @@ async function probeUrl(url: string): Promise<ServerStatus> {
     ms: Math.max(1, Math.round(performance.now() - t0)),
     online: typeof info.online === 'number' ? info.online : undefined,
     logo: logoUrl(info.logo, url),
+    name: cleanServerName(info.name),
   };
 }
 

@@ -46,9 +46,13 @@ enum ServerLogoCache {
 }
 
 extension AppModel {
-    /// 探测到服务器的状态后更新它的图标：换了图标就重新下载，服务器去掉了图标就删掉缓存（连不上时保留）
-    func updateLogo(_ address: String, status: ServerStatus) async {
+    /// 探测到服务器的状态后更新列表记录：服务器名称；换了图标就重新下载，服务器去掉了图标就删掉缓存（连不上时保留）
+    func updateFromProbe(_ address: String, status: ServerStatus) async {
         guard status.latencyMs != nil else { return }
+        // 顺带记下最新的服务器名称（服务器改名后列表跟着变）
+        if let r = recentServer(for: address), r.name != status.name {
+            recentServers = RecentServers.update(r.address, in: recentServers) { $0.name = status.name }
+        }
         guard let url = status.logo else {
             if serverLogos[address] != nil || ServerLogoCache.url(for: address) != nil {
                 ServerLogoCache.remove(address)
@@ -60,6 +64,15 @@ extension AppModel {
         guard let data = await ServerProbe.logo(url, trust: session.trust), decodeLogo(data) != nil else { return }
         ServerLogoCache.save(data, url: url, for: address)
         serverLogos[address] = data
+    }
+
+    /// 会议页左上角的名称：有备注时显示备注，否则显示服务器名称，都没有时显示地址
+    var meetingTitle: String {
+        guard let a = session.address else { return session.state.serverInfo.name }
+        let r = recentServer(for: (a.secure ? "" : "http://") + a.hostPort)
+        let note = r?.note.trimmingCharacters(in: .whitespaces) ?? ""
+        let name = DisplayName.serverName(session.state.serverInfo.name)
+        return !note.isEmpty ? note : !name.isEmpty ? name : a.display
     }
 
     /// 正在连接的服务器的图标（会议页显示）

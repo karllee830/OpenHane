@@ -1,6 +1,6 @@
 import { MemoryKeyValueStore } from '@hane/platform';
 import { describe, expect, it } from 'vitest';
-import { MAX_RECENT, connectTarget, findRecent, forgetServer, loadRecent, matchesServer, relativeTime, rememberServer, updateServer, withoutInvite } from './recent';
+import { MAX_RECENT, cleanServerName, connectTarget, findRecent, forgetServer, loadRecent, matchesServer, relativeTime, rememberServer, serverSubtitle, serverTitle, updateServer, withoutInvite } from './recent';
 
 describe('recent servers', () => {
   it('migrates the old address-only list', () => {
@@ -65,6 +65,18 @@ describe('recent servers', () => {
     expect(connectTarget(list, list.filter((r) => matchesServer(r, '10.0.0.2')), '10.0.0.2')).toBe('10.0.0.2');
     expect(connectTarget(list, [], 'meet.example.com:9800')).toBe('meet.example.com');
     expect(connectTarget(list, [], 'newhost')).toBe('newhost');
+  });
+
+  it('shows the note with the server name beside it', () => {
+    expect(cleanServerName('OpenHane')).toBe('');
+    const r = { address: 'meet.example.com', name: '研发组', note: '公司' };
+    expect(serverTitle(r)).toBe('公司');
+    expect(serverSubtitle(r)).toBe('研发组');
+    expect(serverTitle({ address: 'meet.example.com', name: '研发组' })).toBe('研发组');
+    expect(serverTitle({ address: 'meet.example.com', name: 'OpenHane' })).toBe('meet.example.com');
+    expect(serverSubtitle({ name: '研发组', note: '研发组' })).toBe('');
+    // 旧记录里没清洗过的名称，显示时也清洗
+    expect(serverTitle({ address: 'a', name: 'x\u202ey' })).toBe('xy');
   });
 
   it('does not keep invite codes', () => {

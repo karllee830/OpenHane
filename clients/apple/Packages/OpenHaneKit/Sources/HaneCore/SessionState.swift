@@ -49,7 +49,7 @@ public struct SessionState: Equatable, Sendable {
     /// 应用 Welcome（完整快照）。恢复会话时保留已加载的聊天。
     public mutating func apply(welcome w: Openhane_V1_Welcome, mediaURL: URL) {
         let keepChat = w.resumed
-        serverInfo = w.snapshot.info
+        serverInfo = w.snapshot.info.withCleanName()
         rooms = Dictionary(w.snapshot.rooms.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
         participants = Dictionary(w.snapshot.participants.map { ($0.sessionID, $0) }, uniquingKeysWith: { $1 })
         me = SelfInfo(sessionID: w.sessionID, uid: w.uid, nickname: w.nickname, role: w.role)
@@ -81,7 +81,7 @@ public struct SessionState: Equatable, Sendable {
         case let .policyUpdated(e):
             if media?.roomID == e.roomID { media?.policy = e.policy }
         case let .shareStateChanged(e): rooms[e.roomID]?.shares = e.shares
-        case let .serverInfoUpdated(e): serverInfo = e.info
+        case let .serverInfoUpdated(e): serverInfo = e.info.withCleanName()
         // 被移动时的媒体切换由 ServerSession 处理（需要服务器地址）；处置提示和密钥包不改变共享状态
         case .youWereMoved, .moderationNotice, .keyPackage, .serverNotice, .none: break
         }

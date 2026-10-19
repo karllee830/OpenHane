@@ -2,10 +2,11 @@ import { ErrorCode } from '@hane/protocol';
 import { hostPort, parseAddress } from '@hane/core';
 import { ArrowRight, ExternalLink, LoaderCircle, Ticket } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
-import { ConnectError, DEFAULT_NAME, MicHint, NicknameField, PageFooter, PasswordField, TopBar, primaryButton, secondaryButton, shortAddress, useMicPrompt } from '../components/ConnectBits';
+import { ConnectError, MicHint, NicknameField, PageFooter, PasswordField, TopBar, primaryButton, secondaryButton, shortAddress, useMicPrompt } from '../components/ConnectBits';
 import { SettingsButton } from '../dialogs/SettingsDialog';
 import { useT } from '../i18n';
 import { fetchInfo, logoUrl, useLogoImage } from '../probe';
+import { cleanServerName } from '../recent';
 import { useClient, useServices } from '../services';
 
 interface PublicInfo {
@@ -31,7 +32,7 @@ function usePublicInfo(serverUrl: string): PublicInfo | null {
         (j) =>
           alive &&
           setInfo({
-            name: typeof j.name === 'string' && j.name.trim() !== DEFAULT_NAME ? j.name.trim() : '',
+            name: cleanServerName(j.name),
             requiresPassword: j.requires_password === true,
             logo: logoUrl(j.logo, url) ?? '',
           }),

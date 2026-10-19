@@ -4,16 +4,15 @@ import { hostPort, parseAddress } from '@hane/core';
 import { ArrowRight, Copy, Ellipsis, LoaderCircle, Lock, LockOpen, NotebookPen, Server, Star, Ticket, Trash2, User, Users, X } from 'lucide-react';
 import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'react';
 import { initials } from '../components/Avatar';
-import { ConnectError, DEFAULT_NAME, Field, MicHint, NicknameField, PageFooter, PasswordField, TopBar, inputClass, primaryButton, primaryButtonInline, secondaryButton, shortAddress, useMicPrompt } from '../components/ConnectBits';
+import { ConnectError, Field, MicHint, NicknameField, PageFooter, PasswordField, TopBar, inputClass, primaryButton, primaryButtonInline, secondaryButton, shortAddress, useMicPrompt } from '../components/ConnectBits';
 import { Dialog } from '../components/Dialog';
 import { SettingsButton } from '../dialogs/SettingsDialog';
 import { pickLocale, useT } from '../i18n';
 import { signalBars, useLogoImage, useServerStatus, type ServerStatus } from '../probe';
-import { connectTarget, findRecent, forgetServer, loadRecent, looksLikeAddress, matchesServer, relativeTime, rememberServer, updateServer, type RecentServer } from '../recent';
+import { cleanServerName, connectTarget, findRecent, forgetServer, loadRecent, looksLikeAddress, matchesServer, relativeTime, rememberServer, serverSubtitle, serverTitle, updateServer, type RecentServer } from '../recent';
 import { useClient, useServices } from '../services';
 
 /** 列表里显示的名称：备注 → 服务器名称 → 地址 */
-const titleOf = (r: RecentServer) => r.note?.trim() || r.name || r.address;
 
 function serverUrl(address: string): string {
   try {
@@ -90,7 +89,8 @@ function ServerRow({ server, status, defaultNickname, connecting, disabled, targ
 }) {
   const t = useT();
   const locale = useMemo(() => pickLocale(), []);
-  const title = titleOf(server);
+  const title = serverTitle(server);
+  const subtitle = serverSubtitle(server);
   const nick = server.nickname || defaultNickname;
   let addr = server.address;
   try {
@@ -107,9 +107,17 @@ function ServerRow({ server, status, defaultNickname, connecting, disabled, targ
         className={`flex w-full items-center gap-3 rounded-[10px] py-2.5 pr-[4.5rem] pl-2.5 text-left sm:gap-2.5 sm:py-1 sm:pr-16 sm:pl-2 transition hover:bg-accent/[0.06] focus-visible:bg-accent/[0.06] focus-visible:outline-none disabled:cursor-wait ${target ? 'bg-accent/[0.08]' : ''}`}
         data-testid="recent-server"
       >
-        <ServerTile title={title} named={!!(server.note?.trim() || server.name)} logo={status?.ms != null ? status.logo : server.logo} connecting={connecting} />
+        <ServerTile title={title} named={title !== server.address} logo={status?.ms != null ? status.logo : server.logo} connecting={connecting} />
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-medium sm:text-[13px]">{title}</span>
+          {/* 有备注时备注是标题，服务器名称以灰色小字跟在右边、底部对齐；放不下时服务器名称先截断 */}
+          <span className="flex min-w-0 items-baseline gap-1.5">
+            <span className="min-w-0 shrink truncate font-medium sm:text-[13px]">{title}</span>
+            {subtitle && (
+              <span className="min-w-0 shrink-[4] truncate text-xs text-muted sm:text-[11px]" data-testid="server-subtitle">
+                {subtitle}
+              </span>
+            )}
+          </span>
           <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted sm:text-[11px]">
             {title !== server.address && <span className="truncate">{addr}</span>}
             {nick && (
@@ -314,7 +322,8 @@ export function HomePage({ linkAddress, invite }: { linkAddress?: string; invite
     let list = recent;
     for (const r of recent) {
       const s = statuses[r.address];
-      if (s && s.ms !== null && (s.logo ?? '') !== (r.logo ?? '')) list = updateServer(platform.storage, r.address, { logo: s.logo ?? '' });
+      if (s && s.ms !== null && ((s.logo ?? '') !== (r.logo ?? '') || (s.name ?? '') !== cleanServerName(r.name)))
+        list = updateServer(platform.storage, r.address, { logo: s.logo ?? '', name: s.name ?? '' });
     }
     if (list !== recent) setRecent(list);
   }, [statuses]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -345,7 +354,7 @@ export function HomePage({ linkAddress, invite }: { linkAddress?: string; invite
       setDefaultNickname(nickname);
       const s = client.store.getState().serverInfo;
       // 默认名称与应用同名，记下来没有意义：列表里改为显示地址
-      const name = s?.name && s.name !== DEFAULT_NAME ? s.name : '';
+      const name = cleanServerName(s?.name);
       // 每台服务器记住自己用的昵称；最近一次用的昵称同时作为新服务器的默认昵称
       setRecent(rememberServer(platform.storage, { address: a, name, at: Date.now(), password: s?.requiresPassword || undefined, nickname }));
       setJoin(null);
@@ -354,7 +363,7 @@ export function HomePage({ linkAddress, invite }: { linkAddress?: string; invite
       const code = client.store.getState().error?.code;
       if (code === ErrorCode.PASSWORD_REQUIRED || code === ErrorCode.PASSWORD_INVALID) {
         const r = findRecent(recent, a);
-        setJoin((j) => ({ address: a, title: j?.title ?? (r ? titleOf(r) : a), nickname, needPassword: true }));
+        setJoin((j) => ({ address: a, title: j?.title ?? (r ? serverTitle(r) : a), nickname, needPassword: true }));
       }
     } finally {
       setConnectingTo('');
@@ -370,7 +379,7 @@ export function HomePage({ linkAddress, invite }: { linkAddress?: string; invite
     const needPassword = !invite && !!r?.password;
     if (!nickname || needPassword) {
       setAttempt('');
-      setJoin({ address: a, title: r ? titleOf(r) : a, nickname, needPassword });
+      setJoin({ address: a, title: r ? serverTitle(r) : a, nickname, needPassword });
     } else void submit(a, nickname, '');
   };
 

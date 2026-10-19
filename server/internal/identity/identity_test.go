@@ -36,6 +36,23 @@ func TestNickname(t *testing.T) {
 	}
 }
 
+func TestDisplayName(t *testing.T) {
+	// NFC：分解形式的「é」（e + 组合重音）和合成形式结果相同
+	if got, ok := NormalizeDisplayName("Cafe\u0301", 32); !ok || got != "Caf\u00e9" {
+		t.Errorf("NFC: %q %v", got, ok)
+	}
+	// 越南语等正常文字会叠两三个组合字符，可以
+	if _, ok := NormalizeDisplayName("Việt Nam", 32); !ok {
+		t.Error("Vietnamese should be valid")
+	}
+	// 把字往上下堆出界的 Zalgo 文字、零宽字符、方向控制符、换行：不行
+	for _, bad := range []string{"Z\u0300\u0301\u0302\u0303\u0304algo", "a\u200bb", "evil\u202egpj.exe", "a\u2028b", "a\tb"} {
+		if _, ok := NormalizeDisplayName(bad, 32); ok {
+			t.Errorf("%q should be invalid", bad)
+		}
+	}
+}
+
 func TestUniquify(t *testing.T) {
 	taken := map[string]bool{"小明": true, "小明 (2)": true}
 	got := Uniquify("小明", func(s string) bool { return taken[s] })
