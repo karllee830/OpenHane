@@ -3,6 +3,8 @@ import { createContext, useContext } from 'react';
 
 const zh = {
   'app.name': '羽见',
+  // 品牌字标里做成玻璃质感的部分，必须是 app.name 的一段（连接页）
+  'brand.glass': '羽',
   'connect.title': '连接到服务器',
   'connect.address': '服务器地址',
   'connect.addressHint': '例如 meet.example.com 或 203.0.113.10:9800',
@@ -440,6 +442,7 @@ const en: Record<MessageKey, string> = {
   'connect.joinNamed': 'Join {name}',
   'connect.joinSubmit': 'Join',
   'connect.nicknameHint': 'The name others will see',
+  'brand.glass': 'Hane',
   'connect.passwordHint': 'Ask the server admin',
   'connect.showPassword': 'Show password',
   'connect.hidePassword': 'Hide password',

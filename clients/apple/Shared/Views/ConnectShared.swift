@@ -18,7 +18,7 @@ struct BrandMark: View {
     }
 }
 
-/// 品牌字标：「Open」+ 玻璃质感的「Hane」（与网页版 index.css 的 brand-glass 一致）
+/// 品牌字标：英文为「Open」+ 玻璃质感的「Hane」，中文为玻璃质感的「羽」+「见」（与网页版 index.css 的 brand-glass 一致）
 struct BrandWordmark: View {
     @Environment(\.colorScheme) private var scheme
 
@@ -41,18 +41,23 @@ struct BrandWordmark: View {
         Color(red: Double(hex >> 16 & 0xFF) / 255, green: Double(hex >> 8 & 0xFF) / 255, blue: Double(hex & 0xFF) / 255)
     }
 
+    /// 字标分成三段：前缀、玻璃质感的部分、后缀。跟随应用实际使用的界面语言
+    private static let parts: (lead: String, glass: String, trail: String) =
+        Bundle.main.preferredLocalizations.first?.hasPrefix("zh") == true ? ("", "羽", "见") : ("Open", "Hane", "")
+
     var body: some View {
         HStack(alignment: .firstTextBaseline, spacing: 0) {
-            Text(verbatim: "Open")
-            Text(verbatim: "Hane")
+            Text(verbatim: Self.parts.lead)
+            Text(verbatim: Self.parts.glass)
                 .foregroundStyle(facets)
-                .overlay { Text(verbatim: "Hane").foregroundStyle(Self.sheen) }
+                .overlay { Text(verbatim: Self.parts.glass).foregroundStyle(Self.sheen) }
                 // 很细的深蓝边（浅色背景上也看得清）和淡淡的蓝色光晕
                 .shadow(color: Self.color(0x176BCB).opacity(scheme == .dark ? 0 : 0.5), radius: 0.4)
                 .shadow(color: Self.color(0x58A9FE).opacity(scheme == .dark ? 0.45 : 0.35), radius: 8, y: 4)
+            Text(verbatim: Self.parts.trail)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(Text(verbatim: "OpenHane"))
+        .accessibilityLabel(Text(verbatim: Self.parts.lead + Self.parts.glass + Self.parts.trail))
     }
 }
 

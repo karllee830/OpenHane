@@ -69,14 +69,19 @@ function Field({ id, label, icon, trailing, children }: { id: string; label: str
 
 function Brand() {
   const t = useT();
+  const name = t('app.name');
+  const glass = t('brand.glass');
+  const at = name.indexOf(glass);
   return (
     <div className="flex flex-col items-center text-center">
       <span className="drop-shadow-[0_10px_24px_rgb(88_169_254/0.4)]">
         <LogoMark size={56} />
       </span>
-      {/* 字标：「Hane」是图标那种通透的玻璃质感（index.css 的 brand-glass；行内 span 不打断单词，屏幕阅读器仍读作 OpenHane） */}
+      {/* 字标：英文的「Hane」、中文的「羽」是图标那种通透的玻璃质感（index.css 的 brand-glass；行内 span 不打断单词，屏幕阅读器仍读作完整名称） */}
       <p className="mt-4 text-2xl font-semibold tracking-tight">
-        Open<span className="brand-glass">Hane</span>
+        {name.slice(0, at)}
+        <span className="brand-glass">{glass}</span>
+        {name.slice(at + glass.length)}
       </p>
       <p className="mt-1 text-sm text-muted">{t('connect.tagline')}</p>
     </div>
