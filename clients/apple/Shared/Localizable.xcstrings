@@ -4085,16 +4085,6 @@
         }
       }
     },
-    "以上信息仅管理员可见": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only admins can see this"
-          }
-        }
-      }
-    },
     "取消管理员": {
       "localizations": {
         "en": {
@@ -4121,26 +4111,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ is now an admin"
-          }
-        }
-      }
-    },
-    "延迟 %lld ms": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Latency %lld ms"
-          }
-        }
-      }
-    },
-    "延迟测量中": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Measuring latency"
           }
         }
       }
@@ -4201,6 +4171,26 @@
           "stringUnit": {
             "state": "translated",
             "value": "No microphone found. You can only listen."
+          }
+        }
+      }
+    },
+    "点击复制 IP 地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to copy the IP address"
+          }
+        }
+      }
+    },
+    "已复制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
           }
         }
       }

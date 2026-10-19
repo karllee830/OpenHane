@@ -218,7 +218,7 @@ func TestSessionInfo(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if r.GetIp() != "127.0.0.1" || r.GetIpv6DbMissing() {
+		if r.GetIp() != "127.0.0.1" || r.GetIpv6DbMissing() || r.GetAppVersion() != "test" {
 			t.Fatalf("info: %v", r)
 		}
 		if r.GetRttMs() > 0 {

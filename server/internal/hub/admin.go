@@ -293,7 +293,11 @@ func (h *Hub) handleSessionInfo(r *pb.GetSessionInfo) *pb.Response {
 	if !ok {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown session")
 	}
-	res := &pb.GetSessionInfoResult{}
+	res := &pb.GetSessionInfoResult{AppVersion: t.Client.GetAppVersion()}
+	// 客户端自报的版本号，限制长度
+	if r := []rune(res.AppVersion); len(r) > 32 {
+		res.AppVersion = string(r[:32])
+	}
 	if rc, ok := t.conn.(rttConn); ok {
 		if d := rc.RTT(); d > 0 {
 			res.RttMs = uint32(max(d.Milliseconds(), 1))
@@ -305,7 +309,7 @@ func (h *Hub) handleSessionInfo(r *pb.GetSessionInfo) *pb.Response {
 			loc, err := g.Lookup(ip)
 			switch {
 			case err == nil:
-				res.Country, res.Province, res.City, res.Isp = loc.Country, loc.Province, loc.City, loc.ISP
+				res.Country, res.Province, res.City, res.Isp, res.CountryCode = loc.Country, loc.Province, loc.City, loc.ISP, loc.CountryCode
 			case errors.Is(err, geoip.ErrNoDB) && ip.Is6():
 				res.Ipv6DbMissing = true
 			}

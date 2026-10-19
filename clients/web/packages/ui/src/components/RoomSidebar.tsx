@@ -143,8 +143,11 @@ function MemberRow({ p, self, onNotice, onModerate }: {
           </div>
         </DM.Trigger>
         <DM.Portal>
-          <DM.Content side="right" align="start" sideOffset={6} className={menuContent}>
-            <div className="px-2 pb-1 pt-1 text-sm font-medium">{p.nickname}</div>
+          {/* 固定宽度：长名字、长地址都在菜单里截断或滚动，不把菜单撑宽 */}
+          <DM.Content side="right" align="start" sideOffset={6} className={`${menuContent} w-64`}>
+            <div className="truncate px-2 pb-1 pt-1 text-sm font-medium" title={p.nickname}>
+              {p.nickname}
+            </div>
             <label className="block px-2 pb-2 text-xs text-muted">
               {t('member.volume')} · {Math.round(volume * 100)}%
               <input
@@ -159,7 +162,6 @@ function MemberRow({ p, self, onNotice, onModerate }: {
             </label>
             {moderate && (
               <>
-                <DM.Separator className="my-1 h-px bg-border" />
                 {p.forceMuted ? (
                   <MenuItem icon={<Mic size={15} />} onSelect={() => run(() => client.moderate(p.sessionId, ModerationAction.UNMUTE))} testId="mod-unmute">
                     {t('mod.unmute')}
@@ -203,7 +205,6 @@ function MemberRow({ p, self, onNotice, onModerate }: {
                 )}
                 {kick && (
                   <>
-                    <DM.Separator className="my-1 h-px bg-border" />
                     <MenuItem icon={<UserX size={15} />} danger onSelect={() => onModerate(p, 'kick')} testId="mod-kick">
                       {t('mod.kick')}
                     </MenuItem>
@@ -216,7 +217,6 @@ function MemberRow({ p, self, onNotice, onModerate }: {
             )}
             {admin && (
               <>
-                <DM.Separator className="my-1 h-px bg-border" />
                 {p.role >= Role.ADMIN ? (
                   <MenuItem
                     icon={<ShieldMinus size={15} />}
@@ -240,9 +240,9 @@ function MemberRow({ p, self, onNotice, onModerate }: {
                     {t('member.setAdmin')}
                   </MenuItem>
                 )}
-                <DM.Separator className="my-1 h-px bg-border" />
                 <MemberInfo
                   sessionId={p.sessionId}
+                  platform={p.platform}
                   onDownloadV6={() => {
                     setMenuOpen(false);
                     setGeoDialog(true);

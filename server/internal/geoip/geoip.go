@@ -39,6 +39,7 @@ var ErrNoDB = errors.New("geoip: database not loaded")
 
 type Location struct {
 	Country, Province, City, ISP string
+	CountryCode                  string // ISO 3166-1 两位代码（大写），没有时为空
 }
 
 type DB struct {
@@ -123,7 +124,7 @@ func (d *DB) Lookup(ip netip.Addr) (Location, error) {
 // parse 解析「国家|省份|城市|运营商|国家代码」，ip2region 用 0 表示未知
 func parse(region string) Location {
 	f := strings.Split(region, "|")
-	for len(f) < 4 {
+	for len(f) < 5 {
 		f = append(f, "")
 	}
 	clean := func(s string) string {
@@ -133,6 +134,9 @@ func parse(region string) Location {
 		return s
 	}
 	l := Location{Country: clean(f[0]), Province: clean(f[1]), City: clean(f[2]), ISP: clean(f[3])}
+	if c := strings.TrimSpace(f[4]); len(c) == 2 && c[0] >= 'A' && c[0] <= 'Z' && c[1] >= 'A' && c[1] <= 'Z' {
+		l.CountryCode = c
+	}
 	if l.City == l.Province {
 		l.City = ""
 	}

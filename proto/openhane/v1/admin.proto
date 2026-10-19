@@ -99,6 +99,8 @@ message GetSessionInfoResult {
   string isp = 5;
   uint32 rtt_ms = 6; // 0 表示还没测到
   bool ipv6_db_missing = 7; // IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+  string app_version = 8; // 客户端自报的版本号（客户端类型见 Participant.platform）
+  string country_code = 9; // ISO 3166-1 两位国家代码（大写，如 CN），客户端据此显示国旗；查不到时为空
 }
 
 // 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。

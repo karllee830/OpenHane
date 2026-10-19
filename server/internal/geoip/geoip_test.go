@@ -12,9 +12,9 @@ import (
 
 func TestParse(t *testing.T) {
 	cases := map[string]Location{
-		"中国|广东省|广州市|电信|CN":                         {Country: "中国", Province: "广东省", City: "广州市", ISP: "电信"},
-		"中国|北京市|北京市|联通|CN":                         {Country: "中国", Province: "北京市", ISP: "联通"},
-		"United States|California|0|Google LLC|US": {Country: "United States", Province: "California", ISP: "Google LLC"},
+		"中国|广东省|广州市|电信|CN":                         {Country: "中国", Province: "广东省", City: "广州市", ISP: "电信", CountryCode: "CN"},
+		"中国|北京市|北京市|联通|CN":                         {Country: "中国", Province: "北京市", ISP: "联通", CountryCode: "CN"},
+		"United States|California|0|Google LLC|US": {Country: "United States", Province: "California", ISP: "Google LLC", CountryCode: "US"},
 		"0|0|0|内网IP|内网IP":                          {ISP: "内网IP"},
 		"":                                         {},
 	}
@@ -35,7 +35,7 @@ func TestLookup(t *testing.T) {
 		t.Skip("built without IPv4 database (scripts/fetch-geoip.sh)")
 	}
 	loc, err := d.Lookup(netip.MustParseAddr("::ffff:202.96.128.86"))
-	if err != nil || loc.Country != "中国" || loc.Province != "广东省" || loc.ISP != "电信" {
+	if err != nil || loc.Country != "中国" || loc.Province != "广东省" || loc.ISP != "电信" || loc.CountryCode != "CN" {
 		t.Fatalf("lookup: %+v %v", loc, err)
 	}
 }

@@ -21,7 +21,7 @@ export function Dialog({ open, onOpenChange, title, description, children, wide 
         >
           <div className="mb-4 flex items-start justify-between gap-4">
             <div>
-              <RD.Title className="text-lg font-semibold">{title}</RD.Title>
+              <RD.Title className="text-lg font-semibold [overflow-wrap:anywhere]">{title}</RD.Title>
               {description ? <RD.Description className="mt-1 text-sm text-muted">{description}</RD.Description> : <RD.Description className="sr-only">{title}</RD.Description>}
             </div>
             <RD.Close className="rounded-md p-1 text-muted hover:bg-surface-2" aria-label={t('common.close')}>

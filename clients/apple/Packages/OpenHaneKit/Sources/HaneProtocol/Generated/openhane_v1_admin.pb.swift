@@ -303,6 +303,12 @@ public nonisolated struct Openhane_V1_GetSessionInfoResult: Sendable {
   /// IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
   public var ipv6DbMissing: Bool = false
 
+  /// 客户端自报的版本号（客户端类型见 Participant.platform）
+  public var appVersion: String = String()
+
+  /// ISO 3166-1 两位国家代码（大写，如 CN），客户端据此显示国旗；查不到时为空
+  public var countryCode: String = String()
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
@@ -988,7 +994,7 @@ nonisolated extension Openhane_V1_GetSessionInfo: SwiftProtobuf.Message, SwiftPr
 
 nonisolated extension Openhane_V1_GetSessionInfoResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".GetSessionInfoResult"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}ip\0\u{1}country\0\u{1}province\0\u{1}city\0\u{1}isp\0\u{3}rtt_ms\0\u{3}ipv6_db_missing\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}ip\0\u{1}country\0\u{1}province\0\u{1}city\0\u{1}isp\0\u{3}rtt_ms\0\u{3}ipv6_db_missing\0\u{3}app_version\0\u{3}country_code\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -1003,6 +1009,8 @@ nonisolated extension Openhane_V1_GetSessionInfoResult: SwiftProtobuf.Message, S
       case 5: try { try decoder.decodeSingularStringField(value: &self.isp) }()
       case 6: try { try decoder.decodeSingularUInt32Field(value: &self.rttMs) }()
       case 7: try { try decoder.decodeSingularBoolField(value: &self.ipv6DbMissing) }()
+      case 8: try { try decoder.decodeSingularStringField(value: &self.appVersion) }()
+      case 9: try { try decoder.decodeSingularStringField(value: &self.countryCode) }()
       default: break
       }
     }
@@ -1030,6 +1038,12 @@ nonisolated extension Openhane_V1_GetSessionInfoResult: SwiftProtobuf.Message, S
     if self.ipv6DbMissing != false {
       try visitor.visitSingularBoolField(value: self.ipv6DbMissing, fieldNumber: 7)
     }
+    if !self.appVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.appVersion, fieldNumber: 8)
+    }
+    if !self.countryCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.countryCode, fieldNumber: 9)
+    }
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -1041,6 +1055,8 @@ nonisolated extension Openhane_V1_GetSessionInfoResult: SwiftProtobuf.Message, S
     if lhs.isp != rhs.isp {return false}
     if lhs.rttMs != rhs.rttMs {return false}
     if lhs.ipv6DbMissing != rhs.ipv6DbMissing {return false}
+    if lhs.appVersion != rhs.appVersion {return false}
+    if lhs.countryCode != rhs.countryCode {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

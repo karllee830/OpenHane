@@ -245,18 +245,26 @@ struct MemberPopover: View {
     var body: some View {
         let v = model.media.volumes[p.mediaIdentity] ?? 1
         VStack(alignment: .leading, spacing: 6) {
-            Text(p.nickname).font(.headline)
-            Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
-            Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
-            VStack(alignment: .leading, spacing: 2) {
-                ModerationMenuItems(p: p, onKickBan: onKickBan, onAction: { dismiss() })
+            // 和下面的菜单项一样左右缩进，左右两边都对齐
+            VStack(alignment: .leading, spacing: 6) {
+                Text(p.nickname).font(.headline).lineLimit(1).truncationMode(.tail).help(p.nickname)
+                Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
+                Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
             }
-            .buttonStyle(PopoverRowButtonStyle())
-            .menuStyle(.borderlessButton)
-            .menuIndicator(.hidden)
-            if model.session.state.permissions.role == .admin {
-                Divider()
-                MemberInfoView(p: p, onDownloadV6: onDownloadV6)
+            .padding(.horizontal, 6)
+            .padding(.bottom, 6)
+            VStack(alignment: .leading, spacing: 2) {
+                ModerationMenuItems(p: p, onKickBan: onKickBan, onAction: { dismiss() }, dividers: false)
+                    .buttonStyle(PopoverRowButtonStyle())
+                    // 「移动到」子菜单也用整行按钮的样式，和其他行对齐
+                    .menuStyle(.button)
+                    .menuIndicator(.hidden)
+                if model.session.state.permissions.role == .admin {
+                    // 和菜单项相同的内边距，文字左边对齐
+                    MemberInfoView(p: p, onDownloadV6: onDownloadV6)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 4)
+                }
             }
         }
         .padding(12)
@@ -270,7 +278,7 @@ private struct PopoverRowButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .labelStyle(.titleAndIcon)
+            .labelStyle(PopoverRowLabelStyle())
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 6)
             .padding(.vertical, 4)
@@ -278,6 +286,16 @@ private struct PopoverRowButtonStyle: ButtonStyle {
             .contentShape(Rectangle())
             .onHover { hover = $0 }
             .foregroundStyle(configuration.role == .destructive ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+    }
+}
+
+/// 图标放在固定宽度的格子里：各图标宽窄不一，文字的起点仍然对齐
+private struct PopoverRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon.frame(width: 20)
+            configuration.title
+        }
     }
 }
 

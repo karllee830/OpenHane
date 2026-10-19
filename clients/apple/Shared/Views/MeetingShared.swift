@@ -136,6 +136,19 @@ struct VoiceTile: View {
 }
 
 /// 成员列表里自己那一行的「你」
+/// 客户端类型的名称（产品名，不翻译），未知类型为空
+func platformName(_ platform: Openhane_V1_Platform) -> String {
+    switch platform {
+    case .macos: "macOS"
+    case .ios: "iOS"
+    case .windows: "Windows"
+    case .linux: "Linux"
+    case .android: "Android"
+    case .web: "Web"
+    default: ""
+    }
+}
+
 struct YouTag: View {
     var body: some View {
         Text("你")
@@ -144,5 +157,6 @@ struct YouTag: View {
             .padding(.vertical, 1)
             .foregroundStyle(Color.accentColor)
             .background(Color.accentColor.opacity(0.14), in: Capsule())
+            .fixedSize()
     }
 }

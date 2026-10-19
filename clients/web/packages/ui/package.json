@@ -10,6 +10,7 @@
     "@hane/platform": "*",
     "@radix-ui/react-dialog": "1.2.0",
     "@radix-ui/react-dropdown-menu": "2.1.25",
+    "country-flag-emoji-polyfill": "0.1.10",
     "lucide-react": "1.55.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",

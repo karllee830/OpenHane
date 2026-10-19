@@ -144,6 +144,7 @@ private struct MessageRow: View {
                         Text(Date(timeIntervalSince1970: Double(m.createdAtMs) / 1000), style: .time)
                             .font(.caption)
                             .foregroundStyle(.secondary)
+                            .fixedSize()
                     }
                 }
                 Text(m.text)

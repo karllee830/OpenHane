@@ -130,7 +130,7 @@ test('rooms: create, fast switch without audio gap, password, moderation, drag t
   // 右键也打开成员菜单；管理员能看到 IP 和延迟，能设为 / 取消管理员
   await alice.getByTestId('member-Bob').click({ button: 'right' });
   await expect(alice.getByTestId('member-info')).toContainText(/127\.0\.0\.1|::1/);
-  await expect(alice.getByTestId('member-info')).toContainText(/延迟|Latency/);
+  await expect(alice.getByTestId('member-info')).toContainText(/\d+ ms · /);
   await alice.getByTestId('mod-set-admin').click();
   await expect(alice.getByTestId('notice')).toContainText(/设为管理员|now an admin/);
   await alice.getByTestId('member-Bob').click();

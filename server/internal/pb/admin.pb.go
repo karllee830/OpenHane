@@ -975,6 +975,8 @@ type GetSessionInfoResult struct {
 	Isp           string `protobuf:"bytes,5,opt,name=isp,proto3" json:"isp,omitempty"`
 	RttMs         uint32 `protobuf:"varint,6,opt,name=rtt_ms,json=rttMs,proto3" json:"rtt_ms,omitempty"`                           // 0 表示还没测到
 	Ipv6DbMissing bool   `protobuf:"varint,7,opt,name=ipv6_db_missing,json=ipv6DbMissing,proto3" json:"ipv6_db_missing,omitempty"` // IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+	AppVersion    string `protobuf:"bytes,8,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`             // 客户端自报的版本号（客户端类型见 Participant.platform）
+	CountryCode   string `protobuf:"bytes,9,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`          // ISO 3166-1 两位国家代码（大写，如 CN），客户端据此显示国旗；查不到时为空
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1056,6 +1058,20 @@ func (x *GetSessionInfoResult) GetIpv6DbMissing() bool {
 		return x.Ipv6DbMissing
 	}
 	return false
+}
+
+func (x *GetSessionInfoResult) GetAppVersion() string {
+	if x != nil {
+		return x.AppVersion
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
 }
 
 // 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。
@@ -1299,7 +1315,7 @@ const file_openhane_v1_admin_proto_rawDesc = "" +
 	"\x05total\x18\x02 \x01(\rR\x05total\"/\n" +
 	"\x0eGetSessionInfo\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x01 \x01(\tR\tsessionId\"\xc1\x01\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\"\x85\x02\n" +
 	"\x14GetSessionInfoResult\x12\x0e\n" +
 	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x18\n" +
 	"\acountry\x18\x02 \x01(\tR\acountry\x12\x1a\n" +
@@ -1307,7 +1323,10 @@ const file_openhane_v1_admin_proto_rawDesc = "" +
 	"\x04city\x18\x04 \x01(\tR\x04city\x12\x10\n" +
 	"\x03isp\x18\x05 \x01(\tR\x03isp\x12\x15\n" +
 	"\x06rtt_ms\x18\x06 \x01(\rR\x05rttMs\x12&\n" +
-	"\x0fipv6_db_missing\x18\a \x01(\bR\ripv6DbMissing\"\x13\n" +
+	"\x0fipv6_db_missing\x18\a \x01(\bR\ripv6DbMissing\x12\x1f\n" +
+	"\vapp_version\x18\b \x01(\tR\n" +
+	"appVersion\x12!\n" +
+	"\fcountry_code\x18\t \x01(\tR\vcountryCode\"\x13\n" +
 	"\x11DownloadIPv6GeoDB\"\x19\n" +
 	"\x17DownloadIPv6GeoDBResult\"@\n" +
 	"\x11ServerInfoUpdated\x12+\n" +
