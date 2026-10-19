@@ -109,6 +109,7 @@ struct SidebarView: View {
             HStack(spacing: 6) {
                 Image(systemName: model.session.address?.secure == false ? "lock.open" : "lock.fill")
                     .foregroundStyle(model.session.address?.secure == false ? .orange : .green)
+                if let logo = model.currentServerLogo { ServerLogoImage(data: logo, size: 20) }
                 Text(state.serverInfo.name).font(.headline).lineLimit(1)
                 Spacer()
                 if perms.isModerator, state.rooms.values.contains(where: { $0.kind == .temporary }) {

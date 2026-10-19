@@ -20,6 +20,7 @@ import { useT } from '../i18n';
 import { useVoiceActions } from '../actions';
 import { moderationText, moveText } from '../notices';
 import { useClient, useLevels, useMedia, useServices, useVideoTracks } from '../services';
+import { useLogoImage, useServerLogo } from '../probe';
 import { sounds } from '../sounds';
 
 const NO_SHARES: never[] = [];
@@ -34,6 +35,7 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
   const { client, media, platform } = useServices();
   const info = useClient((s) => s.serverInfo);
   const address = useClient((s) => s.address);
+  const logo = useLogoImage(useServerLogo(address));
   const mode = useMedia((s) => s.prefs.mode);
   const [dialog, setDialog] = useState<DialogName | null>(pendingToken ? 'redeem' : null);
   useEffect(() => {
@@ -132,6 +134,7 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
         <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface sm:flex">
           <header className="app-drag flex h-12 shrink-0 items-center gap-2 border-b border-border pr-4 pl-[max(1rem,var(--wco-left))]">
             {secure ? <Lock size={14} className="shrink-0 text-success" /> : <Unlock size={14} className="shrink-0 text-warning" />}
+            {logo && <img src={logo} alt="" className="size-5 shrink-0 rounded-md object-cover" data-testid="server-logo" />}
             <h1 className="truncate font-semibold" data-testid="server-name">
               {info?.name}
             </h1>

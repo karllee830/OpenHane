@@ -11,6 +11,7 @@ services:
     network_mode: host
     volumes:
       - ./data:/data   # 容器以 root 启动，自动把目录交给运行用户后降权运行（PUID / PGID，默认 65532）
+      # 在 ./data 里放一张正方形的 logo.png（或 logo.jpg，边长 256–1024，不超过 1 MB）即可设置服务器图标，换图不用重启
     environment:
       # 额外公布的媒体地址。客户端默认按自己填写的服务器地址建立媒体连接，只在信令和媒体走不同地址时设置（例如域名套了 CDN）
       # HANE_PUBLIC_HOST: meet.example.com

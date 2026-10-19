@@ -5,29 +5,41 @@ import { useEffect, useId, useMemo, useRef, useState, type ReactNode } from 'rea
 import { ConnectError, DEFAULT_NAME, MicHint, NicknameField, PageFooter, PasswordField, TopBar, primaryButton, secondaryButton, shortAddress, useMicPrompt } from '../components/ConnectBits';
 import { SettingsButton } from '../dialogs/SettingsDialog';
 import { useT } from '../i18n';
+import { fetchInfo, logoUrl, useLogoImage } from '../probe';
 import { useClient, useServices } from '../services';
 
 interface PublicInfo {
   name: string;
   requiresPassword: boolean;
+  /** 服务器图标的地址；没有设置时为空 */
+  logo: string;
 }
 
 /** 网页由服务器提供（同源），连接前就能读到服务器名称和是否需要密码（GET /api/v1/info） */
 function usePublicInfo(serverUrl: string): PublicInfo | null {
   const [info, setInfo] = useState<PublicInfo | null>(null);
   useEffect(() => {
-    let url: URL;
+    let url: string;
     try {
-      url = new URL('api/v1/info', serverUrl);
+      url = new URL('api/v1/info', serverUrl).href;
     } catch {
       return;
     }
-    const ac = new AbortController();
-    fetch(url, { signal: ac.signal, cache: 'no-store' })
-      .then((r) => (r.ok ? (r.json() as Promise<{ name?: unknown; requires_password?: unknown }>) : null))
-      .then((j) => j && setInfo({ name: typeof j.name === 'string' && j.name.trim() !== DEFAULT_NAME ? j.name.trim() : '', requiresPassword: j.requires_password === true }))
+    let alive = true;
+    fetchInfo(url)
+      .then(
+        (j) =>
+          alive &&
+          setInfo({
+            name: typeof j.name === 'string' && j.name.trim() !== DEFAULT_NAME ? j.name.trim() : '',
+            requiresPassword: j.requires_password === true,
+            logo: logoUrl(j.logo, url) ?? '',
+          }),
+      )
       .catch(() => undefined);
-    return () => ac.abort();
+    return () => {
+      alive = false;
+    };
   }, [serverUrl]);
   return info;
 }
@@ -71,6 +83,7 @@ export function ConnectPage({ address, invite, landing }: { address: string; inv
   }, [address]);
   const serverUrl = parsed ? `${parsed.secure ? 'https' : 'http'}://${hostPort(parsed)}/` : '';
   const info = usePublicInfo(serverUrl);
+  const logo = useLogoImage(info?.logo || undefined);
   const passwordRejected = error?.code === ErrorCode.PASSWORD_REQUIRED || error?.code === ErrorCode.PASSWORD_INVALID;
   // 服务器需要密码时直接显示密码框，不必先失败一次；邀请链接免密码
   const needPassword = passwordRejected || password !== '' || (!invite && !!info?.requiresPassword);
@@ -127,6 +140,7 @@ export function ConnectPage({ address, invite, landing }: { address: string; inv
           void submit();
         }}
       >
+        {logo && <img src={logo} alt="" className="mb-5 size-14 rounded-2xl object-cover shadow-sm" data-testid="server-logo" />}
         <h1 className="text-2xl font-semibold tracking-tight text-balance">{info?.name ? t('connect.joinNamed', { name: info.name }) : t('connect.joinTitle')}</h1>
         {parsed && <p className="mt-1.5 truncate text-sm text-muted">{shortAddress(parsed)}</p>}
         {invite && (

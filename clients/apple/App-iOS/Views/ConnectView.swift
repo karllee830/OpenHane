@@ -161,6 +161,7 @@ struct ConnectView: View {
             HStack(spacing: 4) {
                 Button { open(server.address) } label: {
                     ServerRowLabel(server: server, nickname: model.nickname(for: server.address), status: status,
+                                   logo: model.serverLogos[server.address],
                                    connecting: busy && connectingTo == server.address, showsTime: sizeClass != .compact)
                 }
                 .buttonStyle(.borderless)

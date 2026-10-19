@@ -8,7 +8,7 @@ import { ConnectError, DEFAULT_NAME, Field, MicHint, NicknameField, PageFooter, 
 import { Dialog } from '../components/Dialog';
 import { SettingsButton } from '../dialogs/SettingsDialog';
 import { pickLocale, useT } from '../i18n';
-import { signalBars, useServerStatus, type ServerStatus } from '../probe';
+import { signalBars, useLogoImage, useServerStatus, type ServerStatus } from '../probe';
 import { connectTarget, findRecent, forgetServer, loadRecent, looksLikeAddress, matchesServer, relativeTime, rememberServer, updateServer, type RecentServer } from '../recent';
 import { useClient, useServices } from '../services';
 
@@ -52,6 +52,28 @@ function Signal({ status }: { status: ServerStatus | undefined }) {
 const menuContent = 'z-50 min-w-48 rounded-lg border border-border bg-surface p-1.5 shadow-lg';
 const menuItem = 'flex cursor-default items-center gap-2 rounded px-2 py-1.5 text-sm outline-none data-[highlighted]:bg-surface-2';
 
+/** 服务器的小图标：服务器设置了图标就显示图标，否则显示名称首字（没有名称时是服务器图标） */
+function ServerTile({ title, named, logo, connecting }: { title: string; named: boolean; logo?: string; connecting: boolean }) {
+  const src = useLogoImage(logo);
+  const showLogo = !!src && !connecting;
+  return (
+    <span
+      aria-hidden
+      className={`relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-[10px] text-sm font-semibold text-accent sm:size-8 sm:rounded-lg sm:text-xs ${showLogo ? 'bg-surface-2' : 'bg-accent/10'}`}
+    >
+      {connecting ? (
+        <LoaderCircle size={16} className="animate-spin" />
+      ) : showLogo ? (
+        <img src={src} alt="" draggable={false} className="size-full object-cover" data-testid="server-logo" />
+      ) : named ? (
+        initials(title)
+      ) : (
+        <Server size={16} />
+      )}
+    </span>
+  );
+}
+
 /** 列表里的一台服务器：点一下连接；右侧是在线人数、信号、收藏和更多操作 */
 function ServerRow({ server, status, defaultNickname, connecting, disabled, target, onConnect, onFavorite, onEdit, onForget }: {
   server: RecentServer;
@@ -85,9 +107,7 @@ function ServerRow({ server, status, defaultNickname, connecting, disabled, targ
         className={`flex w-full items-center gap-3 rounded-[10px] py-2.5 pr-[4.5rem] pl-2.5 text-left sm:gap-2.5 sm:py-1 sm:pr-16 sm:pl-2 transition hover:bg-accent/[0.06] focus-visible:bg-accent/[0.06] focus-visible:outline-none disabled:cursor-wait ${target ? 'bg-accent/[0.08]' : ''}`}
         data-testid="recent-server"
       >
-        <span aria-hidden className="flex size-10 shrink-0 items-center justify-center rounded-[10px] bg-accent/10 text-sm font-semibold text-accent sm:size-8 sm:rounded-lg sm:text-xs">
-          {connecting ? <LoaderCircle size={16} className="animate-spin" /> : server.note?.trim() || server.name ? initials(title) : <Server size={16} />}
-        </span>
+        <ServerTile title={title} named={!!(server.note?.trim() || server.name)} logo={status?.ms != null ? status.logo : server.logo} connecting={connecting} />
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium sm:text-[13px]">{title}</span>
           <span className="flex min-w-0 items-center gap-1.5 text-xs text-muted sm:text-[11px]">
@@ -289,6 +309,15 @@ export function HomePage({ linkAddress, invite }: { linkAddress?: string; invite
   const ids = useId();
   const addressRef = useRef<HTMLInputElement>(null);
   const statuses = useServerStatus(useMemo(() => recent.map((r) => r.address), [recent]));
+  // 记下服务器图标的地址，下次打开列表时先显示（连不上时保留上次的图标）
+  useEffect(() => {
+    let list = recent;
+    for (const r of recent) {
+      const s = statuses[r.address];
+      if (s && s.ms !== null && (s.logo ?? '') !== (r.logo ?? '')) list = updateServer(platform.storage, r.address, { logo: s.logo ?? '' });
+    }
+    if (list !== recent) setRecent(list);
+  }, [statuses]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 列表为空或由链接打开时聚焦地址栏（手机上不必一打开就弹出键盘）
   useEffect(() => {

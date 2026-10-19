@@ -11,10 +11,12 @@ import (
 	"net"
 	"net/http"
 	"net/netip"
+	"os"
 	"strings"
 	"time"
 
 	"github.com/karllee830/OpenHane/server/internal/config"
+	"github.com/karllee830/OpenHane/server/internal/logo"
 	"github.com/karllee830/OpenHane/server/internal/tlsmgr"
 )
 
@@ -27,6 +29,8 @@ type Info struct {
 	WebClient        bool   `json:"web_client"`
 	// Online 是在线人数（客户端的服务器列表里显示）
 	Online int `json:"online"`
+	// Logo 是服务器图标的摘要（从 /api/v1/logo 获取，换了图标摘要就变）；没有图标时省略
+	Logo string `json:"logo,omitempty"`
 }
 
 type Range struct {
@@ -45,10 +49,12 @@ type Discovery struct {
 // Handlers 由 app 注入。为 nil 的处理器对应的路由返回 503。
 // 必须在 Serve 之前填好（Serve 之后不再修改，避免数据竞争）。
 type Handlers struct {
-	WS    http.Handler // /ws 控制协议
-	RTC   http.Handler // /rtc 反向代理到 LiveKit
-	Web   http.Handler // / Web 客户端
-	Info  func() Info
+	WS   http.Handler // /ws 控制协议
+	RTC  http.Handler // /rtc 反向代理到 LiveKit
+	Web  http.Handler // / Web 客户端
+	Info func() Info
+	// Logo 返回服务器图标（数据目录里的 logo.png 等）；没有时返回 nil
+	Logo  func() *logo.Image
 	Ready func(ctx context.Context) error
 	// Metrics 返回 Prometheus 文本格式的指标（HANE_METRICS=true 时提供 /metrics）
 	Metrics func(ctx context.Context) string
@@ -121,6 +127,29 @@ func New(cfg *config.Config, tm *tlsmgr.Manager, h *Handlers, log *slog.Logger) 
 			return
 		}
 		writeJSON(w, h.Info())
+	})
+	mux.HandleFunc("GET /api/v1/logo", func(w http.ResponseWriter, r *http.Request) {
+		// 与 /api/v1/info 一样是公开信息：允许任意来源读取（服务器列表里显示）
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		var img *logo.Image
+		if h.Logo != nil {
+			img = h.Logo()
+		}
+		if img == nil {
+			http.NotFound(w, r)
+			return
+		}
+		// 从磁盘上处理好的 .logo 流式返回；ServeContent 按 ETag 处理 304
+		f, err := os.Open(img.Path)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		defer f.Close()
+		w.Header().Set("ETag", `"`+img.ETag+`"`)
+		w.Header().Set("Cache-Control", "public, max-age=300")
+		w.Header().Set("Content-Type", "image/png")
+		http.ServeContent(w, r, "", img.ModTime, f)
 	})
 	mux.HandleFunc("GET /.well-known/openhane", func(w http.ResponseWriter, _ *http.Request) {
 		var p Range

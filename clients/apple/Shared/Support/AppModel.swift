@@ -46,6 +46,8 @@ final class AppModel {
     var recentServers: [RecentServer] { didSet { RecentServers.save(recentServers, to: defaults) } }
     /// 列表里每台服务器的延迟和在线人数（按地址；还没测完的没有）
     var serverStatus: [String: ServerStatus] = [:]
+    /// 服务器图标（按地址；服务器设置了图标才有），缓存在本地，见 ServerLogos.swift
+    var serverLogos: [String: Data] = [:]
     /// 屏幕共享「自定义」档上次用的参数
     var shareCustom: CustomShare { didSet { defaults.set(try? JSONEncoder().encode(shareCustom), forKey: "shareCustom") } }
     var voiceMode: VoiceMode {
@@ -154,7 +156,9 @@ final class AppModel {
         )
         media = MediaSession(session: session)
         nickname = defaults.string(forKey: "nickname") ?? Self.defaultNickname
-        recentServers = RecentServers.load(defaults)
+        let recent = RecentServers.load(defaults)
+        recentServers = recent
+        serverLogos = Dictionary(uniqueKeysWithValues: recent.compactMap { r in ServerLogoCache.data(for: r.address).map { (r.address, $0) } })
         shareCustom = defaults.data(forKey: "shareCustom").flatMap { try? JSONDecoder().decode(CustomShare.self, from: $0) } ?? .default
         voiceMode = VoiceMode(rawValue: defaults.string(forKey: "voiceMode") ?? "") ?? .voice
         #if os(macOS)
@@ -226,6 +230,8 @@ final class AppModel {
 
     func forget(_ server: RecentServer) {
         recentServers.removeAll { $0.address == server.address }
+        ServerLogoCache.remove(server.address)
+        serverLogos[server.address] = nil
     }
 
     /// 在这台服务器上用的昵称：记住的昵称，没有就用默认昵称
@@ -254,6 +260,7 @@ final class AppModel {
                     group.addTask { [trust = session.trust] in
                         let s = await ServerProbe.probe(address, trust: trust)
                         await MainActor.run { self.serverStatus[address] = s }
+                        await self.updateLogo(address, status: s)
                     }
                 }
             }

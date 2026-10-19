@@ -197,6 +197,8 @@ struct ServerRowLabel: View {
     let server: RecentServer
     let nickname: String
     let status: ServerStatus?
+    /// 服务器图标（服务器设置了图标时）
+    var logo: Data?
     var connecting = false
     var tileSize: CGFloat = 36
     /// 显示上次连接时间（手机竖屏上放不下，省略）
@@ -208,6 +210,8 @@ struct ServerRowLabel: View {
                 if connecting {
                     RoundedRectangle(cornerRadius: tileSize * 0.26, style: .continuous).fill(Color.accentColor.opacity(0.14))
                     ProgressView().controlSize(.small)
+                } else if let logo {
+                    ServerLogoImage(data: logo, size: tileSize)
                 } else {
                     ServerTile(name: server.title == server.address ? "" : server.title, size: tileSize)
                 }

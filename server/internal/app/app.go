@@ -20,6 +20,7 @@ import (
 	"github.com/karllee830/OpenHane/server/internal/gateway"
 	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/hub"
+	"github.com/karllee830/OpenHane/server/internal/logo"
 	"github.com/karllee830/OpenHane/server/internal/media"
 	"github.com/karllee830/OpenHane/server/internal/ratelimit"
 	"github.com/karllee830/OpenHane/server/internal/settings"
@@ -45,6 +46,7 @@ type App struct {
 	settings *settings.Settings
 	tls      *tlsmgr.Manager
 	gw       *gateway.Gateway
+	logo     *logo.Store
 	media    media.Engine
 	hub      *hub.Hub
 
@@ -86,7 +88,8 @@ func (a *App) Run(ctx context.Context) error {
 	}
 
 	a.fatal = make(chan error, 4)
-	handlers := gateway.Handlers{Info: a.info, Ready: a.ready, Metrics: a.metrics}
+	a.logo = logo.New(a.Cfg.DataDir, a.Log)
+	handlers := gateway.Handlers{Info: a.info, Ready: a.ready, Metrics: a.metrics, Logo: a.logo.Get}
 	if web := webui.New(); web != nil {
 		handlers.Web = web
 	}
@@ -229,7 +232,15 @@ func (a *App) info() gateway.Info {
 		RequiresPassword: s.ServerPassword != "",
 		WebClient:        webui.Available(),
 		Online:           a.online(),
+		Logo:             a.logoETag(),
 	}
+}
+
+func (a *App) logoETag() string {
+	if img := a.logo.Get(); img != nil {
+		return img.ETag
+	}
+	return ""
 }
 
 func (a *App) online() int {

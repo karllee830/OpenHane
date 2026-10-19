@@ -183,6 +183,7 @@ struct ConnectView: View {
                     ServerRow(server: server,
                               nickname: model.nickname(for: server.address),
                               status: model.serverStatus[server.address],
+                              logo: model.serverLogos[server.address],
                               connecting: busy && connectingTo == server.address,
                               disabled: busy,
                               highlighted: server.address == query.target,
@@ -240,6 +241,7 @@ private struct ServerRow: View {
     let server: RecentServer
     let nickname: String
     let status: ServerStatus?
+    let logo: Data?
     let connecting: Bool
     let disabled: Bool
     /// 在地址栏按回车会连这一台（搜索时高亮）
@@ -253,7 +255,7 @@ private struct ServerRow: View {
     var body: some View {
         HStack(spacing: 4) {
             Button(action: connect) {
-                ServerRowLabel(server: server, nickname: nickname, status: status, connecting: connecting, tileSize: 32)
+                ServerRowLabel(server: server, nickname: nickname, status: status, logo: logo, connecting: connecting, tileSize: 32)
                     .padding(.vertical, 4)
                     .padding(.leading, 8)
             }

@@ -18,6 +18,8 @@ export interface RecentServer {
   note?: string;
   /** 在这台服务器上用的昵称；没有时用默认昵称 */
   nickname?: string;
+  /** 上次看到的服务器图标地址：打开列表时先显示它，测完延迟再更新 */
+  logo?: string;
 }
 
 /** 没有收藏的服务器最多保留几条 */
@@ -72,20 +74,20 @@ export function rememberServer(storage: KeyValueStore, entry: RecentServer): Rec
   const address = withoutInvite(entry.address);
   const old = loadRecent(storage);
   const prev = findRecent(old, address);
-  const merged: RecentServer = { ...entry, address, favorite: entry.favorite ?? prev?.favorite, note: entry.note ?? prev?.note };
-  for (const k of ['favorite', 'note', 'nickname', 'password'] as const) if (merged[k] === undefined || merged[k] === '' || merged[k] === false) delete merged[k];
+  const merged: RecentServer = { ...entry, address, favorite: entry.favorite ?? prev?.favorite, note: entry.note ?? prev?.note, logo: entry.logo ?? prev?.logo };
+  for (const k of ['favorite', 'note', 'nickname', 'password', 'logo'] as const) if (merged[k] === undefined || merged[k] === '' || merged[k] === false) delete merged[k];
   const list = trim([merged, ...old.filter((r) => !sameServer(r.address, address))]);
   storage.set(KEY, list);
   return list;
 }
 
 /** 修改一条记录（收藏、备注、昵称）；位置不变 */
-export function updateServer(storage: KeyValueStore, address: string, patch: Pick<RecentServer, 'favorite' | 'note' | 'nickname'>): RecentServer[] {
+export function updateServer(storage: KeyValueStore, address: string, patch: Partial<Pick<RecentServer, 'favorite' | 'note' | 'nickname' | 'logo'>>): RecentServer[] {
   const list = trim(
     loadRecent(storage).map((r) => {
       if (r.address !== address) return r;
       const next: RecentServer = { ...r, ...patch };
-      for (const k of ['favorite', 'note', 'nickname'] as const) if (!next[k]) delete next[k];
+      for (const k of ['favorite', 'note', 'nickname', 'logo'] as const) if (!next[k]) delete next[k];
       return next;
     }),
   );
