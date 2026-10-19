@@ -1,4 +1,5 @@
 import HaneCore
+import HaneMedia
 import SwiftUI
 
 /// 会议主界面：侧栏成员 | 舞台 | 聊天（检查器），工具栏是控制栏。
@@ -49,6 +50,7 @@ struct MeetingView: View {
             }
         }
         .onAppear { if model.linkToken != nil { sheet = .redeem } }
+        .task { await model.media.refreshAudioDevices() }
         .task {
             // 截图检查：HANE_SNAPSHOT_SHEET=admin|info|redeem 进入会议 4 秒后（截图工具兑换完权限令牌之后）打开对应的面板
             guard let s = DevHooks.environment["HANE_SNAPSHOT_SHEET"].flatMap(Sheet.init(rawValue:)) else { return }
@@ -402,7 +404,7 @@ struct SelfCard: View {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.borderless)
-                .help("音频设置…")
+                .help("音视频设置…")
             }
             .padding(10)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.05)))
@@ -430,20 +432,8 @@ struct ControlBar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .principal) {
-            let muted = model.media.micMuted
-            Button { Task { await model.setMuted(!muted) } } label: {
-                Label(muted ? L("取消静音") : L("静音"), systemImage: muted ? "mic.slash.fill" : "mic.fill")
-                    .foregroundStyle(muted ? AnyShapeStyle(.red) : model.media.transmitting && model.voiceMode != .open ? AnyShapeStyle(.green) : AnyShapeStyle(.primary))
-            }
-            .help(muted ? L("取消静音") : L("静音"))
-            .keyboardShortcut("m", modifiers: [.command, .shift])
-            let deaf = model.media.deafened
-            Button { Task { await model.setDeafened(!deaf) } } label: {
-                Label(deaf ? L("开启声音") : L("关闭声音"), systemImage: deaf ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                    .foregroundStyle(deaf ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
-            }
-            .help(deaf ? L("开启声音") : L("关闭声音"))
-            .keyboardShortcut("d", modifiers: [.command, .shift])
+            MicButton()
+            SpeakerButton()
             let raised = model.session.state.selfParticipant?.state.handRaised ?? false
             Button { Task { try? await model.session.updateSelf(handRaised: !raised) } } label: {
                 Label(raised ? L("放下手") : L("举手"), systemImage: raised ? "hand.raised.fill" : "hand.raised")
@@ -466,7 +456,7 @@ struct ControlBar: ToolbarContent {
                 if model.session.state.me?.role == .admin { Button("服务器管理…") { sheet = .admin } }
                 Button("连接信息") { sheet = .info }
                 Button("关于羽见…") { openWindow(id: "about") }
-                SettingsLink { Text("音频设置…") }
+                SettingsLink { Text("音视频设置…") }
             } label: {
                 Label("更多", systemImage: "ellipsis.circle")
             }
@@ -479,6 +469,145 @@ struct ControlBar: ToolbarContent {
                 Label("离开", systemImage: "phone.down.fill").foregroundStyle(.red)
             }
             .help("离开")
+        }
+    }
+}
+
+/// 麦克风按钮：点按静音；右键（或 Control+点按）弹出麦克风面板
+struct MicButton: View {
+    @Environment(AppModel.self) private var model
+    @State private var showPanel = false
+
+    var body: some View {
+        let muted = model.media.micMuted
+        Button { Task { await model.setMuted(!muted) } } label: {
+            Label(muted ? L("取消静音") : L("静音"), systemImage: muted ? "mic.slash.fill" : "mic.fill")
+                .foregroundStyle(muted ? AnyShapeStyle(.red) : model.media.transmitting && model.voiceMode != .open ? AnyShapeStyle(.green) : AnyShapeStyle(.primary))
+        }
+        .help(muted ? L("取消静音（右键：麦克风选项）") : L("静音（右键：麦克风选项）"))
+        .keyboardShortcut("m", modifiers: [.command, .shift])
+        .background(ToolbarRightClick { showPanel = true })
+        .popover(isPresented: $showPanel, arrowEdge: .bottom) { MicPanel() }
+    }
+}
+
+/// 声音按钮：点按关闭 / 开启声音；右键（或 Control+点按）弹出声音面板
+struct SpeakerButton: View {
+    @Environment(AppModel.self) private var model
+    @State private var showPanel = false
+
+    var body: some View {
+        let deaf = model.media.deafened
+        Button { Task { await model.setDeafened(!deaf) } } label: {
+            Label(deaf ? L("开启声音") : L("关闭声音"), systemImage: deaf ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .foregroundStyle(deaf ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+        }
+        .help(deaf ? L("开启声音（右键：声音选项）") : L("关闭声音（右键：声音选项）"))
+        .keyboardShortcut("d", modifiers: [.command, .shift])
+        .background(ToolbarRightClick { showPanel = true })
+        .popover(isPresented: $showPanel, arrowEdge: .bottom) { OutputPanel() }
+    }
+}
+
+/// 麦克风面板：输入设备、麦克风音量（带电平），以及降噪、回声消除、发言模式这几项常用设置
+struct MicPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        Form {
+            Section {
+                Picker("输入设备", selection: model.inputDeviceBinding) {
+                    Text("系统默认").tag("")
+                    ForEach(model.media.inputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
+                }
+                VolumeSlider(title: "麦克风音量", value: $model.inputVolume)
+                LiveLevelMeter()
+            }
+            Section {
+                if MediaSession.aiNoiseAvailable {
+                    Picker("降噪", selection: $model.noiseSuppression) {
+                        ForEach(NoiseSuppression.allCases, id: \.self) { Text($0.title).tag($0) }
+                    }
+                }
+                Picker("回声消除", selection: $model.echoProcessing) {
+                    ForEach(EchoProcessing.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                Picker("发言模式", selection: $model.voiceMode) {
+                    Text("语音激活").tag(VoiceMode.voice)
+                    Text("按键说话").tag(VoiceMode.ptt)
+                    Text("常开").tag(VoiceMode.open)
+                }
+            }
+            SettingsLink { Text("音视频设置…") }
+                .buttonStyle(.link)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .formStyle(.grouped)
+        .frame(width: 340)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// 声音面板：输出设备和输出音量
+struct OutputPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        Form {
+            Section {
+                Picker("输出设备", selection: model.outputDeviceBinding) {
+                    Text("系统默认").tag("")
+                    ForEach(model.media.outputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
+                }
+                VolumeSlider(title: "输出音量", value: $model.outputVolume)
+            }
+            SettingsLink { Text("音视频设置…") }
+                .buttonStyle(.link)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .formStyle(.grouped)
+        .frame(width: 340)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// 工具栏按钮的右键：右键（或 Control+点按）点在这个视图的范围内时调用 action，并且不再弹出系统菜单。
+/// 工具栏里右键默认是工具栏自己的菜单（「图标和文字 / 仅图标」），contextMenu 和普通的点按拦截都不起作用，所以在窗口层面拦截
+private struct ToolbarRightClick: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context _: Context) -> ToolbarRightClickView {
+        let v = ToolbarRightClickView()
+        v.action = action
+        return v
+    }
+
+    func updateNSView(_ view: ToolbarRightClickView, context _: Context) { view.action = action }
+}
+
+/// ToolbarRightClick 的视图：在窗口层面监听右键，命中自己的范围时调用 action
+final class ToolbarRightClickView: NSView {
+    var action: (() -> Void)?
+    private var monitor: Any?
+
+    /// 不参与普通的点按：左键照常交给按钮
+    override func hitTest(_: NSPoint) -> NSView? { nil }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        // 离开窗口（包括视图被销毁前）时移除监听
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+        guard window != nil else { return }
+        monitor = NSEvent.addLocalMonitorForEvents(matching: [.rightMouseDown, .leftMouseDown]) { [weak self] event in
+            guard let self, let window = self.window, event.window === window, !self.isHiddenOrHasHiddenAncestor,
+                  event.type == .rightMouseDown || event.modifierFlags.contains(.control),
+                  self.bounds.contains(self.convert(event.locationInWindow, from: nil))
+            else { return event }
+            self.action?()
+            return nil
         }
     }
 }

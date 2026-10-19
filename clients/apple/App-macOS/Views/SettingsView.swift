@@ -9,31 +9,22 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var recording = false
     @State private var monitor: Any?
-    @State private var devicesTick = 0
     @State private var cameras: [AVCaptureDevice] = []
 
     var body: some View {
         @Bindable var model = model
         Form {
             Section {
-                Picker("输入设备", selection: Binding(get: { model.media.inputDevices.first { $0.deviceId == AudioDeviceSelection.input }?.deviceId ?? "" },
-                                                   set: { id in
-                                                       if id.isEmpty { model.media.selectDefaultInput() } else if let d = model.media.inputDevices.first(where: { $0.deviceId == id }) { model.media.selectInput(d) } else { return }
-                                                       AudioDeviceSelection.input = id
-                                                       devicesTick += 1
-                                                   })) {
+                Picker("输入设备", selection: model.inputDeviceBinding) {
                     Text("系统默认").tag("")
                     ForEach(model.media.inputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
                 }
-                Picker("输出设备", selection: Binding(get: { model.media.outputDevices.first { $0.deviceId == AudioDeviceSelection.output }?.deviceId ?? "" },
-                                                    set: { id in
-                                                        if id.isEmpty { model.media.selectDefaultOutput() } else if let d = model.media.outputDevices.first(where: { $0.deviceId == id }) { model.media.selectOutput(d) } else { return }
-                                                        AudioDeviceSelection.output = id
-                                                        devicesTick += 1
-                                                    })) {
+                Picker("输出设备", selection: model.outputDeviceBinding) {
                     Text("系统默认").tag("")
                     ForEach(model.media.outputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
                 }
+                VolumeSlider(title: "麦克风音量", value: $model.inputVolume)
+                VolumeSlider(title: "输出音量", value: $model.outputVolume)
             }
             Section {
                 Picker("摄像头", selection: $model.cameraID) {
@@ -178,21 +169,47 @@ extension SettingsView {
     }
 }
 
-/// 选中的设备（重启后由系统默认重新选择；这里只记住 ID 供界面显示）
-enum AudioDeviceSelection {
-    static var input: String {
-        get { UserDefaults.standard.string(forKey: "inputDevice") ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: "inputDevice") }
+extension AppModel {
+    /// 设置和会议里的菜单共用：选中的输入 / 输出设备（空表示系统默认）。选中的设备拔掉后显示为系统默认
+    var inputDeviceBinding: Binding<String> {
+        Binding(get: { self.media.inputDevices.contains { $0.deviceId == self.inputDeviceID } ? self.inputDeviceID : "" },
+                set: { id in
+                    if id.isEmpty { self.media.selectDefaultInput() } else if let d = self.media.inputDevices.first(where: { $0.deviceId == id }) { self.media.selectInput(d) } else { return }
+                    self.inputDeviceID = id
+                })
     }
 
-    static var output: String {
-        get { UserDefaults.standard.string(forKey: "outputDevice") ?? "" }
-        set { UserDefaults.standard.set(newValue, forKey: "outputDevice") }
+    var outputDeviceBinding: Binding<String> {
+        Binding(get: { self.media.outputDevices.contains { $0.deviceId == self.outputDeviceID } ? self.outputDeviceID : "" },
+                set: { id in
+                    if id.isEmpty { self.media.selectDefaultOutput() } else if let d = self.media.outputDevices.first(where: { $0.deviceId == id }) { self.media.selectOutput(d) } else { return }
+                    self.outputDeviceID = id
+                })
+    }
+}
+
+/// 音量滑块（0–200%），右边显示百分比
+struct VolumeSlider: View {
+    let title: LocalizedStringKey
+    @Binding var value: Double
+
+    var body: some View {
+        LabeledContent(title) {
+            HStack(spacing: 8) {
+                // 不设步长（步长会画出一排刻度），取整到 5%
+                Slider(value: Binding(get: { value }, set: { value = ($0 * 20).rounded() / 20 }), in: 0 ... 2)
+                    .frame(minWidth: 120)
+                Text(verbatim: "\(Int((value * 100).rounded()))%")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+                    .frame(width: 40, alignment: .trailing)
+            }
+        }
     }
 }
 
 /// 电平表的容器：电平每 50 ms 更新一次，只让这一小块重算（直接写在设置表单里会让整个表单跟着重算，打开设置时很卡）
-private struct LiveLevelMeter: View {
+struct LiveLevelMeter: View {
     @Environment(AppModel.self) private var model
 
     var body: some View {

@@ -59,6 +59,14 @@ public final class MediaSession {
     public var manualThresholdDb: Double? {
         didSet { processor.configure(mode: mode, manualThresholdDb: manualThresholdDb) }
     }
+    /// 麦克风音量（0–2，1 为原始音量）：在发言处理之前调整，电平和语音激活都按调整后的音量算
+    public var inputVolume: Double = 1 {
+        didSet { processor.setInputGain(Float(inputVolume)) }
+    }
+    /// 所有人声音的总音量（0–2），再乘上每个人单独的音量
+    public var outputVolume: Double = 1 {
+        didSet { applyVolumes() }
+    }
     /// 降噪档位：AI 降噪在回声消除之后再处理一遍
     public var noiseSuppression: NoiseSuppression = .ai {
         didSet {
@@ -865,7 +873,7 @@ public final class MediaSession {
         // 共享连接里别人的共享声音按主连接的身份取音量
         for r in [room, shareRoom].compactMap(\.self) {
             for p in r.remoteParticipants.values {
-                let v = deafened ? 0 : volumes[Self.mainIdentity(p.identity?.stringValue ?? "")] ?? 1
+                let v = deafened ? 0 : (volumes[Self.mainIdentity(p.identity?.stringValue ?? "")] ?? 1) * outputVolume
                 for pub in p.audioTracks {
                     (pub.track as? RemoteAudioTrack)?.volume = v
                 }

@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { Role } from '@hane/protocol';
 import type { ReactNode } from 'react';
 import { useVoiceActions } from '../actions';
+import { AudioMenuButton } from './AudioMenus';
 import { useT } from '../i18n';
 import { useClient, useLevels, useMedia, useServices } from '../services';
 
@@ -83,17 +84,22 @@ export function ControlBar({ chatOpen, onToggleChat, unread, onOpen, onLeave, on
 
   return (
     <footer className="flex items-center justify-center gap-3 border-t border-border bg-surface px-4 py-3">
-      <Btn
-        label={forceMuted ? t('control.forceMuted') : muted ? t('control.unmute') : t('control.mute')}
-        active={muted || forceMuted}
-        onClick={() => (forceMuted ? onNotice(t('mod.notice.forceMute', { by: t('role.moderator') })) : setMuted(!muted))}
-        testId="mic"
-      >
-        {muted ? <MicOff size={20} /> : <Mic size={20} className={transmitting && mode !== 'open' ? 'text-success' : ''} />}
-      </Btn>
-      <Btn label={deafened ? t('control.undeafen') : t('control.deafen')} active={deafened} onClick={() => setDeafened(!deafened)} testId="deafen">
-        {deafened ? <HeadphoneOff size={20} /> : <Headphones size={20} />}
-      </Btn>
+      {/* 麦克风和声音按钮：右键或点角上的小箭头打开快捷菜单（设备、音量、降噪等） */}
+      <AudioMenuButton kind="input" onOpenSettings={() => onOpen('settings')}>
+        <Btn
+          label={forceMuted ? t('control.forceMuted') : muted ? t('control.unmute') : t('control.mute')}
+          active={muted || forceMuted}
+          onClick={() => (forceMuted ? onNotice(t('mod.notice.forceMute', { by: t('role.moderator') })) : setMuted(!muted))}
+          testId="mic"
+        >
+          {muted ? <MicOff size={20} /> : <Mic size={20} className={transmitting && mode !== 'open' ? 'text-success' : ''} />}
+        </Btn>
+      </AudioMenuButton>
+      <AudioMenuButton kind="output" onOpenSettings={() => onOpen('settings')}>
+        <Btn label={deafened ? t('control.undeafen') : t('control.deafen')} active={deafened} onClick={() => setDeafened(!deafened)} testId="deafen">
+          {deafened ? <HeadphoneOff size={20} /> : <Headphones size={20} />}
+        </Btn>
+      </AudioMenuButton>
       {(policy?.camera?.allowed ?? true) && (
         <Btn label={cameraOn ? t('control.cameraOff') : t('control.camera')} active={false} onClick={() => void media.setCameraEnabled(!cameraOn)} testId="camera">
           {cameraOn ? <Video size={20} className="text-accent" /> : <VideoOff size={20} />}

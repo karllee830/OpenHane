@@ -6,6 +6,7 @@ import SwiftUI
 /// 开发与端到端检查用：HANE_AUTOCONNECT=地址|昵称 自动连接；HANE_SNAPSHOT_DIR=目录 时把主窗口渲染成 PNG 后退出；
 /// HANE_SNAPSHOT_SHARE=1 时用合成画面共享屏幕；HANE_SNAPSHOT_SHEET=admin 时进入会议后打开管理面板并另存一张面板截图
 /// （HANE_SNAPSHOT_ADMIN=分区 选择分区）；HANE_SNAPSHOT_CUSTOM=h265|h264 另存一张「自定义共享参数」面板的截图（选中这个编码器）；
+/// HANE_SNAPSHOT_PANEL=mic|speaker 进入会议后模拟右键工具栏的麦克风 / 声音按钮，另存一张弹出面板的截图；
 /// HANE_SEED_BYTE=n 让多个实例使用不同的身份；HANE_SNAPSHOT_APPEARANCE=light|dark 指定外观。
 /// 应用只截取自己的窗口内容（cacheDisplay），不需要录屏权限。
 @MainActor
@@ -41,6 +42,7 @@ enum SnapshotHarness {
             }
             try? await Task.sleep(for: .seconds(Double(env["HANE_SNAPSHOT_WAIT"] ?? "1") ?? 1))
             snapshot(to: dir, name: "meeting")
+            if let panel = env["HANE_SNAPSHOT_PANEL"] { await rightClickToolbar(panel == "speaker" ? 1 : 0, dir: dir, name: "panel-\(panel)") }
             if let codec = env["HANE_SNAPSHOT_CUSTOM"].flatMap(ShareCodec.init(rawValue:)) {
                 model.shareCustom.codec = codec
                 await snapshot(ShareCustomEditor().environment(model), to: dir, name: "custom-\(codec.rawValue)")
@@ -72,6 +74,37 @@ enum SnapshotHarness {
     private static func autoconnect(_ model: AppModel, _ spec: String) async {
         let parts = spec.split(separator: "|", maxSplits: 1).map(String.init)
         await model.connect(address: parts[0], password: "", nickname: parts.count == 2 ? parts[1] : nil)
+    }
+
+    /// 模拟右键工具栏里的第 index 个可右键的按钮（麦克风、声音），截下弹出的面板。
+    /// 右键事件放进应用的事件队列，与真实点击走同样的路径
+    private static func rightClickToolbar(_ index: Int, dir: String, name: String) async {
+        guard let window = NSApp.windows.first(where: { $0.isVisible && $0.frame.width > 400 }), let root = window.contentView?.superview else { return }
+        var targets: [NSView] = []
+        func walk(_ v: NSView) {
+            if v is ToolbarRightClickView { targets.append(v) }
+            v.subviews.forEach(walk)
+        }
+        walk(root)
+        targets.sort { $0.convert($0.bounds, to: nil).minX < $1.convert($1.bounds, to: nil).minX }
+        guard index < targets.count else {
+            FileHandle.standardError.write(Data("right-click target \(index) not found (\(targets.count) found)\n".utf8))
+            return
+        }
+        let r = targets[index].convert(targets[index].bounds, to: nil)
+        guard let event = NSEvent.mouseEvent(with: .rightMouseDown, location: NSPoint(x: r.midX, y: r.midY), modifierFlags: [],
+                                             timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: window.windowNumber,
+                                             context: nil, eventNumber: 0, clickCount: 1, pressure: 1)
+        else { return }
+        NSApp.postEvent(event, atStart: false)
+        try? await Task.sleep(for: .seconds(1.5))
+        // 弹出面板是单独的窗口
+        let popovers = NSApp.windows.filter { $0.isVisible && $0 !== window && String(describing: type(of: $0)).contains("Popover") }
+        FileHandle.standardError.write(Data("right-click \(index): \(popovers.count) popover(s)\n".utf8))
+        guard let pw = popovers.first, let view = pw.contentView?.superview ?? pw.contentView,
+              let rep = view.bitmapImageRepForCachingDisplay(in: view.bounds) else { return }
+        view.cacheDisplay(in: view.bounds, to: rep)
+        try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: dir).appendingPathComponent("\(name).png"))
     }
 
     /// 单独渲染一个视图（popover 里的内容，主窗口截图里没有）：放进临时窗口后截取

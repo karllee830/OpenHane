@@ -66,6 +66,9 @@ final class AppModel {
     }
     #endif
     #if os(macOS)
+    /// 选中的输入 / 输出设备（空表示系统默认）。重启后由系统默认重新选择，这里只记住 ID 供设置和会议里的菜单显示
+    var inputDeviceID: String { didSet { defaults.set(inputDeviceID, forKey: "inputDevice") } }
+    var outputDeviceID: String { didSet { defaults.set(outputDeviceID, forKey: "outputDevice") } }
     /// 设置里选的摄像头（AVCaptureDevice.uniqueID）；空表示系统默认
     var cameraID: String {
         didSet {
@@ -74,6 +77,19 @@ final class AppModel {
         }
     }
     #endif
+    /// 麦克风音量和所有人声音的总音量（0–2，1 为原始音量）
+    var inputVolume: Double {
+        didSet {
+            defaults.set(inputVolume, forKey: "inputVolume")
+            media.inputVolume = inputVolume
+        }
+    }
+    var outputVolume: Double {
+        didSet {
+            defaults.set(outputVolume, forKey: "outputVolume")
+            media.outputVolume = outputVolume
+        }
+    }
     var manualThreshold: Double? {
         didSet {
             defaults.set(manualThreshold, forKey: "manualThreshold")
@@ -144,12 +160,18 @@ final class AppModel {
         #if os(macOS)
         pttBinding = (defaults.data(forKey: "pttBinding")).flatMap { try? JSONDecoder().decode(HotkeyBinding.self, from: $0) } ?? .defaultBinding
         cameraID = defaults.string(forKey: "cameraDevice") ?? ""
+        inputDeviceID = defaults.string(forKey: "inputDevice") ?? ""
+        outputDeviceID = defaults.string(forKey: "outputDevice") ?? ""
         #endif
         manualThreshold = defaults.object(forKey: "manualThreshold") as? Double
+        inputVolume = defaults.object(forKey: "inputVolume") as? Double ?? 1
+        outputVolume = defaults.object(forKey: "outputVolume") as? Double ?? 1
         noiseSuppression = NoiseSuppression(rawValue: defaults.string(forKey: "noiseSuppression") ?? "") ?? .ai
         echoProcessing = EchoProcessing(rawValue: defaults.string(forKey: "echoProcessing") ?? "") ?? .platformDefault
         media.mode = voiceMode
         media.manualThresholdDb = manualThreshold
+        media.inputVolume = inputVolume
+        media.outputVolume = outputVolume
         media.noiseSuppression = noiseSuppression
         media.echoProcessing = echoProcessing
         #if os(macOS)

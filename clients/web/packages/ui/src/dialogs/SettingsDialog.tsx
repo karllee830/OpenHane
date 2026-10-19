@@ -101,6 +101,28 @@ export function SettingsDialog({ open, onOpenChange, pttKey, onPttKey }: {
             </select>
           </label>
         )}
+        <div className="grid grid-cols-2 gap-4">
+          {([
+            ['inputVolume', t('audio.inputVolume')],
+            ['outputVolume', t('audio.outputVolume')],
+          ] as const).map(([key, label]) => (
+            <label key={key} className="block">
+              <span className="flex justify-between">
+                {label}
+                <span className="text-muted tabular-nums">{Math.round((prefs[key] ?? 1) * 100)}%</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={200}
+                step={5}
+                value={Math.round((prefs[key] ?? 1) * 100)}
+                onChange={(e) => set({ [key]: Number(e.target.value) / 100 })}
+                className="mt-1 w-full accent-[var(--color-accent)]"
+              />
+            </label>
+          ))}
+        </div>
         {devices.cameras.length > 0 && (
           <label className="block">
             {t('settings.camera')}

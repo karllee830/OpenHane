@@ -2705,6 +2705,36 @@
         }
       }
     },
+    "麦克风音量": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone Volume"
+          }
+        }
+      }
+    },
+    "输出音量": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output Volume"
+          }
+        }
+      }
+    },
+    "音视频设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio & Video Settings…"
+          }
+        }
+      }
+    },
     "加入收藏": {
       "localizations": {
         "en": {
@@ -4001,16 +4031,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Audio"
-          }
-        }
-      }
-    },
-    "音频设置…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Audio Settings…"
           }
         }
       }

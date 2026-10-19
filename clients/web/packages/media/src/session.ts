@@ -42,6 +42,10 @@ export interface AudioPrefs {
   outputDeviceId: string;
   /** 摄像头；旧版本保存的设置里没有 */
   cameraDeviceId?: string;
+  /** 麦克风音量（0–2，1 为原始音量）；旧版本保存的设置里没有 */
+  inputVolume?: number;
+  /** 所有人声音的总音量（0–2，再乘上每个人单独的音量）；旧版本保存的设置里没有 */
+  outputVolume?: number;
   /** 戴耳机时可以关闭回声消除，音质更自然 */
   headphones: boolean;
 }
@@ -114,6 +118,8 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
   processedTrack?: MediaStreamTrack;
   voice: VoiceProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
+  /** 麦克风音量：放在发言处理之前，电平和语音激活都按调整后的音量算 */
+  private gain: GainNode | null = null;
   private dest: MediaStreamAudioDestinationNode | null = null;
   /** 第一次 init 拿到的音频上下文：完整重连后 SDK 重新发布轨道时调用 restart / init 不一定带上它 */
   private ctx: AudioContext | null = null;
@@ -130,7 +136,9 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
     this.voice ??= await VoiceProcessorNode.create(ctx, { ns: p.ns, mode: p.mode, threshold: p.threshold });
     this.source = ctx.createMediaStreamSource(new MediaStream([opts.track]));
     this.dest = ctx.createMediaStreamDestination();
-    this.source.connect(this.voice.node).connect(this.dest);
+    this.gain ??= ctx.createGain();
+    this.gain.gain.value = p.inputVolume ?? 1;
+    this.source.connect(this.gain).connect(this.voice.node).connect(this.dest);
     this.processedTrack = this.dest.stream.getAudioTracks()[0];
     this.onVoice(this.voice);
   }
@@ -141,13 +149,19 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
     const ctx = (this.ctx = opts.audioContext ?? this.ctx);
     if (!ctx || !this.voice) return this.init(opts);
     this.source = ctx.createMediaStreamSource(new MediaStream([opts.track]));
-    this.source.connect(this.voice.node);
+    this.source.connect(this.gain ?? this.voice.node);
+  }
+
+  setInputVolume(v: number): void {
+    if (this.gain) this.gain.gain.value = v;
   }
 
   async destroy(): Promise<void> {
     this.source?.disconnect();
     this.voice?.dispose();
     this.voice = null;
+    this.gain?.disconnect();
+    this.gain = null;
     this.source = this.dest = null;
   }
 }
@@ -904,6 +918,10 @@ export class MediaSession {
       await this.room.switchActiveDevice('audioinput', prefs.inputDeviceId).catch(() => undefined);
     }
     if (patch.outputDeviceId !== undefined) for (const el of this.audioEls.values()) await this.applyOutputDevice(el);
+    if (patch.inputVolume !== undefined) this.processor?.setInputVolume(prefs.inputVolume ?? 1);
+    if (patch.outputVolume !== undefined) {
+      for (const r of [this.room, this.shareRoom]) for (const p of r?.remoteParticipants.values() ?? []) this.applyVolume(p);
+    }
     if (patch.cameraDeviceId !== undefined && this.room && this.state.getState().cameraOn) {
       await this.room.switchActiveDevice('videoinput', prefs.cameraDeviceId || 'default').catch(() => undefined);
     }
@@ -929,8 +947,8 @@ export class MediaSession {
 
   private applyVolume(p: Participant) {
     if (!(p instanceof RemoteParticipant)) return;
-    const v = this.state.getState().volumes[mainIdentity(p.identity)] ?? 1;
-    p.setVolume(v);
+    const s = this.state.getState();
+    p.setVolume((s.volumes[mainIdentity(p.identity)] ?? 1) * (s.prefs.outputVolume ?? 1));
   }
 
   /** 浏览器阻止自动播放时，在用户点击后调用。 */
