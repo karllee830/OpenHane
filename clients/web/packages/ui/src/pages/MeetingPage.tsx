@@ -9,7 +9,6 @@ import { RoomSidebar } from '../components/RoomSidebar';
 import { ShareBar } from '../components/ShareBar';
 import { ShareStage } from '../components/ShareStage';
 import { Stage } from '../components/Stage';
-import { OnboardingTips } from '../components/OnboardingTips';
 import { RoleBadge } from '../components/ParticipantList';
 import { StatusBanner } from '../components/StatusBanner';
 import { AboutDialog } from '../dialogs/AboutDialog';
@@ -168,7 +167,6 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
               </p>
             )}
           </div>
-          <OnboardingTips />
           {shares.length ? <ShareStage shares={shares} tracks={tracks} /> : <Stage />}
           {mode === 'ptt' && <p className="pb-2 text-center text-xs text-muted">{t('control.pttHint', { key: keyLabel(pttKey) })}</p>}
           <ControlBar

@@ -12,7 +12,6 @@ struct OpenHaneApp: App {
         if ProcessInfo.processInfo.environment["HANE_E2E"] == "1" {
             try? AudioManager.shared.setManualRenderingMode(true)
         }
-        OnboardingTips.configure()
     }
 
     var body: some Scene {

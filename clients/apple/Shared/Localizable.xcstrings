@@ -1055,16 +1055,6 @@
         }
       }
     },
-    "关掉主窗口也能留在会议里：菜单栏的麦克风图标可以静音、打开主窗口或离开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Closing the main window keeps you in the meeting: use the microphone icon in the menu bar to mute, reopen the window or leave."
-          }
-        }
-      }
-    },
     "关闭": {
       "localizations": {
         "en": {
@@ -1551,16 +1541,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Echo cancellation"
-          }
-        }
-      }
-    },
-    "在成员列表里点房间名即可进入，切换时声音几乎不中断。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tap a room name in the member list to enter it; switching barely interrupts the audio."
           }
         }
       }
@@ -2935,16 +2915,6 @@
         }
       }
     },
-    "点击房间名即可进入，切换时声音几乎不中断。主持人可以把成员拖到其他房间。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Click a room name to enter it; switching barely interrupts the audio. Moderators can drag members into other rooms."
-          }
-        }
-      }
-    },
     "版本": {
       "localizations": {
         "en": {
@@ -3305,16 +3275,6 @@
         }
       }
     },
-    "菜单栏": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Menu bar"
-          }
-        }
-      }
-    },
     "角色": {
       "localizations": {
         "en": {
@@ -3451,16 +3411,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Voice channel interrupted, reconnecting…"
-          }
-        }
-      }
-    },
-    "说话方式": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How you talk"
           }
         }
       }
@@ -3705,16 +3655,6 @@
         }
       }
     },
-    "选「智能」模式就好：文档会保持清晰，视频和游戏会保持流畅。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Just pick \"Smart\" : documents stay sharp, videos and games stay smooth."
-          }
-        }
-      }
-    },
     "选择共享内容…": {
       "localizations": {
         "en": {
@@ -3901,26 +3841,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mic Mode (Voice Isolation)…"
-          }
-        }
-      }
-    },
-    "默认是语音激活。⌘⇧M 静音；在设置里可以改用按键说话（支持鼠标侧键）或常开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voice activation is the default. ⌘⇧M mutes; in Settings you can switch to push-to-talk (mouse side buttons work too) or always on."
-          }
-        }
-      }
-    },
-    "默认是语音激活。在「更多」里可以改用按键说话或常开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voice activation is the default. Under More you can switch to push-to-talk or always on."
           }
         }
       }

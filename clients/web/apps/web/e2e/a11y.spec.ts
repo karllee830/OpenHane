@@ -42,17 +42,7 @@ test('main screens and dialogs have no serious accessibility violations', async 
     await expect(page.getByTestId('server-name')).toBeVisible();
     if (scheme === 'light') await page.evaluate((t) => (window as any).__hane.client.redeemToken(t), server.adminToken);
     await page.waitForTimeout(500);
-    // 新用户引导：第一次进入会议时显示上手提示（也参与无障碍检查）
-    await expect(page.getByTestId('onboarding')).toBeVisible();
     problems.push(...(await audit(page, `${scheme} meeting`)));
-    if (scheme === 'light') {
-      // 关闭后在这个浏览器里不再出现
-      await page.getByTestId('onboarding-dismiss').click();
-      await page.reload();
-      await page.getByTestId('connect').click();
-      await expect(page.getByTestId('server-name')).toBeVisible();
-      await expect(page.getByTestId('onboarding')).toHaveCount(0);
-    }
 
     await page.evaluate(() => (window as any).__hane.media.setCameraEnabled(true));
     await expect(page.getByTestId('camera-video')).toBeVisible({ timeout: 10_000 });

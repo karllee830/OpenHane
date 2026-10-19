@@ -1,7 +1,6 @@
 import HaneCore
 import HaneMedia
 import SwiftUI
-import TipKit
 
 /// iOS 会议主界面：舞台 + 底部控制栏；成员、聊天、设置以底部面板展示。
 struct MeetingView: View {
@@ -36,13 +35,11 @@ struct MeetingView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        RoomsTip().invalidate(reason: .actionPerformed)
                         sheet = .members
                     } label: {
                         Label("成员", systemImage: "person.2")
                     }
                     .accessibilityIdentifier("members")
-                    .popoverTip(RoomsTip())
                 }
                 // 顶栏：当前房间名，点按弹出房间和成员；下面一行是服务器名称
                 ToolbarItem(placement: .principal) {
@@ -184,7 +181,6 @@ struct ControlBar: View {
                     Task { await model.setMuted(!muted) }
                 }
                 .accessibilityIdentifier("mute")
-                .popoverTip(VoiceTip())
                 let camOn = model.media.cameraOn
                 CircleControl(title: camOn ? L("关闭摄像头") : L("开启摄像头"), caption: L("摄像头"), icon: camOn ? "video.fill" : "video.slash.fill",
                               fill: camOn ? .accentColor : nil) {
@@ -193,13 +189,9 @@ struct ControlBar: View {
                 let sharing = model.media.isSharing
                 CircleControl(title: sharing ? L("停止共享") : L("共享屏幕"), caption: sharing ? L("停止共享") : L("共享"),
                               icon: sharing ? "rectangle.on.rectangle.slash" : "rectangle.on.rectangle", fill: sharing ? .red : nil) {
-                    if sharing { Task { await model.media.stopScreenShare() } } else {
-                        ShareTip().invalidate(reason: .actionPerformed)
-                        sheet = .share
-                    }
+                    if sharing { Task { await model.media.stopScreenShare() } } else { sheet = .share }
                 }
                 .accessibilityIdentifier("share")
-                .popoverTip(ShareTip())
                 CircleControl(title: L("聊天"), icon: "bubble.left.and.bubble.right.fill", badge: model.unread) {
                     sheet = .chat
                 }

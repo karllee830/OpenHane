@@ -1,6 +1,5 @@
 import HaneCore
 import SwiftUI
-import TipKit
 
 /// 会议主界面：侧栏成员 | 舞台 | 聊天（检查器），工具栏是控制栏。
 struct MeetingView: View {
@@ -87,8 +86,6 @@ struct SidebarView: View {
         let perms = state.permissions
         let current = state.media?.roomID ?? "main"
         List {
-            TipView(RoomsTip())
-            TipView(MenuBarTip())
             ForEach(state.sortedRooms, id: \.id) { room in
                 let members = state.members(of: room.id)
                 Section {
@@ -422,7 +419,6 @@ struct ControlBar: ToolbarContent {
             }
             .help(muted ? L("取消静音") : L("静音"))
             .keyboardShortcut("m", modifiers: [.command, .shift])
-            .popoverTip(VoiceTip(), arrowEdge: .bottom)
             let deaf = model.media.deafened
             Button { Task { await model.setDeafened(!deaf) } } label: {
                 Label(deaf ? L("开启声音") : L("关闭声音"), systemImage: deaf ? "speaker.slash.fill" : "speaker.wave.2.fill")
@@ -485,8 +481,6 @@ struct ShareButton: View {
         .help(sharing ? L("停止共享") : L("共享屏幕"))
         .keyboardShortcut("s", modifiers: [.command, .shift])
         .popover(isPresented: $showOptions, arrowEdge: .bottom) { SharePopover() }
-        .popoverTip(ShareTip(), arrowEdge: .bottom)
         .accessibilityIdentifier("share")
-        .onChange(of: showOptions) { _, open in if open { ShareTip().invalidate(reason: .actionPerformed) } }
     }
 }

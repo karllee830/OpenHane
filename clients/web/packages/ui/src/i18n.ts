@@ -429,12 +429,6 @@ const zh = {
   'e2ee.explain': '这个房间的声音、视频和屏幕共享只有房间里的人能解密，服务器也无法查看。',
   'e2ee.safetyCode': '安全码（与其他人核对：所有人看到的相同，就说明没有人被偷偷加进来）',
   'e2ee.pendingCount': '还有 {n} 人的密钥没有收到',
-  'tips.title': '上手提示',
-  'tips.voice': '说话方式在「更多 → 设置」里选择：语音激活（默认）、按键说话或常开。',
-  'tips.rooms': '点击左侧的房间名即可进入，切换时声音几乎不中断。',
-  'tips.share': '点击底部的共享按钮共享屏幕，选「智能」模式就好，清晰度和流畅度会自动调整。',
-  'tips.invite': '把这个页面的地址发给别人，对方就能加入；管理员还可以生成免密码的邀请链接。',
-  'tips.dismiss': '知道了',
   'connect.micHint': '连接后浏览器会请求使用麦克风，用于在会议中说话。',
 } as const;
 
@@ -867,12 +861,6 @@ const en: Record<MessageKey, string> = {
   'e2ee.explain': 'Audio, video and screen sharing in this room can only be decrypted by the people in it — not even the server can see them.',
   'e2ee.safetyCode': 'Safety code (compare with others: if everyone sees the same code, nobody was secretly added)',
   'e2ee.pendingCount': 'Waiting for keys from {n} people',
-  'tips.title': 'Getting started',
-  'tips.voice': 'Choose how you talk in More → Settings: voice activation (default), push-to-talk or always on.',
-  'tips.rooms': 'Click a room on the left to enter it; switching barely interrupts the audio.',
-  'tips.share': 'Use the share button at the bottom to share your screen. "Smart" mode adjusts sharpness and smoothness for you.',
-  'tips.invite': 'Send this page\'s address to others so they can join; admins can also create invite links that skip the password.',
-  'tips.dismiss': 'Got it',
   'connect.micHint': 'After connecting, your browser will ask for the microphone so you can talk in meetings.',
 };
 
