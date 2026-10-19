@@ -281,7 +281,6 @@ private struct ServerRow: View {
                 .fill(Color.accentColor.opacity(highlighted ? 0.12 : hovering && !disabled ? 0.08 : 0))
         }
         .onHover { hovering = $0 }
-        .help(server.address)
         .contextMenu {
             Button("连接", action: connect).disabled(disabled)
             Divider()

@@ -128,6 +128,9 @@ struct ServerTile: View {
 /// 信号格：四格表示延迟由低到高，连不上时显示叉号。还没测完时四格都是灰色
 struct SignalBars: View {
     let status: ServerStatus?
+    #if os(macOS)
+    @State private var hovering = false
+    #endif
 
     var body: some View {
         let bars = status?.bars ?? -1
@@ -149,14 +152,39 @@ struct SignalBars: View {
             }
         }
         .padding(.trailing, 3)
+        #if os(macOS)
+        // 悬停立即在上方显示延迟（系统的 help 提示要停顿一秒左右才出现，而且会被整行的提示盖住）
+        .padding(4)
+        .contentShape(Rectangle())
+        .onHover { hovering = $0 }
+        .overlay(alignment: .top) {
+            if hovering {
+                Text(verbatim: Self.shortLabel(status))
+                    .font(.caption.weight(.medium))
+                    .monospacedDigit()
+                    .foregroundStyle(Color(nsColor: .windowBackgroundColor))
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(Color.primary.opacity(0.85), in: RoundedRectangle(cornerRadius: 5, style: .continuous))
+                    .fixedSize()
+                    .offset(y: -24)
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        #endif
         .accessibilityElement()
         .accessibilityLabel(Text(Self.label(status)))
-        #if os(macOS)
-        .help(Self.label(status))
-        #endif
     }
 
-    /// 「延迟 42 ms」「无法连接」「正在检测…」
+    /// 悬停气泡里的文字：连得上时只显示「42 ms」
+    static func shortLabel(_ status: ServerStatus?) -> String {
+        if let ms = status?.latencyMs { return "\(ms) ms" }
+        return label(status)
+    }
+
+    /// 读屏用的完整说法：「延迟 42 ms」「无法连接」「正在检测…」
     static func label(_ status: ServerStatus?) -> String {
         guard let status else { return L("正在检测…") }
         guard let ms = status.latencyMs else { return L("无法连接") }

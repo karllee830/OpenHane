@@ -40,9 +40,10 @@ function Signal({ status }: { status: ServerStatus | undefined }) {
       </span>
       <span
         aria-hidden
-        className="pointer-events-none absolute right-0 bottom-full z-10 mb-1 rounded-md bg-text px-2 py-1 text-xs font-medium whitespace-nowrap text-bg opacity-0 shadow-md transition-opacity group-hover/signal:opacity-100"
+        className="pointer-events-none absolute right-0 bottom-full z-10 mb-1 rounded-md bg-text px-2 py-1 text-xs font-medium whitespace-nowrap text-bg tabular-nums opacity-0 shadow-md transition-opacity group-hover/signal:opacity-100"
       >
-        {label}
+        {/* 气泡里连得上时只显示「42 ms」；读屏仍用 aria-label 里的完整说法 */}
+        {status?.ms != null ? `${status.ms} ms` : label}
       </span>
     </span>
   );
