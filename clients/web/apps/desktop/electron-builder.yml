@@ -1,4 +1,4 @@
-# 打包配置。Windows：NSIS；Linux：AppImage + deb。macOS 不发布 Electron 版（用原生客户端）。
+# 打包配置。Windows：NSIS（正式版另外打 Microsoft Store 用的 AppX）；Linux：AppImage + deb。macOS 不发布 Electron 版（用原生客户端）。
 appId: com.0http.openhane
 productName: OpenHane
 directories:
@@ -20,6 +20,17 @@ protocols:
 win:
   target: [nsis]
   icon: resources/icon.png
+# Microsoft Store 包：发布流程只在正式版时加上 appx 目标；版本号为 X.Y.Z.0（商店要求第四段为 0），上传后由商店签名。
+# 包标识取自 Partner Center 的「产品标识」页；磁贴图标在 build/appx/（由 resources/icon.png 缩放生成）
+appx:
+  identityName: 0HTTP.COM.OpenHane
+  publisher: CN=D6FDB51F-86B0-43A3-BD3C-DB5CDE32ECA8
+  publisherDisplayName: 0HTTP.COM
+  applicationId: OpenHane
+  displayName: OpenHane
+  languages: [zh-CN, en-US]
+  capabilities: [internetClient, microphone, webcam]
+  artifactName: OpenHane-${version}-Store.${ext}
 nsis:
   artifactName: OpenHane-Setup-${version}.${ext}   # 与 latest.yml 里的文件名一致（文件名带空格时上传到 GitHub 会被改名）
   oneClick: false

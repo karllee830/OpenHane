@@ -89,6 +89,8 @@ export interface UpdateStateMsg {
 export interface UpdateInfoMsg {
   /** 这个安装方式能否自动更新（Windows 安装版、AppImage 可以；deb、Dev 版、未打包的开发环境不行） */
   automatic: boolean;
+  /** Microsoft Store 版：由商店负责更新，应用里不显示更新设置 */
+  store: boolean;
   beta: boolean;
   state: UpdateStateMsg;
 }
