@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"image"
 	"image/color"
+	"runtime"
 	"testing"
 )
 
@@ -30,6 +31,20 @@ func TestDownscaleAveragesArea(t *testing.T) {
 	// 长方形：6×2 缩成 3×1
 	if d := Downscale(image.NewRGBA(image.Rect(0, 0, 6, 2)), 3, 1); d.Bounds().Dx() != 3 || d.Bounds().Dy() != 1 {
 		t.Fatalf("rect: %v", d.Bounds())
+	}
+}
+
+// 缩小大图时除了输出图片只用几行的缓冲：额外内存不随原图的高度增长
+func TestDownscaleMemory(t *testing.T) {
+	src := image.NewRGBA(image.Rect(0, 0, 2000, 2000))
+	var before, after runtime.MemStats
+	runtime.GC()
+	runtime.ReadMemStats(&before)
+	dst := Downscale(src, 1000, 1000)
+	runtime.ReadMemStats(&after)
+	out := uint64(len(dst.Pix))
+	if used := after.TotalAlloc - before.TotalAlloc; used > out+out/2 {
+		t.Fatalf("allocated %d bytes for a %d-byte output", used, out)
 	}
 }
 

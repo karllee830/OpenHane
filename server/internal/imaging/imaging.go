@@ -7,40 +7,47 @@ import (
 )
 
 // Downscale 把图片按面积平均缩到 w×h（只用于缩小）。src 是预乘透明度的 RGBA，半透明边缘不会发黑。
-// 先横向再纵向，各自按覆盖比例加权
+// 先横向再纵向，各自按覆盖比例加权。
+//
+// 逐个目标行处理，只保留一行横向缩放的结果：不为整张图分配中间缓冲（大图的中间结果有几百 MB）。
+// 每个目标行用到的源行是递增的，相邻两个目标行最多共用一个源行，所以缓存最后算过的那一行就不会重复计算。
 func Downscale(src *image.RGBA, w, h int) *image.RGBA {
-	sw, sh := src.Bounds().Dx(), src.Bounds().Dy()
-	xs, ys := weights(sw, w), weights(sh, h)
-	// 横向：sh 行 × w 列
-	tmp := make([]float64, sh*w*4)
-	for y := range sh {
-		row := src.Pix[y*src.Stride:]
+	sw := src.Bounds().Dx()
+	xs, ys := weights(sw, w), weights(src.Bounds().Dy(), h)
+	row := make([]float64, w*4) // 源行 rowY 横向缩放后的 w 列
+	rowY := -1
+	horizontal := func(y int) {
+		pix := src.Pix[y*src.Stride:]
 		for x, ts := range xs {
 			var acc [4]float64
 			for _, t := range ts {
-				p := row[t.i*4:]
+				p := pix[t.i*4:]
 				for c := range 4 {
 					acc[c] += float64(p[c]) * t.w
 				}
 			}
-			copy(tmp[(y*w+x)*4:], acc[:])
+			copy(row[x*4:], acc[:])
 		}
+		rowY = y
 	}
-	// 纵向：h 行 × w 列
+	acc := make([]float64, w*4)
 	dst := image.NewRGBA(image.Rect(0, 0, w, h))
 	for y, ts := range ys {
-		for x := range w {
-			var acc [4]float64
-			for _, t := range ts {
-				p := tmp[(t.i*w+x)*4:]
-				for c := range 4 {
-					acc[c] += p[c] * t.w
-				}
+		clear(acc)
+		for _, t := range ts {
+			if t.i != rowY {
+				horizontal(t.i)
 			}
-			o := dst.Pix[y*dst.Stride+x*4:]
-			a := clamp(acc[3])
+			for k, v := range row {
+				acc[k] += v * t.w
+			}
+		}
+		out := dst.Pix[y*dst.Stride:]
+		for x := range w {
+			o, p := out[x*4:], acc[x*4:]
+			a := clamp(p[3])
 			// 预乘的颜色不能超过透明度
-			o[0], o[1], o[2], o[3] = min(clamp(acc[0]), a), min(clamp(acc[1]), a), min(clamp(acc[2]), a), a
+			o[0], o[1], o[2], o[3] = min(clamp(p[0]), a), min(clamp(p[1]), a), min(clamp(p[2]), a), a
 		}
 	}
 	return dst
