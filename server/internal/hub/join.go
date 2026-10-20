@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/netip"
+	"slices"
 	"strings"
 	"time"
 
@@ -32,9 +33,51 @@ type JoinParams struct {
 
 func pbErr(code pb.ErrorCode, msg string) *pb.Error { return &pb.Error{Code: code, Message: msg} }
 
+// 客户端在握手时上报的信息会随 Participant 广播给所有人、放进每个新成员的快照。下面几个函数只取用得到的字段
+// 重新构造消息（未知字段一并丢掉），并限制长度，避免一个客户端塞进几十 KB 的数据让服务端反复广播。
+
+// knownVideoCodecs 是客户端会上报的视频解码器；其他 mime 对计算房间的可解码集合没有意义
+var knownVideoCodecs = []string{"video/av1", "video/h264", "video/h265", "video/vp8", "video/vp9"}
+
+func cleanCaps(c *pb.Capabilities) *pb.Capabilities {
+	out := &pb.Capabilities{E2Ee: c.GetE2Ee(), Svc: c.GetSvc(), HardwareReported: c.GetHardwareReported()}
+	for _, cc := range c.GetCodecs() {
+		mime := strings.ToLower(cc.GetMime())
+		if !slices.Contains(knownVideoCodecs, mime) || slices.ContainsFunc(out.Codecs, func(o *pb.CodecCapability) bool { return o.Mime == mime }) {
+			continue
+		}
+		out.Codecs = append(out.Codecs, &pb.CodecCapability{Mime: mime, Encode: cc.GetEncode(), Decode: cc.GetDecode(), Hardware: cc.GetHardware()})
+	}
+	return out
+}
+
+func cleanClient(c *pb.ClientInfo) *pb.ClientInfo {
+	return &pb.ClientInfo{
+		AppVersion: clip(c.GetAppVersion(), 32), Platform: c.GetPlatform(),
+		OsVersion: clip(c.GetOsVersion(), 64), DeviceName: clip(c.GetDeviceName(), 64),
+	}
+}
+
+// cleanKey：公钥和签名的长度已在握手时校验过
+func cleanKey(k *pb.SignedPublicKey) *pb.SignedPublicKey {
+	if k == nil {
+		return nil
+	}
+	return &pb.SignedPublicKey{PublicKey: k.GetPublicKey(), Signature: k.GetSignature()}
+}
+
+// clip 截断到最多 n 个字符（按 rune）
+func clip(v string, n int) string {
+	if r := []rune(v); len(r) > n {
+		return string(r[:n])
+	}
+	return v
+}
+
 // Join 创建会话（或恢复断线宽限期内的会话），并由 Hub 协程直接向连接发送 Welcome，
 // 保证 Welcome 先于任何事件到达。返回的错误应以 Goodbye 发给客户端。
 func (h *Hub) Join(ctx context.Context, p JoinParams) (*Session, *pb.Error) {
+	p.Client, p.Caps, p.E2EEKey = cleanClient(p.Client), cleanCaps(p.Caps), cleanKey(p.E2EEKey)
 	var (
 		sess *Session
 		perr *pb.Error

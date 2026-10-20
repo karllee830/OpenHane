@@ -5,6 +5,7 @@ import (
 	"crypto/ed25519"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -621,6 +622,30 @@ func TestRoomDecodableFollowsMembers(t *testing.T) {
 		return strings.Join(ev.GetPolicyUpdated().GetPolicy().GetCodecs().GetRoomDecodable(), ",") == "video/h264"
 	}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// 客户端上报的能力会广播给所有人：不认识的编码器、重复项和超长字符串都不能原样转出去
+func TestJunkCapabilitiesAreDropped(t *testing.T) {
+	e := setup(t)
+	junk := []*pb.CodecCapability{{Mime: "video/H264", Decode: true}, {Mime: "video/h264", Decode: true}}
+	for i := range 500 {
+		junk = append(junk, &pb.CodecCapability{Mime: fmt.Sprintf("video/x-%d-%s", i, strings.Repeat("a", 60)), Decode: true})
+	}
+	a := e.mustDial(1, "Junk", func(o *client.Options) {
+		o.Caps = &pb.Capabilities{HardwareReported: true, Codecs: junk}
+	})
+	b := e.mustDial(2, "Viewer")
+	for _, p := range b.Welcome.GetSnapshot().GetParticipants() {
+		if p.GetSessionId() == a.Welcome.GetSessionId() {
+			if sw := strings.Join(p.GetDecodeSoftware(), ","); sw != "video/h264" || len(p.GetDecodeHardware()) != 0 {
+				t.Fatalf("hw=%v sw=%s", p.GetDecodeHardware(), sw)
+			}
+		}
+	}
+	// 可解码集合只按认识的编码器计算（Viewer 没有上报，按基准集合 H.264 + VP8）
+	if got := strings.Join(b.Welcome.GetAutoJoin().GetPolicy().GetCodecs().GetRoomDecodable(), ","); got != "video/h264" {
+		t.Fatalf("decodable: %s", got)
 	}
 }
 
