@@ -1,9 +1,24 @@
 package ratelimit
 
 import (
+	"net/netip"
 	"testing"
 	"time"
 )
+
+func TestIPKey(t *testing.T) {
+	for in, want := range map[string]string{
+		"203.0.113.7":            "203.0.113.7",
+		"::ffff:203.0.113.7":     "203.0.113.7",
+		"2001:db8:1:2:a::1":      "2001:db8:1:2::/64",
+		"2001:db8:1:2:ffff::abc": "2001:db8:1:2::/64",
+		"2001:db8:1:3::1":        "2001:db8:1:3::/64",
+	} {
+		if got := IPKey(netip.MustParseAddr(in)); got != want {
+			t.Errorf("%s → %s, want %s", in, got, want)
+		}
+	}
+}
 
 func TestWindowAndBlocker(t *testing.T) {
 	now := time.Unix(0, 0)

@@ -14,7 +14,7 @@ import (
 	"github.com/karllee830/OpenHane/server/internal/store"
 )
 
-// RedeemFailures 限制单 IP 兑换权限令牌的失败次数（每小时 10 次）。
+// RedeemFailures 限制单 IP（IPv6 按 /64）兑换权限令牌的失败次数（每小时 10 次）。
 var RedeemFailures = ratelimit.NewWindow(10, time.Hour)
 
 // HandleRequest 由连接协程调用；请求在 Hub 协程中处理，响应发回发起请求的连接。
@@ -322,13 +322,13 @@ func memoryHistory(all []*pb.ChatMessage, before int64, limit int) *pb.GetChatHi
 // ---------- 权限令牌 ----------
 
 func (h *Hub) handleRedeem(s *Session, c Conn, id uint32, r *pb.RedeemToken) *pb.Response {
-	ip := s.RemoteIP.String()
-	if RedeemFailures.Exceeded(ip) {
+	ip, key := s.RemoteIP.String(), ratelimit.IPKey(s.RemoteIP)
+	if RedeemFailures.Exceeded(key) {
 		return errLimited()
 	}
 	norm, err := auth.NormalizeToken(r.GetToken())
 	if err != nil {
-		RedeemFailures.Add(ip)
+		RedeemFailures.Add(key)
 		return errResp(pb.ErrorCode_ERROR_CODE_TOKEN_INVALID, "invalid token")
 	}
 	uid := s.UID
@@ -349,7 +349,7 @@ func (h *Hub) handleRedeem(s *Session, c Conn, id uint32, r *pb.RedeemToken) *pb
 				h.log.Error("redeem token failed", "err", err)
 			}
 			if code != pb.ErrorCode_ERROR_CODE_INTERNAL {
-				RedeemFailures.Add(ip)
+				RedeemFailures.Add(key)
 			}
 			reply(c, id, errResp(code, "token rejected"))
 			return nil
