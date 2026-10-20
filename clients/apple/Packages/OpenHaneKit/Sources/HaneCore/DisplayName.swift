@@ -40,6 +40,43 @@ public enum DisplayName {
         return trimmed.count > max ? String(trimmed.prefix(max)).trimmingCharacters(in: .whitespaces) + "…" : trimmed
     }
 
+    /// 聊天正文最多显示多少个字符（服务端设置的上限）
+    public static let maxChatChars = 10000
+
+    /// 清洗聊天正文（与服务端 identity.CleanChatText、Web 客户端 cleanChatText 的规则相同）：转成 NFC；
+    /// 换行统一成 \n，制表符保留，其他控制字符去掉；去掉格式字符（方向控制符、零宽空格等），但保留零宽连接符 / 非连接符
+    /// 和标签字符（emoji 序列和一些文字要用）；连续的组合字符最多保留 3 个；去掉首尾空白，过长时截断
+    public static func cleanChat(_ raw: String) -> String {
+        let s = String(raw.unicodeScalars.prefix(maxChatChars * 8)).precomposedStringWithCanonicalMapping
+        var out = String.UnicodeScalarView()
+        var run = 0
+        var lastCR = false
+        for u in s.unicodeScalars {
+            // \r\n 和单独的 \r 都算一个换行
+            defer { lastCR = u == "\r" }
+            if u == "\n" && lastCR { continue }
+            switch u {
+            case "\r", "\u{2028}", "\u{2029}":
+                out.append("\n")
+                run = 0
+                continue
+            case "\n", "\t", "\u{200C}", "\u{200D}", "\u{E0020}"..."\u{E007F}":
+                break
+            default:
+                if [.control, .format].contains(u.properties.generalCategory) { continue }
+            }
+            if [.nonspacingMark, .enclosingMark].contains(u.properties.generalCategory) {
+                run += 1
+                if run > maxCombiningRun { continue }
+            } else {
+                run = 0
+            }
+            out.append(u)
+        }
+        let trimmed = String(out).trimmingCharacters(in: .whitespacesAndNewlines)
+        return trimmed.count > maxChatChars ? String(trimmed.prefix(maxChatChars)) : trimmed
+    }
+
     /// 服务端给的服务器名称：清洗后；是默认名称时当作没有名称
     public static func serverName(_ raw: String) -> String {
         let name = clean(raw)

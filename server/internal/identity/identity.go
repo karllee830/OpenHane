@@ -77,6 +77,33 @@ func NormalizeDisplayName(s string, maxRunes int) (string, bool) {
 	return s, true
 }
 
+var lineBreaks = strings.NewReplacer("\r\n", "\n", "\r", "\n", " ", "\n", " ", "\n")
+
+// CleanChatText 清洗聊天正文（客户端显示前也按同样的规则处理）：转成 NFC；换行统一成 \n，制表符保留，
+// 其他控制字符去掉；去掉格式字符（方向控制符、零宽空格等），但保留零宽连接符 / 非连接符和标签字符
+// （emoji 序列和一些文字要用）；连续的组合字符最多保留 MaxCombiningRun 个；去掉首尾空白。s 必须是合法的 UTF-8。
+func CleanChatText(s string) string {
+	s = lineBreaks.Replace(norm.NFC.String(s))
+	var b strings.Builder
+	b.Grow(len(s))
+	run := 0
+	for _, r := range s {
+		keep := r == '\n' || r == '\t' || r == '‌' || r == '‍' || (r >= 0xE0020 && r <= 0xE007F)
+		if !keep && (unicode.Is(unicode.Cc, r) || unicode.Is(unicode.Cf, r)) {
+			continue
+		}
+		if unicode.In(r, unicode.Mn, unicode.Me) {
+			if run++; run > MaxCombiningRun {
+				continue
+			}
+		} else {
+			run = 0
+		}
+		b.WriteRune(r)
+	}
+	return strings.TrimSpace(b.String())
+}
+
 // Uniquify 在昵称已被占用时追加后缀「 (2)」「 (3)」……，超长时截断原名。
 // taken 按不区分大小写比较由调用方实现。
 func Uniquify(name string, taken func(string) bool) string {

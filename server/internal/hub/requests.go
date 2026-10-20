@@ -3,7 +3,6 @@ package hub
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -199,9 +198,12 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	if m.GetRoomId() != s.RoomID {
 		return errDenied()
 	}
-	text := strings.TrimSpace(m.GetText())
+	if !utf8.ValidString(m.GetText()) {
+		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is not valid UTF-8")
+	}
+	text := identity.CleanChatText(m.GetText())
 	st := h.Settings()
-	if !utf8.ValidString(text) || utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && m.GetImageId() == "") {
+	if utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && m.GetImageId() == "") {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is empty or too long")
 	}
 	if len(m.GetClientMsgId()) > 64 {

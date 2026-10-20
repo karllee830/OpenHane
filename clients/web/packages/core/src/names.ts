@@ -19,6 +19,28 @@ export function cleanDisplayName(raw: unknown, max = MAX_NAME_CHARS): string {
   return chars.length > max ? `${chars.slice(0, max).join('').trimEnd()}…` : s;
 }
 
+/** 聊天正文最多显示多少个字符（服务端设置的上限） */
+export const MAX_CHAT_CHARS = 10_000;
+
+/**
+ * 清洗聊天正文（与服务端 identity.CleanChatText 的规则相同）：转成 NFC；换行统一成 \n，制表符保留，其他控制字符去掉；
+ * 去掉格式字符（方向控制符、零宽空格等），但保留零宽连接符 / 非连接符和标签字符（emoji 序列和一些文字要用）；
+ * 连续的组合字符最多保留 3 个；去掉首尾空白，过长时截断。不是字符串时返回空字符串。
+ */
+export function cleanChatText(raw: unknown): string {
+  if (typeof raw !== 'string') return '';
+  let s = raw.slice(0, MAX_CHAT_CHARS * 8).normalize('NFC');
+  s = s.replace(/\r\n?|[\u2028\u2029]/g, '\n').replace(/(?![\t\n\u200c\u200d\u{e0020}-\u{e007f}])[\p{Cc}\p{Cf}]/gu, '');
+  s = s.replace(new RegExp(`([\\p{Mn}\\p{Me}]{${MAX_COMBINING_RUN}})[\\p{Mn}\\p{Me}]+`, 'gu'), '$1').trim();
+  const chars = Array.from(s);
+  return chars.length > MAX_CHAT_CHARS ? chars.slice(0, MAX_CHAT_CHARS).join('') : s;
+}
+
+/** 聊天消息的正文和发送者名称清洗后再放进状态 */
+export function withCleanChat<T extends { text: string; senderName: string }>(m: T): T {
+  return { ...m, text: cleanChatText(m.text), senderName: cleanDisplayName(m.senderName) };
+}
+
 /** 服务器信息里的名称清洗后再放进状态（界面各处都从状态里取） */
 export function withCleanName<T extends { name: string }>(info: T): T;
 export function withCleanName<T extends { name: string }>(info: T | undefined | null): T | null;

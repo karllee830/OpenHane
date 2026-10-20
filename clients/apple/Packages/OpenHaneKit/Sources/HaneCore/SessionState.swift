@@ -96,10 +96,14 @@ public struct SessionState: Equatable, Sendable {
         }
     }
 
-    /// 按 id 合并聊天消息（去重、升序、截断）
+    /// 按 id 合并聊天消息（去重、升序、截断）。新到的消息清洗正文和发送者名称：服务端的数据不可信
     public mutating func mergeChat(room: String, _ incoming: [ChatMessage]) {
         var byID = Dictionary((chat[room] ?? []).map { ($0.id, $0) }, uniquingKeysWith: { $1 })
-        for m in incoming { byID[m.id] = m }
+        for var m in incoming {
+            m.text = DisplayName.cleanChat(m.text)
+            m.senderName = DisplayName.clean(m.senderName)
+            byID[m.id] = m
+        }
         var all = byID.values.sorted { $0.id < $1.id }
         if all.count > Self.chatKeep { all.removeFirst(all.count - Self.chatKeep) }
         chat[room] = all

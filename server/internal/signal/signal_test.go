@@ -145,8 +145,8 @@ func TestJoinChatAndPresence(t *testing.T) {
 		t.Fatalf("first event seq should be 1, got %d", ev.GetSeq())
 	}
 
-	// 聊天
-	resp, err := b.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: " 你好 ", ClientMsgId: "m1"}}})
+	// 聊天（方向控制符等格式字符被去掉）
+	resp, err := b.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: " 你\u202e好 ", ClientMsgId: "m1"}}})
 	if err != nil || resp.GetSendChat().GetMessage().GetText() != "你好" {
 		t.Fatal(resp, err)
 	}
@@ -158,7 +158,7 @@ func TestJoinChatAndPresence(t *testing.T) {
 	if err != nil || len(hist.GetGetChatHistory().GetMessages()) != 1 {
 		t.Fatal(hist, err)
 	}
-	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: "   "}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
+	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: "  \u200b "}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
 		t.Fatal("empty chat should be rejected", err)
 	}
 	// 聊天限流：每 5 秒 5 条
