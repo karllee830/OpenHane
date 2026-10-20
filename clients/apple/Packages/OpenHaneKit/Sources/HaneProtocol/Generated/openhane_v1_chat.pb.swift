@@ -8,6 +8,11 @@
 // For information on using the generated types, please see the documentation:
 //   https://github.com/apple/swift-protobuf/
 
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
 import SwiftProtobuf
 
 // If the compiler emits an error on this type, it is because this file
@@ -56,11 +61,22 @@ public nonisolated struct Openhane_V1_ChatMessage: Sendable {
   /// Clears the value of `image`. Subsequent reads from it will return its default value.
   public mutating func clearImage() {self._image = nil}
 
+  /// 端到端加密房间里的消息：正文和图片的解密信息在密文里，text 为空
+  public var encrypted: Openhane_V1_EncryptedChat {
+    get {_encrypted ?? Openhane_V1_EncryptedChat()}
+    set {_encrypted = newValue}
+  }
+  /// Returns true if `encrypted` has been explicitly set.
+  public var hasEncrypted: Bool {self._encrypted != nil}
+  /// Clears the value of `encrypted`. Subsequent reads from it will return its default value.
+  public mutating func clearEncrypted() {self._encrypted = nil}
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public init() {}
 
   fileprivate var _image: Openhane_V1_ChatImage? = nil
+  fileprivate var _encrypted: Openhane_V1_EncryptedChat? = nil
 }
 
 /// 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
@@ -98,6 +114,91 @@ public nonisolated struct Openhane_V1_SendChat: Sendable {
 
   /// 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
   public var imageID: String = String()
+
+  /// 端到端加密房间里必须加密（text 留空），其他房间不能加密
+  public var encrypted: Openhane_V1_EncryptedChat {
+    get {_encrypted ?? Openhane_V1_EncryptedChat()}
+    set {_encrypted = newValue}
+  }
+  /// Returns true if `encrypted` has been explicitly set.
+  public var hasEncrypted: Bool {self._encrypted != nil}
+  /// Clears the value of `encrypted`. Subsequent reads from it will return its default value.
+  public mutating func clearEncrypted() {self._encrypted = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _encrypted: Openhane_V1_EncryptedChat? = nil
+}
+
+/// 端到端加密房间里的聊天。正文（ChatPlaintext）用发送者当前的媒体密钥派生出的聊天密钥加密，服务器只转发和保存密文：
+///   聊天密钥 = HKDF-SHA256(ikm = 媒体密钥, salt = "OpenHane-Chat-v1", info = 空, 32 字节)
+///   密文 = AES-256-GCM(聊天密钥, nonce, ChatPlaintext, aad)
+///   aad = "OpenHane-Chat-v1" ‖ 0x00 ‖ room_id ‖ 0x00 ‖ 发送者 session_id ‖ 0x00 ‖ key_index（4 字节大端）
+public nonisolated struct Openhane_V1_EncryptedChat: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// 发送者媒体密钥的索引（与密钥包的 key_index 相同）
+  public var keyIndex: UInt32 = 0
+
+  /// 12 字节，随机
+  public var nonce: Data = Data()
+
+  /// 含 16 字节认证标签
+  public var ciphertext: Data = Data()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// 加密前的聊天内容（只在客户端之间传递，服务器看不到）
+public nonisolated struct Openhane_V1_ChatPlaintext: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var text: String = String()
+
+  /// 附带图片时
+  public var image: Openhane_V1_EncryptedImageKey {
+    get {_image ?? Openhane_V1_EncryptedImageKey()}
+    set {_image = newValue}
+  }
+  /// Returns true if `image` has been explicitly set.
+  public var hasImage: Bool {self._image != nil}
+  /// Clears the value of `image`. Subsequent reads from it will return its default value.
+  public mutating func clearImage() {self._image = nil}
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+
+  fileprivate var _image: Openhane_V1_EncryptedImageKey? = nil
+}
+
+/// 加密图片的解密信息。上传的文件 = "HNE1" ‖ nonce（12 字节）‖ AES-256-GCM(key, nonce, 图片, aad = "OpenHane-ChatImage-v1")。
+/// 发送方先重新编码图片（去掉元数据），接收方解密后核对 digest 并照常检查文件头和尺寸。
+public nonisolated struct Openhane_V1_EncryptedImageKey: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  /// 32 字节，每张图片随机生成
+  public var key: Data = Data()
+
+  /// SHA-256(上传的文件)
+  public var digest: Data = Data()
+
+  /// image/png 或 image/jpeg
+  public var mime: String = String()
+
+  public var width: UInt32 = 0
+
+  public var height: UInt32 = 0
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
@@ -164,7 +265,7 @@ fileprivate nonisolated let _protobuf_package = "openhane.v1"
 
 nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".ChatMessage"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}room_id\0\u{3}sender_session_id\0\u{3}sender_uid\0\u{3}sender_name\0\u{1}text\0\u{3}reply_to\0\u{3}created_at_ms\0\u{3}client_msg_id\0\u{1}image\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{3}room_id\0\u{3}sender_session_id\0\u{3}sender_uid\0\u{3}sender_name\0\u{1}text\0\u{3}reply_to\0\u{3}created_at_ms\0\u{3}client_msg_id\0\u{1}image\0\u{1}encrypted\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -182,6 +283,7 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
       case 8: try { try decoder.decodeSingularInt64Field(value: &self.createdAtMs) }()
       case 9: try { try decoder.decodeSingularStringField(value: &self.clientMsgID) }()
       case 10: try { try decoder.decodeSingularMessageField(value: &self._image) }()
+      case 11: try { try decoder.decodeSingularMessageField(value: &self._encrypted) }()
       default: break
       }
     }
@@ -222,6 +324,9 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
     try { if let v = self._image {
       try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
     } }()
+    try { if let v = self._encrypted {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -236,6 +341,7 @@ nonisolated extension Openhane_V1_ChatMessage: SwiftProtobuf.Message, SwiftProto
     if lhs.createdAtMs != rhs.createdAtMs {return false}
     if lhs.clientMsgID != rhs.clientMsgID {return false}
     if lhs._image != rhs._image {return false}
+    if lhs._encrypted != rhs._encrypted {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }
@@ -288,7 +394,7 @@ nonisolated extension Openhane_V1_ChatImage: SwiftProtobuf.Message, SwiftProtobu
 
 nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".SendChat"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}room_id\0\u{1}text\0\u{3}client_msg_id\0\u{3}reply_to\0\u{3}image_id\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}room_id\0\u{1}text\0\u{3}client_msg_id\0\u{3}reply_to\0\u{3}image_id\0\u{1}encrypted\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -301,12 +407,17 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
       case 3: try { try decoder.decodeSingularStringField(value: &self.clientMsgID) }()
       case 4: try { try decoder.decodeSingularInt64Field(value: &self.replyTo) }()
       case 5: try { try decoder.decodeSingularStringField(value: &self.imageID) }()
+      case 6: try { try decoder.decodeSingularMessageField(value: &self._encrypted) }()
       default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
     if !self.roomID.isEmpty {
       try visitor.visitSingularStringField(value: self.roomID, fieldNumber: 1)
     }
@@ -322,6 +433,9 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
     if !self.imageID.isEmpty {
       try visitor.visitSingularStringField(value: self.imageID, fieldNumber: 5)
     }
+    try { if let v = self._encrypted {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 6)
+    } }()
     try unknownFields.traverse(visitor: &visitor)
   }
 
@@ -331,6 +445,136 @@ nonisolated extension Openhane_V1_SendChat: SwiftProtobuf.Message, SwiftProtobuf
     if lhs.clientMsgID != rhs.clientMsgID {return false}
     if lhs.replyTo != rhs.replyTo {return false}
     if lhs.imageID != rhs.imageID {return false}
+    if lhs._encrypted != rhs._encrypted {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_EncryptedChat: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".EncryptedChat"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}key_index\0\u{1}nonce\0\u{1}ciphertext\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularUInt32Field(value: &self.keyIndex) }()
+      case 2: try { try decoder.decodeSingularBytesField(value: &self.nonce) }()
+      case 3: try { try decoder.decodeSingularBytesField(value: &self.ciphertext) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if self.keyIndex != 0 {
+      try visitor.visitSingularUInt32Field(value: self.keyIndex, fieldNumber: 1)
+    }
+    if !self.nonce.isEmpty {
+      try visitor.visitSingularBytesField(value: self.nonce, fieldNumber: 2)
+    }
+    if !self.ciphertext.isEmpty {
+      try visitor.visitSingularBytesField(value: self.ciphertext, fieldNumber: 3)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_EncryptedChat, rhs: Openhane_V1_EncryptedChat) -> Bool {
+    if lhs.keyIndex != rhs.keyIndex {return false}
+    if lhs.nonce != rhs.nonce {return false}
+    if lhs.ciphertext != rhs.ciphertext {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_ChatPlaintext: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".ChatPlaintext"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}text\0\u{1}image\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.text) }()
+      case 2: try { try decoder.decodeSingularMessageField(value: &self._image) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    // The use of inline closures is to circumvent an issue where the compiler
+    // allocates stack space for every if/case branch local when no optimizations
+    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+    // https://github.com/apple/swift-protobuf/issues/1182
+    if !self.text.isEmpty {
+      try visitor.visitSingularStringField(value: self.text, fieldNumber: 1)
+    }
+    try { if let v = self._image {
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 2)
+    } }()
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_ChatPlaintext, rhs: Openhane_V1_ChatPlaintext) -> Bool {
+    if lhs.text != rhs.text {return false}
+    if lhs._image != rhs._image {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_EncryptedImageKey: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".EncryptedImageKey"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}key\0\u{1}digest\0\u{1}mime\0\u{1}width\0\u{1}height\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularBytesField(value: &self.key) }()
+      case 2: try { try decoder.decodeSingularBytesField(value: &self.digest) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.mime) }()
+      case 4: try { try decoder.decodeSingularUInt32Field(value: &self.width) }()
+      case 5: try { try decoder.decodeSingularUInt32Field(value: &self.height) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.key.isEmpty {
+      try visitor.visitSingularBytesField(value: self.key, fieldNumber: 1)
+    }
+    if !self.digest.isEmpty {
+      try visitor.visitSingularBytesField(value: self.digest, fieldNumber: 2)
+    }
+    if !self.mime.isEmpty {
+      try visitor.visitSingularStringField(value: self.mime, fieldNumber: 3)
+    }
+    if self.width != 0 {
+      try visitor.visitSingularUInt32Field(value: self.width, fieldNumber: 4)
+    }
+    if self.height != 0 {
+      try visitor.visitSingularUInt32Field(value: self.height, fieldNumber: 5)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_EncryptedImageKey, rhs: Openhane_V1_EncryptedImageKey) -> Bool {
+    if lhs.key != rhs.key {return false}
+    if lhs.digest != rhs.digest {return false}
+    if lhs.mime != rhs.mime {return false}
+    if lhs.width != rhs.width {return false}
+    if lhs.height != rhs.height {return false}
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

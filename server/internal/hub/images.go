@@ -73,7 +73,7 @@ func (h *Hub) sessionByToken(ctx context.Context, token string, f func(s *Sessio
 	})
 }
 
-func (h *Hub) BeginUpload(ctx context.Context, token, room string) (session string, maxBytes, quota int64, err error) {
+func (h *Hub) BeginUpload(ctx context.Context, token, room string) (session string, maxBytes, quota int64, encrypted bool, err error) {
 	err = chatimage.ErrUnauthorized
 	callErr := h.sessionByToken(ctx, token, func(s *Session) {
 		st := h.Settings()
@@ -92,12 +92,13 @@ func (h *Hub) BeginUpload(ctx context.Context, token, room string) (session stri
 			err = chatimage.ErrRateLimited
 		default:
 			session, maxBytes, quota, err = s.ID, int64(st.ChatImageMaxMB)<<20, int64(st.ChatImageStorageMB)<<20, nil
+			encrypted = h.rooms[room].e2ee(st)
 		}
 	})
 	if callErr != nil {
-		return "", 0, 0, callErr
+		return "", 0, 0, false, callErr
 	}
-	return session, maxBytes, quota, err
+	return session, maxBytes, quota, encrypted, err
 }
 
 func (h *Hub) FinishUpload(ctx context.Context, session, room string, img chatimage.Info) bool {

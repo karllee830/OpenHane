@@ -198,12 +198,17 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	if m.GetRoomId() != s.RoomID {
 		return errDenied()
 	}
+	st := h.Settings()
+	e2ee := room.e2ee(st)
+	enc, perr := checkEncryptedChat(m, e2ee, st.ChatMaxLength)
+	if perr != nil {
+		return &pb.Response{Error: perr}
+	}
 	if !utf8.ValidString(m.GetText()) {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is not valid UTF-8")
 	}
 	text := identity.CleanChatText(m.GetText())
-	st := h.Settings()
-	if utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && m.GetImageId() == "") {
+	if utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && enc == nil && m.GetImageId() == "") {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is empty or too long")
 	}
 	if len(m.GetClientMsgId()) > 64 {
@@ -212,8 +217,9 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	var image *pb.ChatImage
 	if id := m.GetImageId(); id != "" {
 		// 只能发自己刚上传到这个房间、还没发出去的图片
+		// 加密房间里只能附带加密上传的图片，反之亦然
 		p := h.pendingImages[id]
-		if p == nil || p.session != s.ID || p.room != room.ID {
+		if p == nil || p.session != s.ID || p.room != room.ID || p.img.Encrypted != e2ee {
 			return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown image")
 		}
 		p.timer.Stop()
@@ -232,6 +238,7 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 		CreatedAtMs:     h.now().UnixMilli(),
 		ClientMsgId:     m.GetClientMsgId(),
 		Image:           image,
+		Encrypted:       enc,
 	}
 	// 只持久化主会议（临时房间的聊天只在内存）；同步写入，保证历史查询能立即看到
 	persisted := room.Kind == pb.RoomKind_ROOM_KIND_MAIN && st.ChatRetentionDays > 0
@@ -239,6 +246,9 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 		row := &store.ChatMessage{
 			ID: msg.Id, RoomID: msg.RoomId, SenderUID: msg.SenderUid, SenderName: msg.SenderName,
 			Body: msg.Text, ReplyTo: msg.ReplyTo, CreatedAt: msg.CreatedAtMs,
+		}
+		if enc != nil {
+			row.SenderSession, row.EncKeyIndex, row.EncNonce, row.EncCiphertext = s.ID, int64(enc.KeyIndex), enc.Nonce, enc.Ciphertext
 		}
 		if image != nil {
 			row.ImageID, row.ImageWidth, row.ImageHeight, row.ImageSize = image.Id, int64(image.Width), int64(image.Height), int64(image.Size)
@@ -264,6 +274,25 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	}
 	h.broadcast(h.inRoom(room.ID), &pb.Event{Body: &pb.Event_ChatMessage{ChatMessage: msg}})
 	return &pb.Response{Body: &pb.Response_SendChat{SendChat: &pb.SendChatResult{Message: msg}}}
+}
+
+// checkEncryptedChat：端到端加密房间里的消息必须加密（不能带明文），其他房间不能加密。返回只含已知字段的密文
+func checkEncryptedChat(m *pb.SendChat, e2ee bool, maxLength int) (*pb.EncryptedChat, *pb.Error) {
+	enc := m.GetEncrypted()
+	switch {
+	case e2ee && (enc == nil || m.GetText() != ""):
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "this room is end-to-end encrypted: chat must be encrypted")
+	case !e2ee && enc != nil:
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "this room is not end-to-end encrypted")
+	case enc == nil:
+		return nil, nil
+	}
+	// 密文 = 正文（每个字符最多 4 字节）+ 图片的解密信息 + 16 字节标签
+	if enc.GetKeyIndex() >= maxKeyIndex || len(enc.GetNonce()) != chatNonceLen ||
+		len(enc.GetCiphertext()) <= chatTagLen || len(enc.GetCiphertext()) > maxLength*4+chatOverhead {
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "malformed encrypted message")
+	}
+	return &pb.EncryptedChat{KeyIndex: enc.GetKeyIndex(), Nonce: enc.GetNonce(), Ciphertext: enc.GetCiphertext()}, nil
 }
 
 func (h *Hub) handleChatHistory(s *Session, c Conn, id uint32, q *pb.GetChatHistory) *pb.Response {
@@ -299,6 +328,10 @@ func (h *Hub) handleChatHistory(s *Session, c Conn, id uint32, q *pb.GetChatHist
 			}
 			if r.ImageID != "" {
 				m.Image = &pb.ChatImage{Id: r.ImageID, Width: uint32(r.ImageWidth), Height: uint32(r.ImageHeight), Size: uint32(r.ImageSize)}
+			}
+			if r.EncNonce != nil {
+				m.SenderSessionId = r.SenderSession
+				m.Encrypted = &pb.EncryptedChat{KeyIndex: uint32(r.EncKeyIndex), Nonce: r.EncNonce, Ciphertext: r.EncCiphertext}
 			}
 			res.Messages = append(res.Messages, m)
 		}

@@ -25,6 +25,8 @@ struct ChatView: View {
     private struct PendingImage {
         var data: Data
         var png: Bool
+        var width: Int
+        var height: Int
         var preview: CGImage
     }
 
@@ -46,7 +48,7 @@ struct ChatView: View {
                     LazyVStack(alignment: .leading, spacing: 0) {
                         if state.chatHasMore[room] == true {
                             Button("加载更早的消息") {
-                                Task { try? await model.session.loadChatHistory(room: room, before: messages.first?.id ?? 0) }
+                                Task { try? await model.session.loadOlderChat(room: room) }
                             }
                             #if os(macOS)
                             .buttonStyle(.link)
@@ -91,7 +93,9 @@ struct ChatView: View {
             loadDropped(p)
             return true
         }
+        // 换房间（或房间的加密状态变了）时丢掉没发出去的图片
         .onChange(of: room) { pending = nil }
+        .onChange(of: state.rooms[room]?.e2Ee) { pending = nil }
     }
 
     private var emptyState: some View {
@@ -241,9 +245,9 @@ struct ChatView: View {
         Task {
             let result = await Task.detached(priority: .userInitiated) { () -> Result<PendingImage, ChatImageError> in
                 do {
-                    let (out, png) = try ChatImagePrep.prepare(data, maxBytes: max)
+                    let (out, png, w, h) = try ChatImagePrep.prepare(data, maxBytes: max)
                     guard let preview = decodeChatImage(out, maxPixel: 400) else { return .failure(.unsupported) }
-                    return .success(PendingImage(data: out, png: png, preview: preview))
+                    return .success(PendingImage(data: out, png: png, width: w, height: h, preview: preview))
                 } catch {
                     return .failure(error as? ChatImageError ?? .unsupported)
                 }
@@ -268,7 +272,9 @@ struct ChatView: View {
         Task {
             defer { busy = false }
             do {
-                let id = if let image { try await model.session.uploadChatImage(image.data, png: image.png) } else { "" }
+                let id = if let image {
+                    try await model.session.uploadChatImage(image.data, png: image.png, width: image.width, height: image.height)
+                } else { "" }
                 try await model.session.sendChat(body, imageID: id)
                 if text.trimmingCharacters(in: .whitespacesAndNewlines) == body { text = "" }
                 pending = nil

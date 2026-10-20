@@ -2,14 +2,24 @@
 import { ChatImageError, validSize, type OpenHaneClient } from '@hane/core';
 import { useEffect, useState } from 'react';
 
-/** 上传的图片长边不超过这么多像素（服务端也会缩到这么大） */
-export const UPLOAD_MAX_SIDE = 4096;
+/** 发送的图片长边不超过这么多像素（聊天里看足够清楚） */
+export const UPLOAD_MAX_SIDE = 2048;
+/** 压缩的目标大小：超过时降低质量或尺寸再试（图片传输给语音和视频让路，小一些发得快） */
+const TARGET_BYTES = 1 << 20;
+
+/** 准备好上传的图片和它的宽高 */
+export interface PreparedImage {
+  blob: Blob;
+  width: number;
+  height: number;
+}
 
 /**
- * 把用户选的图片变成可以上传的 PNG / JPEG：已经是 PNG / JPEG、不太大的原样上传（服务端会按 EXIF 方向转正）；
- * 其他格式（GIF、WebP、HEIC 等浏览器能解码的）或超过大小 / 尺寸的重新绘制编码，必要时缩小。
+ * 发送前在本地压缩：按 EXIF 方向转正，长边缩到 UPLOAD_MAX_SIDE 以内，重新编码（顺带去掉拍摄位置等元数据）。
+ * 截图和带透明的图先试 PNG（文字清楚），太大就改用 JPEG；照片用 JPEG，逐步降低质量和尺寸，直到不超过目标大小。
+ * 都超过目标时取不超过 maxBytes 的最小的一个
  */
-export async function prepareImage(file: Blob, maxBytes: number): Promise<Blob> {
+export async function prepareImage(file: Blob, maxBytes: number): Promise<PreparedImage> {
   if (!file.type.startsWith('image/')) throw new ChatImageError('unsupported');
   let bitmap: ImageBitmap;
   try {
@@ -18,23 +28,28 @@ export async function prepareImage(file: Blob, maxBytes: number): Promise<Blob> 
     throw new ChatImageError('unsupported');
   }
   try {
-    const native = file.type === 'image/png' || file.type === 'image/jpeg';
-    if (native && file.size <= maxBytes && Math.max(bitmap.width, bitmap.height) <= UPLOAD_MAX_SIDE) return file;
-    // 截图、带透明的图用 PNG，照片用 JPEG
-    const png = file.type === 'image/png' || file.type === 'image/gif';
-    let side = UPLOAD_MAX_SIDE;
-    for (let i = 0; i < 4; i++) {
-      const out = await encode(bitmap, side, png && i === 0 ? 'image/png' : 'image/jpeg', i < 2 ? 0.9 : 0.8);
-      if (out.size <= maxBytes) return out;
-      side = Math.round(side * 0.7);
+    const target = Math.min(maxBytes, TARGET_BYTES);
+    const attempts: [type: string, side: number, quality: number][] = [
+      ...(file.type === 'image/png' || file.type === 'image/gif' ? [['image/png', UPLOAD_MAX_SIDE, 1] as [string, number, number]] : []),
+      ['image/jpeg', UPLOAD_MAX_SIDE, 0.85],
+      ['image/jpeg', UPLOAD_MAX_SIDE, 0.75],
+      ['image/jpeg', Math.round(UPLOAD_MAX_SIDE * 0.7), 0.75],
+      ['image/jpeg', Math.round(UPLOAD_MAX_SIDE * 0.5), 0.7],
+    ];
+    let best: PreparedImage | null = null;
+    for (const [type, side, quality] of attempts) {
+      const out = await encode(bitmap, side, type, quality);
+      if (out.blob.size <= target) return out;
+      if (out.blob.size <= maxBytes && (!best || out.blob.size < best.blob.size)) best = out;
     }
+    if (best) return best;
     throw new ChatImageError('too_large');
   } finally {
     bitmap.close();
   }
 }
 
-function encode(bitmap: ImageBitmap, side: number, type: string, quality: number): Promise<Blob> {
+function encode(bitmap: ImageBitmap, side: number, type: string, quality: number): Promise<PreparedImage> {
   const scale = Math.min(1, side / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
   canvas.width = Math.max(1, Math.round(bitmap.width * scale));
@@ -48,7 +63,8 @@ function encode(bitmap: ImageBitmap, side: number, type: string, quality: number
   }
   ctx.imageSmoothingQuality = 'high';
   ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new ChatImageError('failed'))), type, quality));
+  const { width, height } = canvas;
+  return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve({ blob: b, width, height }) : reject(new ChatImageError('failed'))), type, quality));
 }
 
 /** 消息里图片的显示尺寸：按原图比例放进 maxW × maxH，服务端给的宽高不合格时按正方形 */

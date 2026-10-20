@@ -91,8 +91,15 @@ public enum ServerProbe {
 
     /// 同上，返回状态码（不是 200 时也读出响应体，最多 limit 字节）
     static func readLimited(_ request: URLRequest, _ session: URLSession, limit: Int, requireOK: Bool = true) async throws -> (data: Data, status: Int) {
+        let (data, http) = try await readLimitedResponse(request, session, limit: limit)
+        guard !requireOK || http.statusCode == 200 else { throw URLError(.badServerResponse) }
+        return (data, http.statusCode)
+    }
+
+    /// 同上，返回完整的响应（读响应头用）
+    static func readLimitedResponse(_ request: URLRequest, _ session: URLSession, limit: Int) async throws -> (data: Data, response: HTTPURLResponse) {
         let (bytes, response) = try await session.bytes(for: request)
-        guard let http = response as? HTTPURLResponse, !requireOK || http.statusCode == 200 else { throw URLError(.badServerResponse) }
+        guard let http = response as? HTTPURLResponse else { throw URLError(.badServerResponse) }
         if http.expectedContentLength > limit { throw URLError(.dataLengthExceedsMaximum) }
         var data = Data()
         data.reserveCapacity(min(limit, max(0, Int(http.expectedContentLength))))
@@ -100,7 +107,7 @@ public enum ServerProbe {
             if data.count >= limit { throw URLError(.dataLengthExceedsMaximum) }
             data.append(byte)
         }
-        return (data, http.statusCode)
+        return (data, http)
     }
 
     /// info 里的 logo 字段换成图标地址：必须是十六进制摘要，否则当作没有图标

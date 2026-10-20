@@ -52,6 +52,8 @@ import {
   JoinRoomSchema,
   RedeemTokenSchema,
   SendChatSchema,
+  ChatPlaintextSchema,
+  EncryptedImageKeySchema,
   UpdateSelfSchema,
   UpdateSettingsSchema,
   PingSchema,
@@ -64,6 +66,8 @@ import {
   fromBinary,
   toBinary,
   type ChatMessage,
+  type EncryptedChat,
+  type EncryptedImageKey,
   type Envelope,
   type Event,
   type JoinRoomResult,
@@ -77,10 +81,10 @@ import {
 } from '@hane/protocol';
 import type { IdentityStore, TrustStore } from '@hane/platform';
 import { candidateAddresses, controlUrl, hostPort, httpBase, mediaUrl, parseAddress, type ServerAddress } from './address';
-import { CHAT_IMAGE_FETCH_MAX, ChatImageError, chatImageErrorCode, isImageId, isRoomId, readLimited, sniffImage } from './images';
+import { CHAT_IMAGE_FETCH_MAX, ChatImageError, downloadRanged, isImageId, isRoomId, sniffImage, uploadChunked, validSize, type TransferPacer } from './images';
 import { firstByPriority } from './dial';
 import { LocalErrorCode, HaneError, isFatal } from './errors';
-import { e2eeKeySigInput, generateKeyExchange, type KeyExchange } from './e2ee';
+import { e2eeKeySigInput, generateKeyExchange, openChatImage, sealChatImage, type KeyExchange } from './e2ee';
 import { authSigInput, deriveIdentity, sign, toHex, type ServerIdentity } from './identity';
 import { withCleanName } from './names';
 import { createClientStore, initialState, mergeChat, snapshotState, type ClientStore } from './state';
@@ -149,6 +153,23 @@ interface Pending {
   timer: ReturnType<typeof setTimeout>;
 }
 
+/**
+ * 端到端加密房间里聊天的加解密，由媒体层的密钥管理器提供（它持有自己和各成员的媒体密钥）。
+ * 正文是 ChatPlaintext 的编码，见 proto 的 EncryptedChat。
+ */
+export interface ChatCipher {
+  readonly roomId: string;
+  /** 用自己当前发送用的密钥加密；密钥还没准备好时返回 null */
+  seal(plaintext: Uint8Array): Promise<EncryptedChat | null>;
+  /** 解密一条消息；还没有发送者的这把密钥、或者解不开时返回 null */
+  open(m: ChatMessage): Promise<Uint8Array | null>;
+}
+
+/** 每个房间最多暂存多少条还解不开的加密消息（收到密钥后重试） */
+const HIDDEN_CHAT_KEEP = 300;
+/** 最多记住多少张加密图片的密钥 */
+const IMAGE_KEYS_KEEP = 500;
+
 export class OpenHaneClient {
   readonly store: ClientStore = createClientStore();
 
@@ -170,6 +191,14 @@ export class OpenHaneClient {
   /** 端到端加密的密钥包：密钥管理器开始接收之前到达的先存起来（见 setKeyPackageSink） */
   private keyInbox: KeyPackage[] = [];
   private keySink: ((k: KeyPackage) => void) | null = null;
+  private chatCipher: ChatCipher | null = null;
+  /** 还解不开的加密消息（房间 → 消息 ID → 消息），不显示；收到密钥后重试 */
+  private hiddenChat = new Map<string, Map<bigint, ChatMessage>>();
+  /** 每个房间收到过的最早的消息 ID（含解不开的），「加载更早的消息」从这里往前翻 */
+  private oldestChat = new Map<string, bigint>();
+  /** 加密图片的解密信息（图片 ID → 密钥），来自解密后的消息或自己的上传 */
+  private imageKeys = new Map<string, EncryptedImageKey>();
+  private pacer: TransferPacer | null = null;
 
   constructor(private readonly opt: ClientOptions) {}
 
@@ -199,6 +228,28 @@ export class OpenHaneClient {
     return () => {
       if (this.keySink === fn) this.keySink = null;
     };
+  }
+
+  /** 设置聊天图片的传输节奏（媒体连接建立后由媒体层设置，断开时传 null） */
+  setTransferPacer(p: TransferPacer | null): void {
+    this.pacer = p;
+  }
+
+  /** 设置端到端加密聊天的加解密（进入加密房间、密钥管理器启动后），并重试还解不开的消息。返回取消函数 */
+  setChatCipher(c: ChatCipher): () => void {
+    this.chatCipher = c;
+    void this.retryEncryptedChat();
+    return () => {
+      if (this.chatCipher === c) this.chatCipher = null;
+    };
+  }
+
+  /** 重新尝试解密还解不开的消息（密钥管理器收到新密钥后调用） */
+  async retryEncryptedChat(): Promise<void> {
+    const roomId = this.chatCipher?.roomId;
+    const held = roomId ? this.hiddenChat.get(roomId) : undefined;
+    if (!roomId || !held?.size) return;
+    await this.addChat(roomId, [...held.values()]);
   }
 
   /** 连接服务器。成功收到 Welcome 后 resolve；被拒绝时 reject（HaneError）。 */
@@ -452,6 +503,11 @@ export class OpenHaneClient {
       chat: w.resumed ? prev.chat : {},
       chatHasMore: w.resumed ? prev.chatHasMore : {},
     });
+    if (!w.resumed) {
+      this.hiddenChat.clear();
+      this.oldestChat.clear();
+      this.imageKeys.clear();
+    }
     this.applyJoin(w.autoJoin);
     this.startHeartbeat();
     const room = w.autoJoin?.roomId;
@@ -621,7 +677,7 @@ export class OpenHaneClient {
         return;
       }
       case 'chatMessage':
-        this.store.setState({ chat: { ...s.chat, [b.value.roomId]: mergeChat(s.chat[b.value.roomId], [b.value]) } });
+        void this.addChat(b.value.roomId, [b.value]);
         return;
       case 'roleChanged':
         if (s.self && b.value.uid === s.self.uid) this.store.setState({ self: { ...s.self, role: b.value.role } });
@@ -680,61 +736,122 @@ export class OpenHaneClient {
   }
 
   /** 发送聊天消息。imageId 是 uploadChatImage 返回的图片（有图片时 text 可以为空） */
+  /** 端到端加密房间里，加密还没准备好（媒体连接、密钥交换未完成）时抛出 HaneError(E2EE_NOT_READY) */
   async sendChat(text: string, opts: { replyTo?: bigint; imageId?: string } = {}): Promise<ChatMessage | undefined> {
     const s = this.store.getState();
     const roomId = s.media?.roomId ?? 'main';
-    const clientMsgId = crypto.randomUUID();
-    const r = await this.request({
-      case: 'sendChat',
-      value: create(SendChatSchema, { roomId, text, clientMsgId, replyTo: opts.replyTo ?? 0n, imageId: opts.imageId ?? '' }),
-    });
-    if (r.message) {
-      const st = this.store.getState();
-      this.store.setState({ chat: { ...st.chat, [roomId]: mergeChat(st.chat[roomId], [r.message]) } });
+    const imageId = opts.imageId ?? '';
+    const msg = create(SendChatSchema, { roomId, text, clientMsgId: crypto.randomUUID(), replyTo: opts.replyTo ?? 0n, imageId });
+    if (s.rooms[roomId]?.e2ee) {
+      const image = imageId ? this.imageKeys.get(imageId) : undefined;
+      if (imageId && !image) throw new ChatImageError('failed');
+      const c = this.chatCipher;
+      const sealed = c?.roomId === roomId ? await c.seal(toBinary(ChatPlaintextSchema, create(ChatPlaintextSchema, { text, image }))) : null;
+      if (!sealed) throw new HaneError(LocalErrorCode.E2EE_NOT_READY, 'end-to-end encryption is not ready');
+      msg.text = '';
+      msg.encrypted = sealed;
     }
-    return r.message;
+    const r = await this.request({ case: 'sendChat', value: msg });
+    if (!r.message) return undefined;
+    return (await this.addChat(roomId, [r.message]))[0];
   }
 
-  /** 上传聊天图片（PNG 或 JPEG），返回图片 ID，随后用 sendChat 发出。失败时抛出 ChatImageError */
-  async uploadChatImage(data: Blob): Promise<string> {
-    const roomId = this.store.getState().media?.roomId ?? 'main';
+  /**
+   * 把收到的消息放进状态：加密的先解密，解不开的暂存起来不显示（收到密钥后重试）。返回放进状态的消息。
+   * 解密后的消息 text 换成正文，图片补上解密信息里的宽高（显示前的清洗由 mergeChat 负责）
+   */
+  private async addChat(roomId: string, msgs: ChatMessage[]): Promise<ChatMessage[]> {
+    const shown: ChatMessage[] = [];
+    // 同步取出（或建好）暂存表：几批消息可能同时在解密
+    let held = this.hiddenChat.get(roomId);
+    if (!held) this.hiddenChat.set(roomId, (held = new Map()));
+    for (const m of msgs) {
+      const oldest = this.oldestChat.get(roomId);
+      if (oldest === undefined || m.id < oldest) this.oldestChat.set(roomId, m.id);
+      if (!m.encrypted) {
+        shown.push(m);
+        continue;
+      }
+      const plain = await this.decryptChat(m);
+      if (plain) {
+        held.delete(m.id);
+        shown.push(plain);
+      } else {
+        held.set(m.id, m);
+        while (held.size > HIDDEN_CHAT_KEEP) held.delete(held.keys().next().value!);
+      }
+    }
+    if (shown.length) {
+      const st = this.store.getState();
+      this.store.setState({ chat: { ...st.chat, [roomId]: mergeChat(st.chat[roomId], shown) } });
+    }
+    return shown;
+  }
+
+  private async decryptChat(m: ChatMessage): Promise<ChatMessage | null> {
+    const c = this.chatCipher;
+    if (c?.roomId !== m.roomId) return null;
+    const raw = await c.open(m).catch(() => null);
+    if (!raw) return null;
+    let p;
+    try {
+      p = fromBinary(ChatPlaintextSchema, raw);
+    } catch {
+      return null;
+    }
+    let image = m.image;
+    const k = p.image;
+    // 图片的解密信息不合格（或消息没带图片）：只显示文字
+    if (image && k && k.key.length === 32 && k.digest.length === 32 && (k.mime === 'image/png' || k.mime === 'image/jpeg') && validSize(k.width, k.height)) {
+      this.imageKeys.set(image.id, k);
+      while (this.imageKeys.size > IMAGE_KEYS_KEEP) this.imageKeys.delete(this.imageKeys.keys().next().value!);
+      image = { ...image, width: k.width, height: k.height };
+    } else {
+      image = undefined;
+    }
+    if (!p.text && !image) return null;
+    return { ...m, text: p.text, image };
+  }
+
+  /**
+   * 上传聊天图片（PNG 或 JPEG），返回图片 ID，随后用 sendChat 发出。失败时抛出 ChatImageError。
+   * 端到端加密房间里先加密再上传（要传入宽高，放进加密的正文里）；调用方应先把图片重新编码、去掉元数据
+   */
+  async uploadChatImage(data: Blob, size?: { width: number; height: number }): Promise<string> {
+    const s = this.store.getState();
+    const roomId = s.media?.roomId ?? 'main';
     if (!this.address || !this.apiToken) throw new ChatImageError('failed');
-    let r: globalThis.Response;
-    try {
-      r = await fetch(`${httpBase(this.address)}/api/v1/chat/images?room=${encodeURIComponent(roomId)}`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${this.apiToken}`, 'Content-Type': data.type || 'application/octet-stream' },
-        body: data,
-        redirect: 'error',
-        signal: AbortSignal.timeout(180_000),
-      });
-    } catch {
-      throw new ChatImageError('failed');
+    let body = new Uint8Array(await data.arrayBuffer());
+    let key: EncryptedImageKey | undefined;
+    if (s.rooms[roomId]?.e2ee) {
+      if (!size || !validSize(size.width, size.height) || (data.type !== 'image/png' && data.type !== 'image/jpeg')) throw new ChatImageError('unsupported');
+      const sealed = await sealChatImage(body);
+      body = sealed.file;
+      key = create(EncryptedImageKeySchema, { key: sealed.key, digest: sealed.digest, mime: data.type, width: size.width, height: size.height });
     }
-    let j: { id?: unknown; error?: unknown } = {};
-    try {
-      j = JSON.parse(new TextDecoder().decode(await readLimited(r, 4096))) as typeof j;
-    } catch {
-      // 响应不是 JSON：按状态码处理
-    }
-    if (!r.ok) throw new ChatImageError(r.status === 413 ? 'too_large' : chatImageErrorCode(j?.error));
+    // 分块上传，会议中按媒体的状况控制速度
+    const j = (await uploadChunked(httpBase(this.address), this.apiToken, roomId, body, this.pacer)) as { id?: unknown };
     if (!isImageId(j?.id)) throw new ChatImageError('failed');
+    if (key) this.imageKeys.set(j.id, key);
     return j.id;
   }
 
   /** 读取聊天图片，返回按文件头确定类型的 Blob。服务端的数据不可信：限制大小，只接受 PNG / JPEG */
   async loadChatImage(roomId: string, imageId: string): Promise<Blob> {
     if (!this.address || !this.apiToken || !isRoomId(roomId) || !isImageId(imageId)) throw new Error('unavailable');
-    const r = await fetch(`${httpBase(this.address)}/api/v1/chat/images/${roomId}/${imageId}`, {
-      headers: { Authorization: `Bearer ${this.apiToken}` },
-      redirect: 'error',
-      signal: AbortSignal.timeout(60_000),
-    });
-    if (!r.ok) throw new Error(String(r.status));
-    const bytes = await readLimited(r, CHAT_IMAGE_FETCH_MAX);
+    // 分段下载，会议中按媒体的状况控制速度
+    let bytes = await downloadRanged(`${httpBase(this.address)}/api/v1/chat/images/${roomId}/${imageId}`, this.apiToken, CHAT_IMAGE_FETCH_MAX, this.pacer);
+    // 加密的图片：核对摘要后解密，解密后的内容照样只按 PNG / JPEG 接受（发送者也不可信）
+    const key = this.imageKeys.get(imageId);
+    if (key) bytes = await openChatImage(bytes, key.key, key.digest);
     const type = sniffImage(bytes);
     if (!type) throw new Error('not a valid image');
     return new Blob([bytes as BlobPart], { type });
+  }
+
+  /** 加载更早的一页聊天（从收到过的最早一条往前，包括解不开、没显示的加密消息） */
+  async loadOlderChat(roomId: string): Promise<void> {
+    await this.loadChatHistory(roomId, this.oldestChat.get(roomId) ?? 0n);
   }
 
   /** 加载 beforeId 之前的一页聊天（0 表示最新一页），合并进状态。 */
@@ -743,11 +860,10 @@ export class OpenHaneClient {
       case: 'getChatHistory',
       value: create(GetChatHistorySchema, { roomId, beforeId, limit }),
     });
-    const s = this.store.getState();
-    const patch: Partial<typeof s> = { chat: { ...s.chat, [roomId]: mergeChat(s.chat[roomId], r.messages) } };
+    await this.addChat(roomId, r.messages);
     // 只有翻页（或首次加载）时更新「是否还有更早」
-    if (beforeId !== 0n || s.chatHasMore[roomId] === undefined) patch.chatHasMore = { ...s.chatHasMore, [roomId]: r.hasMore };
-    this.store.setState(patch);
+    const st = this.store.getState();
+    if (beforeId !== 0n || st.chatHasMore[roomId] === undefined) this.store.setState({ chatHasMore: { ...st.chatHasMore, [roomId]: r.hasMore } });
   }
 
   async redeemToken(token: string): Promise<Role> {

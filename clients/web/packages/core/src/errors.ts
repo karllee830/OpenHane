@@ -28,6 +28,8 @@ export enum LocalErrorCode {
   FINGERPRINT_CHANGED = -4,
   /** 服务器返回了不符合协议的消息 */
   PROTOCOL = -5,
+  /** 端到端加密房间里，加密还没准备好（媒体连接或密钥交换未完成），暂时不能发聊天 */
+  E2EE_NOT_READY = -6,
 }
 
 /** 这些错误不应自动重连：重试只会得到同样的结果。 */

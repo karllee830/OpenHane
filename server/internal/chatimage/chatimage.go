@@ -4,6 +4,8 @@
 // 上传的原图不保存：服务端解码后按 EXIF 方向转正、缩到 OutputSide 以内，重新编码成 PNG 或 JPEG，
 // 原图里的元数据（拍摄位置等）、附加数据和畸形结构都不会留下来。
 //
+// 端到端加密房间里的图片由发送方的客户端重新编码后加密上传（见 EncryptedMagic），服务端只检查格式和大小、原样保存。
+//
 // 文件放在 <数据目录>/chat-images/<房间 ID>/<图片 ID>，随聊天记录一起清理。
 package chatimage
 
@@ -37,6 +39,11 @@ const (
 	OutputSide = 4096
 	// jpegQuality 是重新编码 JPEG 的质量。
 	jpegQuality = 90
+	// EncryptedMagic 是加密图片文件的开头，后面是 12 字节 nonce 和 AES-256-GCM 密文（含 16 字节标签）。
+	// 服务端保存的明文图片都是重新编码过的 PNG / JPEG，不会以它开头
+	EncryptedMagic = "HNE1"
+	// EncryptedOverhead 是加密图片比原图多出的字节数
+	EncryptedOverhead = len(EncryptedMagic) + 12 + 16
 )
 
 var (
@@ -50,6 +57,13 @@ type Info struct {
 	Width  int    `json:"width"`
 	Height int    `json:"height"`
 	Size   int64  `json:"size"`
+	// Encrypted 表示是端到端加密房间里上传的密文（宽高为 0）
+	Encrypted bool `json:"-"`
+}
+
+// IsEncrypted 判断文件是不是加密图片
+func IsEncrypted(data []byte) bool {
+	return len(data) > EncryptedOverhead && string(data[:len(EncryptedMagic)]) == EncryptedMagic
 }
 
 // Process 检查并重新编码上传的图片，返回要保存的数据和尺寸。PNG 仍然输出 PNG（保留透明），JPEG 输出 JPEG。

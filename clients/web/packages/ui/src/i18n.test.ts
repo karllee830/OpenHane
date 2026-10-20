@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { dicts, pickLocale, translator } from './i18n';
 
@@ -19,5 +21,13 @@ describe('i18n', () => {
       else if (vars(zh).join() !== vars(en).join()) problems.push(`${key}: {${vars(zh)}} vs {${vars(en)}}`);
     }
     expect(problems).toEqual([]);
+  });
+
+  it('names the safety code emoji as in the shared table', () => {
+    const table: { zh: string; en: string }[] = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../../../../testdata/e2ee/safety-emoji.json'), 'utf8'));
+    table.forEach((e, i) => {
+      const key = `e2ee.emoji.${i}` as keyof typeof dicts.en;
+      expect([dicts['zh-CN'][key], dicts.en[key]]).toEqual([e.zh, e.en]);
+    });
   });
 });

@@ -8,6 +8,7 @@ import SwiftUI
 /// （HANE_SNAPSHOT_ADMIN=分区 选择分区）；HANE_SNAPSHOT_CUSTOM=h265|h264 另存一张「自定义共享参数」面板的截图（选中这个编码器）；
 /// HANE_SNAPSHOT_PASTE=图片路径 进入会议后往聊天输入框粘贴图片，另存一张截图；
 /// HANE_SNAPSHOT_PANEL=mic|speaker 进入会议后模拟右键工具栏的麦克风 / 声音按钮，另存一张弹出面板的截图；
+/// HANE_SNAPSHOT_E2EE=1 等安全码算好后另存一张加密说明（安全码）的截图；HANE_SNAPSHOT_CHAT=文字 进入会议后发一条聊天；
 /// HANE_SEED_BYTE=n 让多个实例使用不同的身份；HANE_SNAPSHOT_APPEARANCE=light|dark 指定外观。
 /// 应用只截取自己的窗口内容（cacheDisplay），不需要录屏权限。
 @MainActor
@@ -32,7 +33,7 @@ enum SnapshotHarness {
         if let auto = env["HANE_AUTOCONNECT"] {
             await autoconnect(model, auto)
             try? await Task.sleep(for: .seconds(3))
-            if let msg = env["HANE_SNAPSHOT_CHAT"] { try? await model.session.sendChat(msg) }
+            if let msg = env["HANE_SNAPSHOT_CHAT"] { await sendChat(model, msg) }
             if env["HANE_SNAPSHOT_SHARE"] == "1" { await startSyntheticShare(model) }
             // HANE_SNAPSHOT_TOKEN：兑换权限令牌；HANE_SNAPSHOT_ROOM：新建一个临时房间（检查房间侧栏）
             if let token = env["HANE_SNAPSHOT_TOKEN"] { _ = try? await model.session.redeemToken(token) }
@@ -44,6 +45,10 @@ enum SnapshotHarness {
             try? await Task.sleep(for: .seconds(Double(env["HANE_SNAPSHOT_WAIT"] ?? "1") ?? 1))
             snapshot(to: dir, name: "meeting")
             if let path = env["HANE_SNAPSHOT_PASTE"] { await pasteImage(path, dir: dir) }
+            if env["HANE_SNAPSHOT_E2EE"] == "1", let e2ee = model.media.e2ee {
+                for _ in 0 ..< 50 where e2ee.safetyCode == nil { try? await Task.sleep(for: .milliseconds(200)) }
+                await snapshot(E2EEDetails(e2ee: e2ee).environment(model), to: dir, name: "e2ee")
+            }
             if let panel = env["HANE_SNAPSHOT_PANEL"] { await rightClickToolbar(panel == "speaker" ? 1 : 0, dir: dir, name: "panel-\(panel)") }
             if let codec = env["HANE_SNAPSHOT_CUSTOM"].flatMap(ShareCodec.init(rawValue:)) {
                 model.shareCustom.codec = codec
@@ -53,6 +58,8 @@ enum SnapshotHarness {
             let status = "session=\(model.session.status) media=\(model.media.status) participants=\(model.session.state.participants.count) shares=\(shares) sharing=\(model.media.share != nil) videoTracks=\(model.media.videoTracks.count) remoteScreen=\(model.media.videoTracks.first { $0.isScreen && !$0.isLocal }?.pixelSize.map { "\(Int($0.width))x\(Int($0.height))" } ?? "-") notice=\(model.notice ?? "") noise=\(model.media.noiseDiagnostics)"
                 + e2eeStatus(model)
                 + "\nmicMuted=\(model.media.micMuted)"
+                + "\ntraffic=\(model.media.traffic.map { "\($0.upBps),\($0.downBps),\($0.upCongested),\($0.downCongested)" } ?? "-")"
+                + "\nchat=\((model.session.state.chat[model.session.state.media?.roomID ?? "main"] ?? []).map(\.text).joined(separator: ","))"
             try? status.write(toFile: dir + "/status.txt", atomically: true, encoding: .utf8)
         }
         NSApp.terminate(nil)
@@ -62,7 +69,7 @@ enum SnapshotHarness {
     private static func e2eeStatus(_ model: AppModel) -> String {
         guard let e = model.media.e2ee else { return "\ne2ee=off" }
         let remote = e.tracks.values.filter(\.remote)
-        return "\ne2ee=on\nsafetyCode=\(e.safetyCode ?? "-")\nmissing=\(e.missing.count)\nremoteOK=\(remote.filter { $0.state == .ok }.count)\ndecryptFailed=\(remote.filter { $0.state == .decryption_failed || $0.state == .missing_key }.count)\nkeyIndex=\(e.keyIndex)"
+        return "\ne2ee=on\nsafetyCode=\(e.safetyCode.map { $0.map(String.init).joined(separator: ",") } ?? "-")\nmissing=\(e.missing.count)\nremoteOK=\(remote.filter { $0.state == .ok }.count)\ndecryptFailed=\(remote.filter { $0.state == .decryption_failed || $0.state == .missing_key }.count)\nkeyIndex=\(e.keyIndex)"
     }
 
     /// 合成画面代替系统选择器 + ScreenCaptureKit（自动检查无法操作系统选择器）
@@ -154,6 +161,20 @@ enum SnapshotHarness {
             try? rep.representation(using: .png, properties: [:])?.write(to: URL(fileURLWithPath: dir).appendingPathComponent("\(name).png"))
         }
         window.close()
+    }
+
+    /// 发一条聊天；端到端加密房间里等加密准备好（最多 10 秒）
+    private static func sendChat(_ model: AppModel, _ text: String) async {
+        for _ in 0 ..< 20 {
+            do {
+                try await model.session.sendChat(text)
+                return
+            } catch HaneError.e2eeNotReady {
+                try? await Task.sleep(for: .milliseconds(500))
+            } catch {
+                return
+            }
+        }
     }
 
     private static func snapshot(to dir: String, name: String) {

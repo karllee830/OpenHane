@@ -13,6 +13,7 @@ message ChatMessage {
   int64 created_at_ms = 8;
   string client_msg_id = 9; // 发送方生成，用于本地回显去重
   ChatImage image = 10; // 附带的图片；有图片时 text 可以为空
+  EncryptedChat encrypted = 11; // 端到端加密房间里的消息：正文和图片的解密信息在密文里，text 为空
 }
 
 // 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
@@ -21,6 +22,7 @@ message ChatImage {
   uint32 width = 2;
   uint32 height = 3;
   uint32 size = 4; // 字节数
+  // 端到端加密房间里的图片：服务器保存的是密文（见 EncryptedImageKey），width、height 为 0，尺寸在加密的正文里
 }
 
 message SendChat {
@@ -29,6 +31,33 @@ message SendChat {
   string client_msg_id = 3;
   int64 reply_to = 4;
   string image_id = 5; // 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
+  EncryptedChat encrypted = 6; // 端到端加密房间里必须加密（text 留空），其他房间不能加密
+}
+
+// 端到端加密房间里的聊天。正文（ChatPlaintext）用发送者当前的媒体密钥派生出的聊天密钥加密，服务器只转发和保存密文：
+//   聊天密钥 = HKDF-SHA256(ikm = 媒体密钥, salt = "OpenHane-Chat-v1", info = 空, 32 字节)
+//   密文 = AES-256-GCM(聊天密钥, nonce, ChatPlaintext, aad)
+//   aad = "OpenHane-Chat-v1" ‖ 0x00 ‖ room_id ‖ 0x00 ‖ 发送者 session_id ‖ 0x00 ‖ key_index（4 字节大端）
+message EncryptedChat {
+  uint32 key_index = 1; // 发送者媒体密钥的索引（与密钥包的 key_index 相同）
+  bytes nonce = 2; // 12 字节，随机
+  bytes ciphertext = 3; // 含 16 字节认证标签
+}
+
+// 加密前的聊天内容（只在客户端之间传递，服务器看不到）
+message ChatPlaintext {
+  string text = 1;
+  EncryptedImageKey image = 2; // 附带图片时
+}
+
+// 加密图片的解密信息。上传的文件 = "HNE1" ‖ nonce（12 字节）‖ AES-256-GCM(key, nonce, 图片, aad = "OpenHane-ChatImage-v1")。
+// 发送方先重新编码图片（去掉元数据），接收方解密后核对 digest 并照常检查文件头和尺寸。
+message EncryptedImageKey {
+  bytes key = 1; // 32 字节，每张图片随机生成
+  bytes digest = 2; // SHA-256(上传的文件)
+  string mime = 3; // image/png 或 image/jpeg
+  uint32 width = 4;
+  uint32 height = 5;
 }
 
 message SendChatResult {

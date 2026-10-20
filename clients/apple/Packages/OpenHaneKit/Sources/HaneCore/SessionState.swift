@@ -76,7 +76,8 @@ public struct SessionState: Equatable, Sendable {
         case let .roomCreated(e): rooms[e.room.id] = e.room
         case let .roomUpdated(e): rooms[e.room.id] = e.room
         case let .roomClosed(e): rooms[e.roomID] = nil
-        case let .chatMessage(m): mergeChat(room: m.roomID, [m])
+        // 加密的消息由 ServerSession 解密后再放进来
+        case let .chatMessage(m): if !m.hasEncrypted { mergeChat(room: m.roomID, [m]) }
         case let .roleChanged(e):
             if me?.uid == e.uid { me?.role = e.role }
         case let .policyUpdated(e):

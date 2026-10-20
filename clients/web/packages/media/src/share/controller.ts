@@ -66,6 +66,8 @@ export class ShareController {
   private caps: EncodeCaps | null = null;
   /** 正在换编码器（取消发布 → 重新发布）：这期间不调整发送参数 */
   private republishing = false;
+  /** 语音或摄像头吃紧时让路：按更低的上行带宽调整（见 traffic.ts） */
+  private yieldUplink = false;
 
   constructor(
     private readonly client: OpenHaneClient,
@@ -221,7 +223,8 @@ export class ShareController {
       videoCodec: choice.codec as VideoCodec,
       backupCodec: choice.backup ? { codec: choice.backup } : false,
       simulcast: false,
-      screenShareEncoding: { maxBitrate: p.maxKbps * 1000, maxFramerate: p.fps },
+      // 屏幕共享的优先级低于语音和摄像头
+      screenShareEncoding: { maxBitrate: p.maxKbps * 1000, maxFramerate: p.fps, priority: 'low' },
       degradationPreference: p.degradationPreference,
       // AV1 / VP9：时间分层，SFU 可以只给带宽不足的观众转发部分帧（分辨率不变、只降帧率，对文字最友好）
       scalabilityMode: choice.codec === 'av1' || choice.codec === 'vp9' ? 'L1T3' : undefined,
@@ -313,6 +316,8 @@ export class ShareController {
     }
     // 带宽估计：优先用可用上行带宽；拿不到时用编码器的目标码率（WebRTC 按带宽估计设定，受带宽限制时就是估计值）
     uplinkKbps = availKbps ?? targetKbps ?? uplinkKbps;
+    // 让路：告诉引擎的可用带宽比现在实际发出的低三成，引擎随之降低码率，直到语音和摄像头恢复正常
+    if (this.yieldUplink) uplinkKbps = Math.min(uplinkKbps, (sent?.kbps || uplinkKbps) * 0.7);
     const signals = { ...this.analyzer.signals(), uplinkKbps, qualityLimitation: limitation, rttMs, sentKbps: sent?.kbps };
     const p = engine.update({ t: performance.now(), ...signals });
     await this.apply(p);
@@ -320,6 +325,11 @@ export class ShareController {
       this.status = { ...this.status, params: p, sent, signals };
       this.onStatus(this.status);
     }
+  }
+
+  /** 语音或摄像头吃紧时让路（每秒由媒体会话根据流量优先级设置） */
+  setYield(on: boolean) {
+    this.yieldUplink = on;
   }
 
   /** 把引擎参数应用到发送端：码率、帧率、缩放、降级偏好、内容提示（不重新协商、不中断画面） */

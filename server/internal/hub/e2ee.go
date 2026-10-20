@@ -10,6 +10,11 @@ const (
 	maxKeyIndex     = 16
 	maxKeyEncLen    = 64  // HPKE 封装的 X25519 临时公钥为 32 字节
 	maxKeyCipherLen = 256 // 32 字节媒体密钥 + AEAD 标签，留足余量
+
+	// 加密的聊天：AES-256-GCM 的 nonce 和标签长度；chatOverhead 是正文以外（图片的解密信息、protobuf 编码）留的余量
+	chatNonceLen = 12
+	chatTagLen   = 16
+	chatOverhead = 512
 )
 
 func (h *Hub) handleSendKeyPackage(s *Session, r *pb.SendKeyPackage) *pb.Response {

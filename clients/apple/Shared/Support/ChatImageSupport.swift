@@ -3,30 +3,29 @@ import ImageIO
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// 发送前处理图片：变成服务端接受的 PNG / JPEG，长边不超过 4096，大小不超过服务器的上限
+/// 发送前在本地压缩：按 EXIF 方向转正，长边缩到 2048 以内，重新编码成 PNG / JPEG（顺带去掉拍摄位置等元数据）
 enum ChatImagePrep {
-    /// 已经是 PNG / JPEG、不太大的原样上传（服务端会按 EXIF 方向转正、去掉元数据）；
-    /// 其他格式（HEIC、TIFF、GIF 等）或超过大小 / 尺寸的重新编码，必要时缩小。照片用 JPEG，其余用 PNG
-    static func prepare(_ data: Data, maxBytes: Int) throws -> (data: Data, png: Bool) {
+    /// 截图和带透明的图（PNG、GIF 等非照片）先试 PNG（文字清楚），太大就改用 JPEG；照片用 JPEG，逐步降低质量和尺寸，
+    /// 直到不超过目标大小（ChatImages.targetBytes）。都超过目标时取不超过 maxBytes 的最小的一个。返回的宽高是转正后的
+    static func prepare(_ data: Data, maxBytes: Int) throws -> (data: Data, png: Bool, width: Int, height: Int) {
         guard let source = CGImageSourceCreateWithData(data as CFData, [kCGImageSourceShouldCache: false] as CFDictionary),
               let type = CGImageSourceGetType(source) as String?, let utType = UTType(type), utType.conforms(to: .image),
               let props = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
               let w = props[kCGImagePropertyPixelWidth] as? Int, let h = props[kCGImagePropertyPixelHeight] as? Int, w > 0, h > 0
         else { throw ChatImageError.unsupported }
-        let isPNG = utType == .png, isJPEG = utType == .jpeg
-        if (isPNG || isJPEG), data.count <= maxBytes, max(w, h) <= ChatImages.uploadMaxSide {
-            return (data, isPNG)
+        let photo = utType.conforms(to: .jpeg) || utType.conforms(to: .heic) || utType.conforms(to: .heif)
+        let side = ChatImages.uploadMaxSide
+        let attempts: [(png: Bool, side: Int, quality: Double)] = (photo ? [] : [(true, side, 1)])
+            + [(false, side, 0.85), (false, side, 0.75), (false, side * 7 / 10, 0.75), (false, side / 2, 0.7)]
+        let target = min(maxBytes, ChatImages.targetBytes)
+        var best: (data: Data, png: Bool, width: Int, height: Int)?
+        for a in attempts {
+            guard let image = thumbnail(source, maxPixel: min(a.side, max(w, h))) else { throw ChatImageError.unsupported }
+            guard let out = encode(image, png: a.png, quality: a.quality) else { continue }
+            if out.count <= target { return (out, a.png, image.width, image.height) }
+            if out.count <= maxBytes, out.count < best?.data.count ?? .max { best = (out, a.png, image.width, image.height) }
         }
-        let photo = isJPEG || utType.conforms(to: .heic) || utType.conforms(to: .heif)
-        var side = ChatImages.uploadMaxSide
-        for attempt in 0 ..< 4 {
-            guard let image = thumbnail(source, maxPixel: min(side, max(w, h))) else { throw ChatImageError.unsupported }
-            let png = !photo && attempt == 0
-            if let out = encode(image, png: png, quality: attempt < 2 ? 0.9 : 0.8), out.count <= maxBytes {
-                return (out, png)
-            }
-            side = side * 7 / 10
-        }
+        if let best { return best }
         throw ChatImageError.tooLarge
     }
 

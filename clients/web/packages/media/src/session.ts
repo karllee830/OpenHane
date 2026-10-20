@@ -7,6 +7,7 @@ import { VoiceProcessorNode, aiNoiseAvailable, defaultNoiseSuppression, type Noi
 import { E2EEKeys, type E2EEState } from './e2ee';
 import { ShareTransport } from '@hane/protocol';
 import { TransportMonitor, sampleTransport, type TcpFallbackMode } from './transport';
+import { TrafficPacer, TrafficPolicy, newTrafficCounters, sampleTraffic, type TrafficState } from './traffic';
 import { ShareController, type ShareIntentName, type ShareStatus } from './share/controller';
 import type { CustomShare } from './share/engine';
 import E2EEWorker from 'livekit-client/e2ee-worker?worker';
@@ -83,6 +84,8 @@ export interface MediaState {
   e2ee: E2EEState | null;
   /** 媒体连接走的协议；UDP 不稳定被切到 TCP 时 switched 记下原因（界面提示一次） */
   transport: { protocol: 'udp' | 'tcp' | null; switched: 'loss' | 'rtt' | 'always' | null };
+  /** 流量优先级的当前判断（诊断和测试用；没有媒体连接时为 null） */
+  traffic: TrafficState | null;
 }
 
 /** 某个参与者某一路视频（摄像头或屏幕）的轨道 */
@@ -183,6 +186,7 @@ export class MediaSession {
     lastSwitch: null,
     e2ee: null,
     transport: { protocol: null, switched: null },
+    traffic: null,
   }));
   readonly levels = createStore<LevelState>()(() => ({ speaking: {}, local: null }));
 
@@ -350,6 +354,7 @@ export class MediaSession {
       }
       this.room = room;
       this.watchIce(room);
+      this.watchTraffic(room);
       this.roomId = t.roomId;
       this.roomE2EE = e2ee;
       // 加密房间每次连接都换一套密钥：共享连接用的是旧密钥，重新连接（不加密时共享连接不受主连接重连影响）
@@ -549,6 +554,47 @@ export class MediaSession {
     }, 500);
   }
 
+  /**
+   * 流量优先级（见 traffic.ts）：每秒取一次主连接和共享连接的统计，更新聊天图片的传输速度，并告诉屏幕共享要不要让路。
+   * 媒体连接期间才给客户端设置传输节奏，断开后图片传输不再限速
+   */
+  private watchTraffic(room: Room) {
+    const policy = new TrafficPolicy();
+    const counters = newTrafficCounters();
+    const pacer = new TrafficPacer();
+    this.client.setTransferPacer(pacer);
+    type Pcs = { engine?: { pcManager?: { publisher?: { pc?: RTCPeerConnection }; subscriber?: { pc?: RTCPeerConnection } } } };
+    const pcs = (r: Room | null) => (r as unknown as Pcs | null)?.engine?.pcManager;
+    const stats = (pc?: RTCPeerConnection) => (pc ? pc.getStats().catch(() => null) : Promise.resolve(null));
+    const some = (xs: (RTCStatsReport | null)[]) => xs.filter((x): x is RTCStatsReport => !!x);
+    const timer = setInterval(async () => {
+      if (this.room !== room) {
+        clearInterval(timer);
+        if (!this.room) {
+          this.client.setTransferPacer(null);
+          this.state.setState({ traffic: null });
+        }
+        return;
+      }
+      if (room.state !== ConnectionState.Connected) return;
+      const main = pcs(room);
+      const share = pcs(this.shareRoom);
+      const [camera, mainDown, shareUp, shareDown] = await Promise.all([
+        stats(main?.publisher?.pc),
+        stats(main?.subscriber?.pc),
+        stats(share?.publisher?.pc),
+        stats(share?.subscriber?.pc),
+      ]);
+      if (this.room !== room) return;
+      const sample = sampleTraffic(performance.now(), { camera: some([camera]), share: some([shareUp]), down: some([mainDown, shareDown]) }, counters);
+      const active = pacer.takeActivity();
+      const st = policy.update({ ...sample, upActive: active.up, downActive: active.down });
+      pacer.set(st.upBps, st.downBps);
+      this.shareCtl?.setYield(st.shareYield);
+      this.state.setState({ traffic: st });
+    }, 1000);
+  }
+
   /** 共享连接要请求的传输方式：TCP 连不上过就要 UDP，从 UDP 切到过 TCP 就要 TCP，否则按服务器设置 */
   private shareTransport(): ShareTransport {
     if (this.shareUdp) return ShareTransport.UDP;
@@ -642,6 +688,8 @@ export class MediaSession {
         { videoCodec: 'vp8', simulcast: maxH >= 540, videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360] },
       );
       this.state.setState({ cameraOn: on, cameraError: null });
+      // 摄像头的优先级低于语音（语音默认最高）、高于屏幕共享
+      if (on) await setPriority(room.localParticipant.getTrackPublication(Track.Source.Camera)?.track?.sender, 'medium');
       // 摄像头在会议中被拔掉：轨道结束后不会再有画面，关掉并提示
       const track = on ? room.localParticipant.getTrackPublication(Track.Source.Camera)?.track : undefined;
       track?.once(TrackEvent.Ended, () => {
@@ -977,3 +1025,15 @@ export class MediaSession {
 }
 
 export type { RemoteAudioTrack };
+
+/** 发送轨道的优先级：同一条连接里带宽不够时按它分配码率，并据此标记网络优先级（DSCP，局域网和部分 Wi-Fi 会照做） */
+export async function setPriority(sender: RTCRtpSender | undefined, priority: RTCPriorityType): Promise<void> {
+  if (!sender) return;
+  const p = sender.getParameters();
+  if (!p.encodings?.length) return;
+  for (const e of p.encodings) {
+    e.priority = priority;
+    e.networkPriority = priority;
+  }
+  await sender.setParameters(p).catch(() => undefined);
+}

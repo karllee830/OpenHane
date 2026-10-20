@@ -33,6 +33,7 @@ type ChatMessage struct {
 	CreatedAtMs     int64                  `protobuf:"varint,8,opt,name=created_at_ms,json=createdAtMs,proto3" json:"created_at_ms,omitempty"`
 	ClientMsgId     string                 `protobuf:"bytes,9,opt,name=client_msg_id,json=clientMsgId,proto3" json:"client_msg_id,omitempty"` // 发送方生成，用于本地回显去重
 	Image           *ChatImage             `protobuf:"bytes,10,opt,name=image,proto3" json:"image,omitempty"`                                 // 附带的图片；有图片时 text 可以为空
+	Encrypted       *EncryptedChat         `protobuf:"bytes,11,opt,name=encrypted,proto3" json:"encrypted,omitempty"`                         // 端到端加密房间里的消息：正文和图片的解密信息在密文里，text 为空
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -137,6 +138,13 @@ func (x *ChatMessage) GetImage() *ChatImage {
 	return nil
 }
 
+func (x *ChatMessage) GetEncrypted() *EncryptedChat {
+	if x != nil {
+		return x.Encrypted
+	}
+	return nil
+}
+
 // 聊天图片：GET /api/v1/chat/images/<room_id>/<id> 读取，要带 Authorization: Bearer <Welcome.api_token>。
 type ChatImage struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -213,6 +221,7 @@ type SendChat struct {
 	ClientMsgId   string                 `protobuf:"bytes,3,opt,name=client_msg_id,json=clientMsgId,proto3" json:"client_msg_id,omitempty"`
 	ReplyTo       int64                  `protobuf:"varint,4,opt,name=reply_to,json=replyTo,proto3" json:"reply_to,omitempty"`
 	ImageId       string                 `protobuf:"bytes,5,opt,name=image_id,json=imageId,proto3" json:"image_id,omitempty"` // 先 POST /api/v1/chat/images 上传图片拿到的 ID；有图片时 text 可以为空
+	Encrypted     *EncryptedChat         `protobuf:"bytes,6,opt,name=encrypted,proto3" json:"encrypted,omitempty"`            // 端到端加密房间里必须加密（text 留空），其他房间不能加密
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -282,6 +291,209 @@ func (x *SendChat) GetImageId() string {
 	return ""
 }
 
+func (x *SendChat) GetEncrypted() *EncryptedChat {
+	if x != nil {
+		return x.Encrypted
+	}
+	return nil
+}
+
+// 端到端加密房间里的聊天。正文（ChatPlaintext）用发送者当前的媒体密钥派生出的聊天密钥加密，服务器只转发和保存密文：
+//
+//	聊天密钥 = HKDF-SHA256(ikm = 媒体密钥, salt = "OpenHane-Chat-v1", info = 空, 32 字节)
+//	密文 = AES-256-GCM(聊天密钥, nonce, ChatPlaintext, aad)
+//	aad = "OpenHane-Chat-v1" ‖ 0x00 ‖ room_id ‖ 0x00 ‖ 发送者 session_id ‖ 0x00 ‖ key_index（4 字节大端）
+type EncryptedChat struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	KeyIndex      uint32                 `protobuf:"varint,1,opt,name=key_index,json=keyIndex,proto3" json:"key_index,omitempty"` // 发送者媒体密钥的索引（与密钥包的 key_index 相同）
+	Nonce         []byte                 `protobuf:"bytes,2,opt,name=nonce,proto3" json:"nonce,omitempty"`                        // 12 字节，随机
+	Ciphertext    []byte                 `protobuf:"bytes,3,opt,name=ciphertext,proto3" json:"ciphertext,omitempty"`              // 含 16 字节认证标签
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EncryptedChat) Reset() {
+	*x = EncryptedChat{}
+	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EncryptedChat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EncryptedChat) ProtoMessage() {}
+
+func (x *EncryptedChat) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EncryptedChat.ProtoReflect.Descriptor instead.
+func (*EncryptedChat) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *EncryptedChat) GetKeyIndex() uint32 {
+	if x != nil {
+		return x.KeyIndex
+	}
+	return 0
+}
+
+func (x *EncryptedChat) GetNonce() []byte {
+	if x != nil {
+		return x.Nonce
+	}
+	return nil
+}
+
+func (x *EncryptedChat) GetCiphertext() []byte {
+	if x != nil {
+		return x.Ciphertext
+	}
+	return nil
+}
+
+// 加密前的聊天内容（只在客户端之间传递，服务器看不到）
+type ChatPlaintext struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Text          string                 `protobuf:"bytes,1,opt,name=text,proto3" json:"text,omitempty"`
+	Image         *EncryptedImageKey     `protobuf:"bytes,2,opt,name=image,proto3" json:"image,omitempty"` // 附带图片时
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ChatPlaintext) Reset() {
+	*x = ChatPlaintext{}
+	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ChatPlaintext) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChatPlaintext) ProtoMessage() {}
+
+func (x *ChatPlaintext) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChatPlaintext.ProtoReflect.Descriptor instead.
+func (*ChatPlaintext) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ChatPlaintext) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
+func (x *ChatPlaintext) GetImage() *EncryptedImageKey {
+	if x != nil {
+		return x.Image
+	}
+	return nil
+}
+
+// 加密图片的解密信息。上传的文件 = "HNE1" ‖ nonce（12 字节）‖ AES-256-GCM(key, nonce, 图片, aad = "OpenHane-ChatImage-v1")。
+// 发送方先重新编码图片（去掉元数据），接收方解密后核对 digest 并照常检查文件头和尺寸。
+type EncryptedImageKey struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Key           []byte                 `protobuf:"bytes,1,opt,name=key,proto3" json:"key,omitempty"`       // 32 字节，每张图片随机生成
+	Digest        []byte                 `protobuf:"bytes,2,opt,name=digest,proto3" json:"digest,omitempty"` // SHA-256(上传的文件)
+	Mime          string                 `protobuf:"bytes,3,opt,name=mime,proto3" json:"mime,omitempty"`     // image/png 或 image/jpeg
+	Width         uint32                 `protobuf:"varint,4,opt,name=width,proto3" json:"width,omitempty"`
+	Height        uint32                 `protobuf:"varint,5,opt,name=height,proto3" json:"height,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EncryptedImageKey) Reset() {
+	*x = EncryptedImageKey{}
+	mi := &file_openhane_v1_chat_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EncryptedImageKey) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EncryptedImageKey) ProtoMessage() {}
+
+func (x *EncryptedImageKey) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_chat_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EncryptedImageKey.ProtoReflect.Descriptor instead.
+func (*EncryptedImageKey) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *EncryptedImageKey) GetKey() []byte {
+	if x != nil {
+		return x.Key
+	}
+	return nil
+}
+
+func (x *EncryptedImageKey) GetDigest() []byte {
+	if x != nil {
+		return x.Digest
+	}
+	return nil
+}
+
+func (x *EncryptedImageKey) GetMime() string {
+	if x != nil {
+		return x.Mime
+	}
+	return ""
+}
+
+func (x *EncryptedImageKey) GetWidth() uint32 {
+	if x != nil {
+		return x.Width
+	}
+	return 0
+}
+
+func (x *EncryptedImageKey) GetHeight() uint32 {
+	if x != nil {
+		return x.Height
+	}
+	return 0
+}
+
 type SendChatResult struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       *ChatMessage           `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
@@ -291,7 +503,7 @@ type SendChatResult struct {
 
 func (x *SendChatResult) Reset() {
 	*x = SendChatResult{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	mi := &file_openhane_v1_chat_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -303,7 +515,7 @@ func (x *SendChatResult) String() string {
 func (*SendChatResult) ProtoMessage() {}
 
 func (x *SendChatResult) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[3]
+	mi := &file_openhane_v1_chat_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -316,7 +528,7 @@ func (x *SendChatResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SendChatResult.ProtoReflect.Descriptor instead.
 func (*SendChatResult) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{3}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *SendChatResult) GetMessage() *ChatMessage {
@@ -337,7 +549,7 @@ type GetChatHistory struct {
 
 func (x *GetChatHistory) Reset() {
 	*x = GetChatHistory{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	mi := &file_openhane_v1_chat_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -349,7 +561,7 @@ func (x *GetChatHistory) String() string {
 func (*GetChatHistory) ProtoMessage() {}
 
 func (x *GetChatHistory) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[4]
+	mi := &file_openhane_v1_chat_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -362,7 +574,7 @@ func (x *GetChatHistory) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatHistory.ProtoReflect.Descriptor instead.
 func (*GetChatHistory) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{4}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetChatHistory) GetRoomId() string {
@@ -396,7 +608,7 @@ type GetChatHistoryResult struct {
 
 func (x *GetChatHistoryResult) Reset() {
 	*x = GetChatHistoryResult{}
-	mi := &file_openhane_v1_chat_proto_msgTypes[5]
+	mi := &file_openhane_v1_chat_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -408,7 +620,7 @@ func (x *GetChatHistoryResult) String() string {
 func (*GetChatHistoryResult) ProtoMessage() {}
 
 func (x *GetChatHistoryResult) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_chat_proto_msgTypes[5]
+	mi := &file_openhane_v1_chat_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -421,7 +633,7 @@ func (x *GetChatHistoryResult) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetChatHistoryResult.ProtoReflect.Descriptor instead.
 func (*GetChatHistoryResult) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{5}
+	return file_openhane_v1_chat_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetChatHistoryResult) GetMessages() []*ChatMessage {
@@ -442,7 +654,7 @@ var File_openhane_v1_chat_proto protoreflect.FileDescriptor
 
 const file_openhane_v1_chat_proto_rawDesc = "" +
 	"\n" +
-	"\x16openhane/v1/chat.proto\x12\vopenhane.v1\"\xc7\x02\n" +
+	"\x16openhane/v1/chat.proto\x12\vopenhane.v1\"\x81\x03\n" +
 	"\vChatMessage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\aroom_id\x18\x02 \x01(\tR\x06roomId\x12*\n" +
@@ -456,18 +668,35 @@ const file_openhane_v1_chat_proto_rawDesc = "" +
 	"\rcreated_at_ms\x18\b \x01(\x03R\vcreatedAtMs\x12\"\n" +
 	"\rclient_msg_id\x18\t \x01(\tR\vclientMsgId\x12,\n" +
 	"\x05image\x18\n" +
-	" \x01(\v2\x16.openhane.v1.ChatImageR\x05image\"]\n" +
+	" \x01(\v2\x16.openhane.v1.ChatImageR\x05image\x128\n" +
+	"\tencrypted\x18\v \x01(\v2\x1a.openhane.v1.EncryptedChatR\tencrypted\"]\n" +
 	"\tChatImage\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
 	"\x05width\x18\x02 \x01(\rR\x05width\x12\x16\n" +
 	"\x06height\x18\x03 \x01(\rR\x06height\x12\x12\n" +
-	"\x04size\x18\x04 \x01(\rR\x04size\"\x91\x01\n" +
+	"\x04size\x18\x04 \x01(\rR\x04size\"\xcb\x01\n" +
 	"\bSendChat\x12\x17\n" +
 	"\aroom_id\x18\x01 \x01(\tR\x06roomId\x12\x12\n" +
 	"\x04text\x18\x02 \x01(\tR\x04text\x12\"\n" +
 	"\rclient_msg_id\x18\x03 \x01(\tR\vclientMsgId\x12\x19\n" +
 	"\breply_to\x18\x04 \x01(\x03R\areplyTo\x12\x19\n" +
-	"\bimage_id\x18\x05 \x01(\tR\aimageId\"D\n" +
+	"\bimage_id\x18\x05 \x01(\tR\aimageId\x128\n" +
+	"\tencrypted\x18\x06 \x01(\v2\x1a.openhane.v1.EncryptedChatR\tencrypted\"b\n" +
+	"\rEncryptedChat\x12\x1b\n" +
+	"\tkey_index\x18\x01 \x01(\rR\bkeyIndex\x12\x14\n" +
+	"\x05nonce\x18\x02 \x01(\fR\x05nonce\x12\x1e\n" +
+	"\n" +
+	"ciphertext\x18\x03 \x01(\fR\n" +
+	"ciphertext\"Y\n" +
+	"\rChatPlaintext\x12\x12\n" +
+	"\x04text\x18\x01 \x01(\tR\x04text\x124\n" +
+	"\x05image\x18\x02 \x01(\v2\x1e.openhane.v1.EncryptedImageKeyR\x05image\"\x7f\n" +
+	"\x11EncryptedImageKey\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\fR\x03key\x12\x16\n" +
+	"\x06digest\x18\x02 \x01(\fR\x06digest\x12\x12\n" +
+	"\x04mime\x18\x03 \x01(\tR\x04mime\x12\x14\n" +
+	"\x05width\x18\x04 \x01(\rR\x05width\x12\x16\n" +
+	"\x06height\x18\x05 \x01(\rR\x06height\"D\n" +
 	"\x0eSendChatResult\x122\n" +
 	"\amessage\x18\x01 \x01(\v2\x18.openhane.v1.ChatMessageR\amessage\"\\\n" +
 	"\x0eGetChatHistory\x12\x17\n" +
@@ -491,24 +720,30 @@ func file_openhane_v1_chat_proto_rawDescGZIP() []byte {
 	return file_openhane_v1_chat_proto_rawDescData
 }
 
-var file_openhane_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_openhane_v1_chat_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_openhane_v1_chat_proto_goTypes = []any{
 	(*ChatMessage)(nil),          // 0: openhane.v1.ChatMessage
 	(*ChatImage)(nil),            // 1: openhane.v1.ChatImage
 	(*SendChat)(nil),             // 2: openhane.v1.SendChat
-	(*SendChatResult)(nil),       // 3: openhane.v1.SendChatResult
-	(*GetChatHistory)(nil),       // 4: openhane.v1.GetChatHistory
-	(*GetChatHistoryResult)(nil), // 5: openhane.v1.GetChatHistoryResult
+	(*EncryptedChat)(nil),        // 3: openhane.v1.EncryptedChat
+	(*ChatPlaintext)(nil),        // 4: openhane.v1.ChatPlaintext
+	(*EncryptedImageKey)(nil),    // 5: openhane.v1.EncryptedImageKey
+	(*SendChatResult)(nil),       // 6: openhane.v1.SendChatResult
+	(*GetChatHistory)(nil),       // 7: openhane.v1.GetChatHistory
+	(*GetChatHistoryResult)(nil), // 8: openhane.v1.GetChatHistoryResult
 }
 var file_openhane_v1_chat_proto_depIdxs = []int32{
 	1, // 0: openhane.v1.ChatMessage.image:type_name -> openhane.v1.ChatImage
-	0, // 1: openhane.v1.SendChatResult.message:type_name -> openhane.v1.ChatMessage
-	0, // 2: openhane.v1.GetChatHistoryResult.messages:type_name -> openhane.v1.ChatMessage
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	3, // 1: openhane.v1.ChatMessage.encrypted:type_name -> openhane.v1.EncryptedChat
+	3, // 2: openhane.v1.SendChat.encrypted:type_name -> openhane.v1.EncryptedChat
+	5, // 3: openhane.v1.ChatPlaintext.image:type_name -> openhane.v1.EncryptedImageKey
+	0, // 4: openhane.v1.SendChatResult.message:type_name -> openhane.v1.ChatMessage
+	0, // 5: openhane.v1.GetChatHistoryResult.messages:type_name -> openhane.v1.ChatMessage
+	6, // [6:6] is the sub-list for method output_type
+	6, // [6:6] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_openhane_v1_chat_proto_init() }
@@ -522,7 +757,7 @@ func file_openhane_v1_chat_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_openhane_v1_chat_proto_rawDesc), len(file_openhane_v1_chat_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

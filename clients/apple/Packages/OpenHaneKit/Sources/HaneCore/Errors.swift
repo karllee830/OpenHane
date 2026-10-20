@@ -9,6 +9,8 @@ public enum HaneError: Error, Equatable, Sendable {
     case timeout
     case protocolViolation(String)
     case fingerprintChanged(TrustStore.Mismatch)
+    /// 端到端加密房间里，加密还没准备好（媒体连接或密钥交换未完成），暂时不能发聊天
+    case e2eeNotReady
 
     static func from(_ e: Openhane_V1_Error) -> HaneError {
         .server(e.code, message: e.message, detail: e)

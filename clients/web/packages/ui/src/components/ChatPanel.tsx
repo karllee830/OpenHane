@@ -3,7 +3,7 @@ import { ChatImageError, type ChatImageErrorCode } from '@hane/core';
 import type { ChatImage } from '@hane/protocol';
 import { ArrowUp, CircleAlert, Download, ImageOff, ImagePlus, LoaderCircle, MessagesSquare, X } from 'lucide-react';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { displaySize, prepareImage, useChatImage, type LoadedImage } from '../chatImage';
+import { displaySize, prepareImage, useChatImage, type LoadedImage, type PreparedImage } from '../chatImage';
 import { describeError } from '../errors';
 import { useT, type Translate } from '../i18n';
 import { useClient, useServices } from '../services';
@@ -30,10 +30,11 @@ export function ChatPanel({ headerClassName = '' }: { headerClassName?: string }
   const hasMore = useClient((s) => s.chatHasMore[roomId] ?? false);
   const selfUid = useClient((s) => s.self?.uid);
   const maxBytes = useClient((s) => Math.min(s.serverInfo?.chatImageMaxBytes ?? 0, IMAGE_MAX_BYTES));
+  const e2ee = useClient((s) => s.rooms[roomId]?.e2ee ?? false);
   const [text, setText] = useState('');
   const [error, setError] = useState<string | null>(null);
   // 待发送的图片（发送前预览）
-  const [image, setImage] = useState<{ blob: Blob; url: string } | null>(null);
+  const [image, setImage] = useState<(PreparedImage & { url: string }) | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
   const listRef = useRef<HTMLDivElement>(null);
@@ -52,16 +53,16 @@ export function ChatPanel({ headerClassName = '' }: { headerClassName?: string }
     if (!image) return;
     return () => URL.revokeObjectURL(image.url);
   }, [image]);
-  // 换房间时丢掉没发出去的图片
-  useEffect(() => setImage(null), [roomId]);
+  // 换房间（或房间的加密状态变了）时丢掉没发出去的图片
+  useEffect(() => setImage(null), [roomId, e2ee]);
 
   const attach = async (file: File | undefined) => {
     if (!file || !maxBytes || busy) return;
     setError(null);
     setBusy(true);
     try {
-      const blob = await prepareImage(file, maxBytes);
-      setImage({ blob, url: URL.createObjectURL(blob) });
+      const prepared = await prepareImage(file, maxBytes);
+      setImage({ ...prepared, url: URL.createObjectURL(prepared.blob) });
       inputRef.current?.focus();
     } catch (e) {
       setError(imageError(e, t, maxBytes));
@@ -76,7 +77,7 @@ export function ChatPanel({ headerClassName = '' }: { headerClassName?: string }
     stick.current = true;
     setBusy(true);
     try {
-      const imageId = image ? await client.uploadChatImage(image.blob) : undefined;
+      const imageId = image ? await client.uploadChatImage(image.blob, image) : undefined;
       await client.sendChat(body, { imageId });
       setText('');
       setImage(null);
@@ -127,7 +128,7 @@ export function ChatPanel({ headerClassName = '' }: { headerClassName?: string }
         data-testid="chat-list"
       >
         {hasMore && (
-          <button className="mt-3 w-full text-center text-xs text-accent hover:underline" onClick={() => client.loadChatHistory(roomId, messages[0]?.id ?? 0n)}>
+          <button className="mt-3 w-full text-center text-xs text-accent hover:underline" onClick={() => client.loadOlderChat(roomId)}>
             {t('chat.loadMore')}
           </button>
         )}

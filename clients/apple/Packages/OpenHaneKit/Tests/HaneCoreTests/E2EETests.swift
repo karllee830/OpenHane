@@ -14,11 +14,20 @@ import Testing
         struct Member: Decodable { let uid, publicKey: String }
         struct SafetyCase: Decodable {
             let members: [Member]
-            let code: String
+            let code: [Int]
         }
+
+        struct ChatCase: Decodable {
+            let mediaKey, roomId, fromSessionId, aad, nonce, plaintext, ciphertext, text: String
+            let keyIndex: UInt32
+        }
+
+        struct ImageCase: Decodable { let key, nonce, image, file, digest: String }
 
         let hpke: [HPKECase]
         let safetyCode: [SafetyCase]
+        let chat: [ChatCase]
+        let chatImage: [ImageCase]
     }
 
     static let vectors: Vectors = {
@@ -64,6 +73,38 @@ import Testing
         for c in Self.vectors.safetyCode {
             #expect(E2EECrypto.safetyCode(members: c.members.map { ($0.uid, Self.hex($0.publicKey)) }) == c.code)
         }
+    }
+
+    @Test func chatMatchesGoReference() throws {
+        for c in Self.vectors.chat {
+            let key = E2EECrypto.chatKey(mediaKey: Self.hex(c.mediaKey))
+            let aad = E2EECrypto.chatAAD(room: c.roomId, from: c.fromSessionId, keyIndex: c.keyIndex)
+            #expect(aad == Self.hex(c.aad))
+            #expect(try E2EECrypto.sealChat(Self.hex(c.plaintext), key: key, aad: aad, nonce: Self.hex(c.nonce)).ciphertext == Self.hex(c.ciphertext))
+            let pt = try E2EECrypto.openChat(nonce: Self.hex(c.nonce), ciphertext: Self.hex(c.ciphertext), key: key, aad: aad)
+            #expect(pt == Self.hex(c.plaintext))
+            #expect(try Openhane_V1_ChatPlaintext(serializedBytes: pt).text == c.text)
+            // 换了发送者（AAD 不符）就解不开
+            let wrong = E2EECrypto.chatAAD(room: c.roomId, from: "other", keyIndex: c.keyIndex)
+            #expect(throws: (any Error).self) { try E2EECrypto.openChat(nonce: Self.hex(c.nonce), ciphertext: Self.hex(c.ciphertext), key: key, aad: wrong) }
+        }
+        for c in Self.vectors.chatImage {
+            let sealed = try E2EECrypto.sealChatImage(Self.hex(c.image), key: Self.hex(c.key), nonce: Self.hex(c.nonce))
+            #expect(sealed.file == Self.hex(c.file) && sealed.digest == Self.hex(c.digest))
+            #expect(try E2EECrypto.openChatImage(Self.hex(c.file), key: Self.hex(c.key), digest: Self.hex(c.digest)) == Self.hex(c.image))
+            var other = Self.hex(c.file)
+            other[other.count - 1] ^= 1
+            #expect(throws: (any Error).self) { try E2EECrypto.openChatImage(other, key: Self.hex(c.key), digest: Self.hex(c.digest)) }
+        }
+    }
+
+    @Test func safetyEmojiMatchesSharedTable() throws {
+        struct Entry: Decodable { let emoji, zh: String }
+        let url = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
+            .appendingPathComponent("../../../../../../testdata/e2ee/safety-emoji.json").standardizedFileURL
+        let table = try JSONDecoder().decode([Entry].self, from: Data(contentsOf: url))
+        #expect(SafetyEmoji.all.map(\.emoji) == table.map(\.emoji))
+        #expect(SafetyEmoji.all.map(\.name) == table.map(\.zh))
     }
 
     @Test func verifiesKeySignatures() throws {

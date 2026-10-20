@@ -100,6 +100,8 @@ public final class MediaSession {
     public private(set) var e2ee: E2EEKeys?
     /// 媒体连接走的协议（还没连上时为 nil）
     public private(set) var transportProtocol: TransportProtocol?
+    /// 流量优先级的当前判断（诊断和测试用；没有媒体连接时为 nil）
+    public private(set) var traffic: TrafficState?
     /// UDP 不稳定被切到 TCP 的原因（界面提示一次；「始终 TCP」时为 .always）
     public private(set) var tcpSwitched: TransportMonitor.Reason?
 
@@ -136,6 +138,8 @@ public final class MediaSession {
     @ObservationIgnored private var transportTask: Task<Void, Never>?
     /// 已经打开统计的轨道（SDK 每次设置都会重置统计计时器，只设一次）
     @ObservationIgnored private var statsEnabled: Set<ObjectIdentifier> = []
+    @ObservationIgnored private var trafficTask: Task<Void, Never>?
+    @ObservationIgnored private let pacer = TrafficPacer()
 
     private let session: ServerSession
     @ObservationIgnored private var room: LiveKit.Room?
@@ -215,6 +219,10 @@ public final class MediaSession {
         await r?.disconnect()
         transportTask?.cancel()
         transportTask = nil
+        trafficTask?.cancel()
+        trafficTask = nil
+        session.transferPacer = nil
+        traffic = nil
         await closeShareRoom()
         preferTcp = false
         shareUdp = false
@@ -278,6 +286,7 @@ public final class MediaSession {
             try await r.connect(url: target.url.absoluteString, token: target.token,
                                 connectOptions: ConnectOptions(iceServers: relayOnly.map { [IceServer(urls: [$0.url], username: $0.username, credential: $0.credential)] } ?? [],
                                                                iceTransportPolicy: relayOnly == nil ? .all : .relay,
+                                                               isDscpEnabled: true,
                                                                serverTrustEvaluator: session.trust.evaluator(port: port)))
         } catch {
             if switching { await old?.disconnect() }
@@ -298,6 +307,7 @@ public final class MediaSession {
         attachKeys(keys)
         // 先设置并分发自己的密钥，再发布轨道
         await keys?.start(room: r, roomID: target.roomID, localIdentity: localIdentity)
+        watchTraffic(r)
         if switching, let old {
             await handOver(from: old, to: r, policy: target.policy, started: started)
         } else {
@@ -364,7 +374,9 @@ public final class MediaSession {
             try await r.localParticipant.setMicrophone(
                 enabled: true,
                 captureOptions: audioCaptureOptions(echoProcessing, noise: noiseSuppression),
-                publishOptions: AudioPublishOptions(encoding: AudioEncoding(maxBitrate: Int(audio.maxBitrateBps == 0 ? 32000 : audio.maxBitrateBps)),
+                // 语音的优先级最高（同一条连接里带宽不够时先保证它，并标记网络优先级）
+                publishOptions: AudioPublishOptions(encoding: AudioEncoding(maxBitrate: Int(audio.maxBitrateBps == 0 ? 32000 : audio.maxBitrateBps),
+                                                                            bitratePriority: .high, networkPriority: .high),
                                                     dtx: audio.dtx, red: audio.red)
             )
             if micMuted { try await r.localParticipant.setMicrophone(enabled: false) }
@@ -410,6 +422,75 @@ public final class MediaSession {
     private func shareMonitorMode(_ p: MediaPolicy?, tcp: Bool) -> TcpFallbackMode {
         guard let t = p?.transport, !tcp, !shareUdp, t.tcpAvailable, t.shareTransport == .udp else { return .off }
         return .auto
+    }
+
+    /// 流量优先级（见 HaneCore/TrafficPolicy.swift）：每秒取一次主连接和共享连接的轨道统计，更新聊天图片的传输速度，
+    /// 并告诉屏幕共享要不要让路。媒体连接期间才给 ServerSession 设置传输节奏，断开后图片传输不再限速。与 Web 版一致
+    private func watchTraffic(_ r: LiveKit.Room) {
+        trafficTask?.cancel()
+        session.transferPacer = pacer
+        let clock = ContinuousClock()
+        let t0 = clock.now
+        trafficTask = Task { [weak self] in
+            var policy = TrafficPolicy()
+            var counters = TrafficCounters()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self, self.room === r else { return }
+                guard r.connectionState == .connected else { continue }
+                var s = await self.trafficSample(r, counters: &counters)
+                s.t = Double(Self.ms(clock.now - t0))
+                (s.upActive, s.downActive) = self.pacer.takeActivity()
+                let st = policy.update(s)
+                self.pacer.set(up: st.upBps, down: st.downBps)
+                self.shareController?.setYield(st.shareYield)
+                self.traffic = st
+            }
+        }
+    }
+
+    private func statistics(_ t: Track) async -> TrackStatistics? {
+        if statsEnabled.insert(ObjectIdentifier(t)).inserted { await t.set(reportStatistics: true) }
+        return t.statistics
+    }
+
+    /// 一次流量采样（时间和活动标记由调用方填）：上行看自己发出的语音、摄像头、屏幕共享，下行看两条连接上远端的语音和视频
+    private func trafficSample(_ r: LiveKit.Room, counters: inout TrafficCounters) async -> TrafficSample {
+        var s = TrafficSample(t: 0)
+        let mine: [(track: Track, video: Bool, share: Bool)] =
+            r.localParticipant.audioTracks.compactMap(\.track).map { ($0, false, false) }
+                + r.localParticipant.videoTracks.filter { $0.source == .camera }.compactMap(\.track).map { ($0, true, false) }
+                + (shareRoom?.localParticipant.videoTracks.compactMap(\.track).map { ($0, true, true) } ?? [])
+        for m in mine {
+            guard let st = await statistics(m.track) else { continue }
+            if m.video, st.outboundRtpStream.contains(where: { $0.qualityLimitationReason?.rawValue == "bandwidth" }) {
+                if m.share { s.shareLimited = true } else { s.cameraLimited = true }
+            }
+            for ri in st.remoteInboundRtpStream {
+                if let rtt = ri.roundTripTime { s.upRttMs = max(s.upRttMs ?? 0, rtt * 1000) }
+                if let f = ri.fractionLost { s.upLoss = max(s.upLoss ?? 0, f) }
+            }
+        }
+        var now = TrafficCounters()
+        for room in [r, shareRoom].compactMap(\.self) {
+            for p in room.remoteParticipants.values {
+                for t in p.audioTracks.compactMap(\.track) + p.videoTracks.compactMap(\.track) {
+                    guard let st = await statistics(t) else { continue }
+                    for inb in st.inboundRtpStream {
+                        now.lost += max(0, inb.packetsLost ?? 0)
+                        now.received += inb.packetsReceived ?? 0
+                        if t.kind == .audio {
+                            now.jitterDelay += inb.jitterBufferDelay ?? 0
+                            now.jitterEmitted += inb.jitterBufferEmittedCount ?? 0
+                        } else {
+                            now.freezes += UInt64(inb.freezeCount ?? 0)
+                        }
+                    }
+                }
+            }
+        }
+        counters.fill(&s, now: now)
+        return s
     }
 
     /// 共享连接的传输状态（主连接的语音和摄像头始终走 UDP）：每 2 秒从共享连接的轨道统计里取一次采样，更新当前协议。
@@ -542,7 +623,9 @@ public final class MediaSession {
             try await r.localParticipant.setCamera(
                 enabled: on,
                 captureOptions: CameraCaptureOptions(device: device, dimensions: .h720_169, fps: 30),
-                publishOptions: VideoPublishOptions(simulcast: true)
+                // 摄像头的优先级低于语音、高于屏幕共享（码率与 SDK 的 720p 默认值相同）
+                publishOptions: VideoPublishOptions(encoding: VideoEncoding(maxBitrate: 1_700_000, maxFps: 30, bitratePriority: .medium, networkPriority: .medium),
+                                                    simulcast: true)
             )
             cameraOn = on
             cameraDeviceID = on ? device?.uniqueID : nil
@@ -711,6 +794,7 @@ public final class MediaSession {
                                                                        publisherTransportConnectTimeout: timeout,
                                                                        iceServers: relayOnly.map { [IceServer(urls: [$0.url], username: $0.username, credential: $0.credential)] } ?? [],
                                                                        iceTransportPolicy: relayOnly == nil ? .all : .relay,
+                                                                       isDscpEnabled: true,
                                                                        serverTrustEvaluator: session.trust.evaluator(port: port)))
                     break
                 } catch {

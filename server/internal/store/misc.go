@@ -67,6 +67,11 @@ type ChatMessage struct {
 	ImageWidth  int64
 	ImageHeight int64
 	ImageSize   int64
+	// 端到端加密的消息（Body 为空）：发送者的会话 ID 和密文；EncNonce 为空表示不是加密消息
+	SenderSession string
+	EncKeyIndex   int64
+	EncNonce      []byte
+	EncCiphertext []byte
 }
 
 // InsertChat 写入一条聊天消息。m.ID 不为 0 时使用调用方分配的 ID（控制面统一分配，保证与广播顺序一致）。
@@ -74,11 +79,16 @@ func (s *Store) InsertChat(ctx context.Context, m *ChatMessage) error {
 	if m.CreatedAt == 0 {
 		m.CreatedAt = s.nowMs()
 	}
+	var keyIndex any
+	if m.EncNonce != nil {
+		keyIndex = m.EncKeyIndex
+	}
 	return s.w.QueryRowContext(ctx, `INSERT INTO chat_messages(id, room_id, sender_uid, sender_name, body, reply_to, created_at,
-		image_id, image_width, image_height, image_size)
-		VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+		image_id, image_width, image_height, image_size, sender_session, enc_key_index, enc_nonce, enc_ciphertext)
+		VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
 		nullInt(m.ID), m.RoomID, nullStr(m.SenderUID), m.SenderName, m.Body, nullInt(m.ReplyTo), m.CreatedAt,
-		nullStr(m.ImageID), nullInt(m.ImageWidth), nullInt(m.ImageHeight), nullInt(m.ImageSize)).Scan(&m.ID)
+		nullStr(m.ImageID), nullInt(m.ImageWidth), nullInt(m.ImageHeight), nullInt(m.ImageSize),
+		nullStr(m.SenderSession), keyIndex, m.EncNonce, m.EncCiphertext).Scan(&m.ID)
 }
 
 // MaxChatID 返回已有聊天消息的最大 ID（没有消息时为 0）。
@@ -94,7 +104,8 @@ func (s *Store) ChatHistory(ctx context.Context, roomID string, beforeID int64, 
 		beforeID = 1<<63 - 1
 	}
 	rows, err := s.r.QueryContext(ctx, `SELECT id, room_id, coalesce(sender_uid, ''), sender_name, body, coalesce(reply_to, 0), created_at,
-		coalesce(image_id, ''), coalesce(image_width, 0), coalesce(image_height, 0), coalesce(image_size, 0)
+		coalesce(image_id, ''), coalesce(image_width, 0), coalesce(image_height, 0), coalesce(image_size, 0),
+		coalesce(sender_session, ''), coalesce(enc_key_index, 0), enc_nonce, enc_ciphertext
 		FROM chat_messages WHERE room_id = ? AND id < ? AND deleted_at IS NULL ORDER BY id DESC LIMIT ?`,
 		roomID, beforeID, limit+1)
 	if err != nil {
@@ -105,7 +116,7 @@ func (s *Store) ChatHistory(ctx context.Context, roomID string, beforeID int64, 
 	for rows.Next() {
 		var m ChatMessage
 		if err := rows.Scan(&m.ID, &m.RoomID, &m.SenderUID, &m.SenderName, &m.Body, &m.ReplyTo, &m.CreatedAt,
-			&m.ImageID, &m.ImageWidth, &m.ImageHeight, &m.ImageSize); err != nil {
+			&m.ImageID, &m.ImageWidth, &m.ImageHeight, &m.ImageSize, &m.SenderSession, &m.EncKeyIndex, &m.EncNonce, &m.EncCiphertext); err != nil {
 			return nil, false, err
 		}
 		out = append(out, &m)
