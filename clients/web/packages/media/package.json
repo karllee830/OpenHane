@@ -7,7 +7,7 @@
   "dependencies": {
     "@hane/audio-dsp": "*",
     "@hane/core": "*",
-    "livekit-client": "2.22.4",
+    "livekit-client": "2.23.0",
     "zustand": "5.0.15"
   },
   "license": "AGPL-3.0-only"

@@ -22,10 +22,10 @@
     "@hane/platform": "*",
     "@hane/protocol": "*",
     "@hane/ui": "*",
-    "electron": "44.7.0",
+    "electron": "44.9.0",
     "electron-builder": "26.15.3",
-    "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "license": "AGPL-3.0-only"
 }
