@@ -1,11 +1,16 @@
 package app
 
 import (
+	"bytes"
 	"context"
+	"image"
+	pngenc "image/png"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"testing"
@@ -76,6 +81,43 @@ func TestEndToEndMedia(t *testing.T) {
 		if !strings.Contains(string(body), want) {
 			t.Fatalf("metrics missing %q:\n%s", want, body)
 		}
+	}
+
+	// /api/v1/info：公开的在线人数，允许跨域读取
+	iresp, err := http.Get(base + "/api/v1/info")
+	if err != nil {
+		t.Fatal(err)
+	}
+	ibody, _ := io.ReadAll(iresp.Body)
+	iresp.Body.Close()
+	if iresp.Header.Get("Access-Control-Allow-Origin") != "*" || !strings.Contains(string(ibody), `"online":2`) {
+		t.Fatalf("info: %v %s", iresp.Header, ibody)
+	}
+
+	// 服务器图标：放进数据目录即生效，info 带上摘要，/api/v1/logo 返回图片并支持 304
+	if resp, err := http.Get(base + "/api/v1/logo"); err != nil || resp.StatusCode != http.StatusNotFound {
+		t.Fatalf("logo before file: %v %v", resp, err)
+	}
+	var png bytes.Buffer
+	_ = pngenc.Encode(&png, image.NewRGBA(image.Rect(0, 0, 256, 256)))
+	if err := os.WriteFile(filepath.Join(cfg.DataDir, "logo.png"), png.Bytes(), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	lresp, err := http.Get(base + "/api/v1/logo")
+	if err != nil || lresp.StatusCode != http.StatusOK || lresp.Header.Get("Content-Type") != "image/png" || lresp.Header.Get("Access-Control-Allow-Origin") != "*" {
+		t.Fatalf("logo: %v %v", lresp, err)
+	}
+	lresp.Body.Close()
+	ireq2, _ := http.Get(base + "/api/v1/info")
+	ibody2, _ := io.ReadAll(ireq2.Body)
+	ireq2.Body.Close()
+	if !strings.Contains(string(ibody2), `"logo":"`+strings.Trim(lresp.Header.Get("ETag"), `"`)+`"`) {
+		t.Fatalf("info without logo: %s (etag %s)", ibody2, lresp.Header.Get("ETag"))
+	}
+	creq, _ := http.NewRequest("GET", base+"/api/v1/logo", nil)
+	creq.Header.Set("If-None-Match", lresp.Header.Get("ETag"))
+	if cresp, err := http.DefaultClient.Do(creq); err != nil || cresp.StatusCode != http.StatusNotModified {
+		t.Fatalf("logo revalidation: %v %v", cresp, err)
 	}
 
 	grant := alice.Welcome.GetAutoJoin().GetMedia()

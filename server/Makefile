@@ -5,6 +5,7 @@ VERSION ?= dev
 BUILD ?=
 
 build:
+	./scripts/fetch-geoip.sh
 	go build -trimpath -ldflags="-s -w -X main.version=$(VERSION)" -o bin/openhane ./cmd/openhane
 
 # 各平台的发布包（tar.gz / zip + SHA256SUMS），见 scripts/release.sh

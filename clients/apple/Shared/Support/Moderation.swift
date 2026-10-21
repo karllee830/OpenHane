@@ -259,11 +259,15 @@ struct ModerationSheet: View {
     }
 }
 
-/// 成员的主持操作菜单项（macOS 右键菜单、iOS 长按菜单共用）
+/// 成员的主持操作和管理员操作（macOS 成员弹出框、iOS 长按菜单共用）
 struct ModerationMenuItems: View {
     @Environment(AppModel.self) private var model
     let p: Participant
     let onKickBan: (ModerationSheet.Kind) -> Void
+    /// 每个操作执行后调用（弹出框里用来关闭弹出框）
+    var onAction: () -> Void = {}
+    /// 分组之间的分隔线（系统菜单里显示，macOS 的成员弹出框里不显示）
+    var dividers = true
 
     var body: some View {
         let state = model.session.state
@@ -280,9 +284,11 @@ struct ModerationMenuItems: View {
             if p.cameraOn {
                 Button { run { try await model.session.moderate(p.sessionID, .cameraOff) } } label: { Label("关闭摄像头", systemImage: "video.slash") }
             }
-            if perms.canKick(p) {
+            // 只有一个房间时没有可以移动过去的地方，不显示（空菜单会是灰的、点不了）
+            let targets = state.sortedRooms.filter { $0.id != p.roomID }
+            if perms.canKick(p), !targets.isEmpty {
                 Menu {
-                    ForEach(state.sortedRooms.filter { $0.id != p.roomID }, id: \.id) { r in
+                    ForEach(targets, id: \.id) { r in
                         Button(state.roomName(r.id)) { run { try await model.session.moveParticipant(p.sessionID, to: r.id) } }
                     }
                 } label: { Label("移动到", systemImage: "arrow.right.arrow.left") }
@@ -291,16 +297,183 @@ struct ModerationMenuItems: View {
                 Button { run { try await model.session.moderate(p.sessionID, .removeFromRoom) } } label: { Label("移出房间", systemImage: "rectangle.portrait.and.arrow.right") }
             }
             if perms.canKick(p) {
-                Divider()
-                Button(role: .destructive) { onKickBan(.kick) } label: { Label("踢出服务器…", systemImage: "person.fill.xmark") }
-                Button(role: .destructive) { onKickBan(.ban) } label: { Label("封禁…", systemImage: "nosign") }
+                if dividers { Divider() }
+                Button(role: .destructive) { onAction(); onKickBan(.kick) } label: { Label("踢出服务器…", systemImage: "person.fill.xmark") }
+                Button(role: .destructive) { onAction(); onKickBan(.ban) } label: { Label("封禁…", systemImage: "nosign") }
+            }
+        }
+        if perms.role == .admin, p.sessionID != state.me?.sessionID {
+            if dividers { Divider() }
+            if p.role == .admin {
+                Button { setRole(.member) } label: { Label("取消管理员", systemImage: "person.badge.minus") }
+            } else {
+                Button { setRole(.admin) } label: { Label("设为管理员", systemImage: "person.badge.shield.checkmark") }
             }
         }
     }
 
+    private func setRole(_ role: Role) {
+        let name = p.nickname
+        run {
+            try await model.session.setRole(uid: p.uid, role: role)
+            model.notice = role == .admin ? L("已将 \(name) 设为管理员") : L("已取消 \(name) 的管理员")
+        }
+    }
+
     private func run(_ f: @escaping () async throws -> Void) {
+        onAction()
         Task {
             do { try await f() } catch let e as HaneError { model.notice = describe(e) } catch {}
         }
     }
+}
+
+/// 成员的连接信息（仅管理员）：往返延迟、IP、归属地、客户端类型和版本。IPv6 地址在服务器没有 IPv6 库时提示下载
+struct MemberInfoView: View {
+    /// 延迟最多显示 4 位：再大已经没有区别
+    static func latency(_ ms: UInt32) -> String { ms > 9999 ? "9999+ ms" : "\(ms) ms" }
+
+    @Environment(AppModel.self) private var model
+    let p: Participant
+    let onDownloadV6: () -> Void
+    @State private var info: Openhane_V1_GetSessionInfoResult?
+    @State private var error: String?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            if let error {
+                Text(error).foregroundStyle(.red).fixedSize(horizontal: false, vertical: true)
+            } else if let info {
+                // 延迟和 IP 在同一行；IP 放不下时来回滚动，点击复制
+                HStack(spacing: 0) {
+                    if info.rttMs > 0 { Text(verbatim: "\(Self.latency(info.rttMs)) · ").fixedSize() }
+                    if info.ip.isEmpty { Text("IP 未知") } else { CopyableIP(ip: info.ip) }
+                }
+                .font(.caption.monospaced())
+                .foregroundStyle(.primary)
+                let place = [info.country, info.province, info.city].filter { !$0.isEmpty }.joined(separator: " ")
+                if info.ipv6DbMissing {
+                    Button("IPv6 归属地需要下载数据库", action: onDownloadV6).buttonStyle(.borderless).font(.caption)
+                } else {
+                    let line = [place, info.isp].filter { !$0.isEmpty }.joined(separator: " · ")
+                    if !line.isEmpty {
+                        let flag = flagEmoji(info.countryCode)
+                        Text(verbatim: flag.isEmpty ? line : "\(flag) \(line)").lineLimit(1).truncationMode(.tail).help(line)
+                    }
+                }
+                // 客户端类型和版本，例如 macOS (0.2.0)
+                let client = [platformName(p.platform), info.appVersion.isEmpty ? "" : "(\(info.appVersion))"].filter { !$0.isEmpty }.joined(separator: " ")
+                if !client.isEmpty { Text(verbatim: client).lineLimit(1).truncationMode(.tail).help(client) }
+            } else {
+                Text("正在获取连接信息…")
+            }
+        }
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .task(id: p.sessionID) {
+            do { info = try await model.session.sessionInfo(p.sessionID) } catch let e as HaneError { error = describe(e) } catch {}
+        }
+    }
+}
+
+extension View {
+    /// 下载 IPv6 归属地库的确认弹窗
+    func ipv6GeoAlert(isPresented: Binding<Bool>, model: AppModel) -> some View {
+        alert("下载 IPv6 归属地库", isPresented: isPresented) {
+            Button("下载") {
+                model.notice = L("正在下载 IPv6 归属地库…")
+                Task {
+                    do {
+                        try await model.session.downloadIPv6GeoDB()
+                        model.notice = L("IPv6 归属地库已下载")
+                    } catch let e as HaneError {
+                        model.notice = L("下载失败：\(describe(e))。也可以手动把 ip2region_v6.xdb 放进服务器的数据目录，然后重启服务器。")
+                    } catch {}
+                }
+            }
+            Button("取消", role: .cancel) {}
+        } message: {
+            Text("服务器内置的归属地库只包含 IPv4。IPv6 库约 37 MB，会从 GitHub 下载到服务器的数据目录，之后一直可用（Docker 部署时数据目录需要持久化，否则重建容器后要重新下载）。")
+        }
+    }
+}
+
+/// 点击复制的 IP 地址；放不下时来回滚动（系统设置了减少动态效果时不滚动，只截断）
+private struct CopyableIP: View {
+    let ip: String
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var textWidth: CGFloat = 0
+    @State private var boxWidth: CGFloat = 0
+    @State private var offset: CGFloat = 0
+    @State private var copied = false
+
+    var body: some View {
+        // 行的大小只由占位文字（一个空格，决定行高）和可用宽度决定；IP 画在叠加层里，再长也不会把弹出框撑宽
+        Text(verbatim: " ")
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(GeometryReader { g in Color.clear.onAppear { boxWidth = g.size.width }.onChange(of: g.size.width) { _, w in boxWidth = w } })
+            .overlay(alignment: .leading) {
+                if copied {
+                    Text("已复制").font(.caption).lineLimit(1)
+                } else {
+                    Text(verbatim: ip)
+                        .lineLimit(1)
+                        .fixedSize()
+                        .background(GeometryReader { g in Color.clear.preference(key: WidthKey.self, value: g.size.width) })
+                        .onPreferenceChange(WidthKey.self) { textWidth = $0 }
+                        .offset(x: offset)
+                }
+            }
+            .clipped()
+        .contentShape(Rectangle())
+        .onTapGesture { copy() }
+        .help(L("点击复制 IP 地址"))
+        .accessibilityAddTraits(.isButton)
+        .task(id: max(0, textWidth - boxWidth)) { await scroll(over: max(0, textWidth - boxWidth)) }
+        .task(id: copied) {
+            guard copied else { return }
+            try? await Task.sleep(for: .seconds(1.2))
+            copied = false
+        }
+    }
+
+    private func copy() {
+        #if os(macOS)
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(ip, forType: .string)
+        #else
+        UIPasteboard.general.string = ip
+        #endif
+        copied = true
+    }
+
+    /// 停一下 → 滚到末尾 → 停一下 → 滚回开头，循环；每秒约 20 pt
+    private func scroll(over: CGFloat) async {
+        offset = 0
+        guard over > 1, !reduceMotion else { return }
+        let duration = Double(over) / 20
+        while !Task.isCancelled {
+            do {
+                try await Task.sleep(for: .seconds(1.5))
+                withAnimation(.linear(duration: duration)) { offset = -over }
+                try await Task.sleep(for: .seconds(duration + 1.5))
+                withAnimation(.linear(duration: duration)) { offset = 0 }
+                try await Task.sleep(for: .seconds(duration))
+            } catch {
+                return
+            }
+        }
+    }
+
+    private struct WidthKey: PreferenceKey {
+        static let defaultValue: CGFloat = 0
+        static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = nextValue() }
+    }
+}
+
+/// 两位国家代码（如 CN）→ 国旗 emoji；格式不对时为空
+func flagEmoji(_ code: String) -> String {
+    guard code.count == 2, code.allSatisfy({ $0.isASCII && $0.isUppercase }) else { return "" }
+    return String(String.UnicodeScalarView(code.unicodeScalars.compactMap { Unicode.Scalar(0x1F1E6 + $0.value - 65) }))
 }

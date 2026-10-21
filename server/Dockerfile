@@ -18,6 +18,9 @@ FROM --platform=$BUILDPLATFORM golang:1.27-alpine AS server
 WORKDIR /src/server
 COPY server/go.mod server/go.sum ./
 RUN go mod download
+# IPv4 归属地库单独成层（只在脚本里的版本变化时重新下载）
+COPY server/scripts/fetch-geoip.sh scripts/
+RUN mkdir -p internal/geoip/data && ./scripts/fetch-geoip.sh
 COPY server/ ./
 COPY --from=web /src/clients/web/apps/web/dist/ internal/webui/dist/
 ARG VERSION=dev

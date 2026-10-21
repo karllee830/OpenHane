@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/karllee830/OpenHane/server/internal/auth"
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/pb"
 	"github.com/karllee830/OpenHane/server/internal/perm"
 	"github.com/karllee830/OpenHane/server/internal/settings"
@@ -70,7 +71,7 @@ func (h *Hub) onSettingsChanged(old, next *settings.Settings, keys []string) {
 	var info, policy, perms, rooms bool
 	for _, k := range keys {
 		switch {
-		case k == "server.name" || k == "server.welcome_message" || k == settings.PasswordKey || k == "identity.min_security_level" || k == "rooms.create_min_role":
+		case k == "server.name" || k == "server.welcome_message" || k == "chat.image_max_mb" || k == settings.PasswordKey || k == "identity.min_security_level" || k == "rooms.create_min_role":
 			info = true
 		case k == "rooms.main_name":
 			rooms = true
@@ -279,5 +280,58 @@ func (h *Hub) handleListIdentities(s *Session, c Conn, id uint32, r *pb.ListIden
 		reply(c, id, &pb.Response{Body: &pb.Response_ListIdentities{ListIdentities: res}})
 		return nil
 	})
+	return nil
+}
+
+// ---------- 会话连接信息 ----------
+
+// rttConn 是能报告往返延迟的连接（signal.Conn）
+type rttConn interface{ RTT() time.Duration }
+
+func (h *Hub) handleSessionInfo(r *pb.GetSessionInfo) *pb.Response {
+	t, ok := h.sessions[r.GetSessionId()]
+	if !ok {
+		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown session")
+	}
+	res := &pb.GetSessionInfoResult{AppVersion: t.Client.GetAppVersion()}
+	// 客户端自报的版本号，限制长度
+	if r := []rune(res.AppVersion); len(r) > 32 {
+		res.AppVersion = string(r[:32])
+	}
+	if rc, ok := t.conn.(rttConn); ok {
+		if d := rc.RTT(); d > 0 {
+			res.RttMs = uint32(max(d.Milliseconds(), 1))
+		}
+	}
+	if ip := t.RemoteIP.Unmap(); ip.IsValid() {
+		res.Ip = ip.String()
+		if g := h.opt.GeoIP; g != nil {
+			loc, err := g.Lookup(ip)
+			switch {
+			case err == nil:
+				res.Country, res.Province, res.City, res.Isp, res.CountryCode = loc.Country, loc.Province, loc.City, loc.ISP, loc.CountryCode
+			case errors.Is(err, geoip.ErrNoDB) && ip.Is6():
+				res.Ipv6DbMissing = true
+			}
+		}
+	}
+	return &pb.Response{Body: &pb.Response_GetSessionInfo{GetSessionInfo: res}}
+}
+
+func (h *Hub) handleDownloadIPv6GeoDB(s *Session, c Conn, id uint32) *pb.Response {
+	g := h.opt.GeoIP
+	if g == nil {
+		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "geoip disabled")
+	}
+	actor, ip := s.UID, s.RemoteIP.String()
+	go func() {
+		if err := g.DownloadV6(context.Background()); err != nil {
+			h.log.Warn("geoip IPv6 download failed", "err", err)
+			reply(c, id, errResp(pb.ErrorCode_ERROR_CODE_INTERNAL, err.Error()))
+			return
+		}
+		h.audit(actor, "geoip.download", geoip.V6File, nil, ip)
+		reply(c, id, &pb.Response{Body: &pb.Response_DownloadIpv6GeoDb{DownloadIpv6GeoDb: &pb.DownloadIPv6GeoDBResult{}}})
+	}()
 	return nil
 }

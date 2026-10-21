@@ -11,6 +11,7 @@ import type {
 import { createStore } from 'zustand/vanilla';
 import type { HaneError } from './errors';
 import type { ServerAddress } from './address';
+import { withCleanChat, withCleanName } from './names';
 
 export type ConnectionStatus =
   | 'idle' // 未连接
@@ -81,14 +82,14 @@ export function snapshotState(snap: Snapshot | undefined): Pick<ClientState, 'se
   const participants: Record<string, Participant> = {};
   for (const r of snap?.rooms ?? []) rooms[r.id] = r;
   for (const p of snap?.participants ?? []) participants[p.sessionId] = p;
-  return { serverInfo: snap?.info ?? null, rooms, participants };
+  return { serverInfo: withCleanName(snap?.info), rooms, participants };
 }
 
-/** 按 id 合并聊天消息（去重、升序、截断）。 */
+/** 按 id 合并聊天消息（去重、升序、截断）。新到的消息清洗正文和发送者名称：服务端的数据不可信 */
 export function mergeChat(existing: ChatMessage[] | undefined, incoming: ChatMessage[]): ChatMessage[] {
   const byId = new Map<bigint, ChatMessage>();
   for (const m of existing ?? []) byId.set(m.id, m);
-  for (const m of incoming) byId.set(m.id, m);
+  for (const m of incoming) byId.set(m.id, withCleanChat(m));
   const all = [...byId.values()].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
   return all.length > CHAT_KEEP ? all.slice(all.length - CHAT_KEEP) : all;
 }

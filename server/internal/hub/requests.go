@@ -3,7 +3,6 @@ package hub
 import (
 	"context"
 	"errors"
-	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -15,7 +14,7 @@ import (
 	"github.com/karllee830/OpenHane/server/internal/store"
 )
 
-// RedeemFailures 限制单 IP 兑换权限令牌的失败次数（每小时 10 次）。
+// RedeemFailures 限制单 IP（IPv6 按 /64）兑换权限令牌的失败次数（每小时 10 次）。
 var RedeemFailures = ratelimit.NewWindow(10, time.Hour)
 
 // HandleRequest 由连接协程调用；请求在 Hub 协程中处理，响应发回发起请求的连接。
@@ -152,6 +151,10 @@ func (h *Hub) dispatch(s *Session, c Conn, req *pb.Request) *pb.Response {
 		return h.handleListInvites(c, req.GetId())
 	case *pb.Request_RevokeInvite:
 		return h.handleRevokeInvite(s, c, req.GetId(), b.RevokeInvite)
+	case *pb.Request_GetSessionInfo:
+		return h.handleSessionInfo(b.GetSessionInfo)
+	case *pb.Request_DownloadIpv6GeoDb:
+		return h.handleDownloadIPv6GeoDB(s, c, req.GetId())
 	}
 	return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown request")
 }
@@ -195,13 +198,33 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 	if m.GetRoomId() != s.RoomID {
 		return errDenied()
 	}
-	text := strings.TrimSpace(m.GetText())
 	st := h.Settings()
-	if text == "" || !utf8.ValidString(text) || utf8.RuneCountInString(text) > st.ChatMaxLength {
+	e2ee := room.e2ee(st)
+	enc, perr := checkEncryptedChat(m, e2ee, st.ChatMaxLength)
+	if perr != nil {
+		return &pb.Response{Error: perr}
+	}
+	if !utf8.ValidString(m.GetText()) {
+		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is not valid UTF-8")
+	}
+	text := identity.CleanChatText(m.GetText())
+	if utf8.RuneCountInString(text) > st.ChatMaxLength || (text == "" && enc == nil && m.GetImageId() == "") {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "message is empty or too long")
 	}
 	if len(m.GetClientMsgId()) > 64 {
 		return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "client_msg_id too long")
+	}
+	var image *pb.ChatImage
+	if id := m.GetImageId(); id != "" {
+		// 只能发自己刚上传到这个房间、还没发出去的图片
+		// 加密房间里只能附带加密上传的图片，反之亦然
+		p := h.pendingImages[id]
+		if p == nil || p.session != s.ID || p.room != room.ID || p.img.Encrypted != e2ee {
+			return errResp(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "unknown image")
+		}
+		p.timer.Stop()
+		delete(h.pendingImages, id)
+		image = &pb.ChatImage{Id: id, Width: uint32(p.img.Width), Height: uint32(p.img.Height), Size: uint32(p.img.Size)}
 	}
 	h.chatSeq++
 	msg := &pb.ChatMessage{
@@ -214,23 +237,62 @@ func (h *Hub) handleSendChat(s *Session, m *pb.SendChat) *pb.Response {
 		ReplyTo:         m.GetReplyTo(),
 		CreatedAtMs:     h.now().UnixMilli(),
 		ClientMsgId:     m.GetClientMsgId(),
+		Image:           image,
+		Encrypted:       enc,
 	}
 	// 只持久化主会议（临时房间的聊天只在内存）；同步写入，保证历史查询能立即看到
-	if room.Kind == pb.RoomKind_ROOM_KIND_MAIN && st.ChatRetentionDays > 0 {
-		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		err := h.store.InsertChat(ctx, &store.ChatMessage{
+	persisted := room.Kind == pb.RoomKind_ROOM_KIND_MAIN && st.ChatRetentionDays > 0
+	if persisted {
+		row := &store.ChatMessage{
 			ID: msg.Id, RoomID: msg.RoomId, SenderUID: msg.SenderUid, SenderName: msg.SenderName,
 			Body: msg.Text, ReplyTo: msg.ReplyTo, CreatedAt: msg.CreatedAtMs,
-		})
+		}
+		if enc != nil {
+			row.SenderSession, row.EncKeyIndex, row.EncNonce, row.EncCiphertext = s.ID, int64(enc.KeyIndex), enc.Nonce, enc.Ciphertext
+		}
+		if image != nil {
+			row.ImageID, row.ImageWidth, row.ImageHeight, row.ImageSize = image.Id, int64(image.Width), int64(image.Height), int64(image.Size)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		err := h.store.InsertChat(ctx, row)
 		cancel()
 		if err != nil {
 			h.log.Error("chat persist failed", "err", err)
+			if image != nil {
+				h.deleteImage(room.ID, image.Id)
+			}
 			return errInternal()
 		}
+	} else if image != nil {
+		h.memImages[image.Id] = room.ID
 	}
-	room.remember(msg)
+	for _, old := range room.remember(msg) {
+		if id := old.GetImage().GetId(); id != "" && h.memImages[id] != "" {
+			delete(h.memImages, id)
+			h.deleteImage(room.ID, id)
+		}
+	}
 	h.broadcast(h.inRoom(room.ID), &pb.Event{Body: &pb.Event_ChatMessage{ChatMessage: msg}})
 	return &pb.Response{Body: &pb.Response_SendChat{SendChat: &pb.SendChatResult{Message: msg}}}
+}
+
+// checkEncryptedChat：端到端加密房间里的消息必须加密（不能带明文），其他房间不能加密。返回只含已知字段的密文
+func checkEncryptedChat(m *pb.SendChat, e2ee bool, maxLength int) (*pb.EncryptedChat, *pb.Error) {
+	enc := m.GetEncrypted()
+	switch {
+	case e2ee && (enc == nil || m.GetText() != ""):
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "this room is end-to-end encrypted: chat must be encrypted")
+	case !e2ee && enc != nil:
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "this room is not end-to-end encrypted")
+	case enc == nil:
+		return nil, nil
+	}
+	// 密文 = 正文（每个字符最多 4 字节）+ 图片的解密信息 + 16 字节标签
+	if enc.GetKeyIndex() >= maxKeyIndex || len(enc.GetNonce()) != chatNonceLen ||
+		len(enc.GetCiphertext()) <= chatTagLen || len(enc.GetCiphertext()) > maxLength*4+chatOverhead {
+		return nil, pbErr(pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT, "malformed encrypted message")
+	}
+	return &pb.EncryptedChat{KeyIndex: enc.GetKeyIndex(), Nonce: enc.GetNonce(), Ciphertext: enc.GetCiphertext()}, nil
 }
 
 func (h *Hub) handleChatHistory(s *Session, c Conn, id uint32, q *pb.GetChatHistory) *pb.Response {
@@ -260,10 +322,18 @@ func (h *Hub) handleChatHistory(s *Session, c Conn, id uint32, q *pb.GetChatHist
 		}
 		res := &pb.GetChatHistoryResult{HasMore: more}
 		for _, r := range rows {
-			res.Messages = append(res.Messages, &pb.ChatMessage{
+			m := &pb.ChatMessage{
 				Id: r.ID, RoomId: r.RoomID, SenderUid: r.SenderUID, SenderName: r.SenderName,
 				Text: r.Body, ReplyTo: r.ReplyTo, CreatedAtMs: r.CreatedAt,
-			})
+			}
+			if r.ImageID != "" {
+				m.Image = &pb.ChatImage{Id: r.ImageID, Width: uint32(r.ImageWidth), Height: uint32(r.ImageHeight), Size: uint32(r.ImageSize)}
+			}
+			if r.EncNonce != nil {
+				m.SenderSessionId = r.SenderSession
+				m.Encrypted = &pb.EncryptedChat{KeyIndex: uint32(r.EncKeyIndex), Nonce: r.EncNonce, Ciphertext: r.EncCiphertext}
+			}
+			res.Messages = append(res.Messages, m)
 		}
 		reply(c, id, &pb.Response{Body: &pb.Response_GetChatHistory{GetChatHistory: res}})
 		return nil
@@ -285,13 +355,13 @@ func memoryHistory(all []*pb.ChatMessage, before int64, limit int) *pb.GetChatHi
 // ---------- 权限令牌 ----------
 
 func (h *Hub) handleRedeem(s *Session, c Conn, id uint32, r *pb.RedeemToken) *pb.Response {
-	ip := s.RemoteIP.String()
-	if RedeemFailures.Exceeded(ip) {
+	ip, key := s.RemoteIP.String(), ratelimit.IPKey(s.RemoteIP)
+	if RedeemFailures.Exceeded(key) {
 		return errLimited()
 	}
 	norm, err := auth.NormalizeToken(r.GetToken())
 	if err != nil {
-		RedeemFailures.Add(ip)
+		RedeemFailures.Add(key)
 		return errResp(pb.ErrorCode_ERROR_CODE_TOKEN_INVALID, "invalid token")
 	}
 	uid := s.UID
@@ -312,7 +382,7 @@ func (h *Hub) handleRedeem(s *Session, c Conn, id uint32, r *pb.RedeemToken) *pb
 				h.log.Error("redeem token failed", "err", err)
 			}
 			if code != pb.ErrorCode_ERROR_CODE_INTERNAL {
-				RedeemFailures.Add(ip)
+				RedeemFailures.Add(key)
 			}
 			reply(c, id, errResp(code, "token rejected"))
 			return nil

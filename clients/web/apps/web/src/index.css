@@ -148,3 +148,27 @@ body {
     filter: drop-shadow(0 5px 16px rgb(88 169 254 / 0.45));
   }
 }
+
+/* 放不下的单行文字来回滚动（成员菜单里的长 IPv6 地址）：--marquee-shift、--marquee-duration 由组件按溢出的宽度设置 */
+@keyframes hane-marquee {
+  0%,
+  15% {
+    transform: translateX(0);
+  }
+  45%,
+  60% {
+    transform: translateX(var(--marquee-shift));
+  }
+  90%,
+  100% {
+    transform: translateX(0);
+  }
+}
+.hane-marquee {
+  animation: hane-marquee var(--marquee-duration) linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hane-marquee {
+    animation: none;
+  }
+}

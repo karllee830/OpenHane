@@ -14,6 +14,7 @@ import (
 	"unicode/utf8"
 
 	"golang.org/x/crypto/hkdf"
+	"golang.org/x/text/unicode/norm"
 )
 
 var b32 = base32.StdEncoding.WithPadding(base32.NoPadding)
@@ -36,23 +37,71 @@ const MaxNicknameRunes = 32
 
 var ErrNicknameInvalid = errors.New("nickname must be 1–32 characters without control or invisible characters")
 
-// NormalizeNickname 去掉首尾空白并校验：1–32 个字符，不含控制字符、格式字符（含零宽字符）。
+// NormalizeNickname 按显示名的规则检查昵称（见 NormalizeDisplayName）。
 func NormalizeNickname(s string) (string, error) {
+	out, ok := NormalizeDisplayName(s, MaxNicknameRunes)
+	if !ok {
+		return "", ErrNicknameInvalid
+	}
+	return out, nil
+}
+
+// MaxCombiningRun 是连续组合字符（Mn / Me，例如声调符号）的上限：正常文字最多叠两三个，
+// 再多就是把字往上下堆出界的「Zalgo」文字。
+const MaxCombiningRun = 3
+
+// NormalizeDisplayName 是昵称、服务器名称等显示名的统一规则：转成 NFC，去掉首尾空白后为 1–maxRunes 个字符；
+// 不含控制字符（Cc）、格式字符（Cf，零宽字符、方向控制符等）、换行等非空格的空白，
+// 连续的组合字符不超过 MaxCombiningRun 个。客户端显示前也按同样的规则清洗。
+func NormalizeDisplayName(s string, maxRunes int) (string, bool) {
 	if !utf8.ValidString(s) {
-		return "", ErrNicknameInvalid
+		return "", false
 	}
-	s = strings.TrimSpace(s)
-	n := utf8.RuneCountInString(s)
-	if n == 0 || n > MaxNicknameRunes {
-		return "", ErrNicknameInvalid
+	s = strings.TrimSpace(norm.NFC.String(s))
+	if n := utf8.RuneCountInString(s); n == 0 || n > maxRunes {
+		return "", false
 	}
+	run := 0
 	for _, r := range s {
-		// Cc 控制字符；Cf 格式字符（零宽空格、方向控制符等）；换行等非空格空白
 		if unicode.Is(unicode.Cc, r) || unicode.Is(unicode.Cf, r) || (unicode.IsSpace(r) && r != ' ' && r != '　') {
-			return "", ErrNicknameInvalid
+			return "", false
+		}
+		if unicode.In(r, unicode.Mn, unicode.Me) {
+			if run++; run > MaxCombiningRun {
+				return "", false
+			}
+		} else {
+			run = 0
 		}
 	}
-	return s, nil
+	return s, true
+}
+
+var lineBreaks = strings.NewReplacer("\r\n", "\n", "\r", "\n", " ", "\n", " ", "\n")
+
+// CleanChatText 清洗聊天正文（客户端显示前也按同样的规则处理）：转成 NFC；换行统一成 \n，制表符保留，
+// 其他控制字符去掉；去掉格式字符（方向控制符、零宽空格等），但保留零宽连接符 / 非连接符和标签字符
+// （emoji 序列和一些文字要用）；连续的组合字符最多保留 MaxCombiningRun 个；去掉首尾空白。s 必须是合法的 UTF-8。
+func CleanChatText(s string) string {
+	s = lineBreaks.Replace(norm.NFC.String(s))
+	var b strings.Builder
+	b.Grow(len(s))
+	run := 0
+	for _, r := range s {
+		keep := r == '\n' || r == '\t' || r == '‌' || r == '‍' || (r >= 0xE0020 && r <= 0xE007F)
+		if !keep && (unicode.Is(unicode.Cc, r) || unicode.Is(unicode.Cf, r)) {
+			continue
+		}
+		if unicode.In(r, unicode.Mn, unicode.Me) {
+			if run++; run > MaxCombiningRun {
+				continue
+			}
+		} else {
+			run = 0
+		}
+		b.WriteRune(r)
+	}
+	return strings.TrimSpace(b.String())
 }
 
 // Uniquify 在昵称已被占用时追加后缀「 (2)」「 (3)」……，超长时截断原名。

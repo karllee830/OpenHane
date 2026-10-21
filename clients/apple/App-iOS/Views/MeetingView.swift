@@ -1,7 +1,6 @@
 import HaneCore
 import HaneMedia
 import SwiftUI
-import TipKit
 
 /// iOS 会议主界面：舞台 + 底部控制栏；成员、聊天、设置以底部面板展示。
 struct MeetingView: View {
@@ -31,18 +30,16 @@ struct MeetingView: View {
                 ControlBar(sheet: $sheet)
             }
             // 顶栏显示的是下面的自定义标题；这里的标题用于 iPad 的窗口和应用切换器
-            .navigationTitle(model.session.state.serverInfo.name)
+            .navigationTitle(model.meetingTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button {
-                        RoomsTip().invalidate(reason: .actionPerformed)
                         sheet = .members
                     } label: {
                         Label("成员", systemImage: "person.2")
                     }
                     .accessibilityIdentifier("members")
-                    .popoverTip(RoomsTip())
                 }
                 // 顶栏：当前房间名，点按弹出房间和成员；下面一行是服务器名称
                 ToolbarItem(placement: .principal) {
@@ -53,11 +50,11 @@ struct MeetingView: View {
                                 Text(state.roomName(state.media?.roomID ?? "main")).font(.headline).lineLimit(1)
                                 Image(systemName: "chevron.down").font(.caption2.weight(.bold)).foregroundStyle(.secondary)
                             }
-                            Text(state.serverInfo.name).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
+                            Text(verbatim: model.meetingTitle).font(.caption2).foregroundStyle(.secondary).lineLimit(1)
                         }
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel([state.roomName(state.media?.roomID ?? "main"), state.serverInfo.name].joined(separator: ", "))
+                    .accessibilityLabel([state.roomName(state.media?.roomID ?? "main"), model.meetingTitle].joined(separator: ", "))
                     .accessibilityHint("房间与成员")
                 }
                 ToolbarItem(placement: .topBarTrailing) { E2EEBadge() }
@@ -184,7 +181,6 @@ struct ControlBar: View {
                     Task { await model.setMuted(!muted) }
                 }
                 .accessibilityIdentifier("mute")
-                .popoverTip(VoiceTip())
                 let camOn = model.media.cameraOn
                 CircleControl(title: camOn ? L("关闭摄像头") : L("开启摄像头"), caption: L("摄像头"), icon: camOn ? "video.fill" : "video.slash.fill",
                               fill: camOn ? .accentColor : nil) {
@@ -193,13 +189,9 @@ struct ControlBar: View {
                 let sharing = model.media.isSharing
                 CircleControl(title: sharing ? L("停止共享") : L("共享屏幕"), caption: sharing ? L("停止共享") : L("共享"),
                               icon: sharing ? "rectangle.on.rectangle.slash" : "rectangle.on.rectangle", fill: sharing ? .red : nil) {
-                    if sharing { Task { await model.media.stopScreenShare() } } else {
-                        ShareTip().invalidate(reason: .actionPerformed)
-                        sheet = .share
-                    }
+                    if sharing { Task { await model.media.stopScreenShare() } } else { sheet = .share }
                 }
                 .accessibilityIdentifier("share")
-                .popoverTip(ShareTip())
                 CircleControl(title: L("聊天"), icon: "bubble.left.and.bubble.right.fill", badge: model.unread) {
                     sheet = .chat
                 }
@@ -501,7 +493,7 @@ struct SettingsSheet: View {
 
     /// 服务器名称和控制连接延迟
     private var detail: String {
-        let name = model.session.state.serverInfo.name
+        let name = model.meetingTitle
         guard let rtt = model.session.rttMs else { return name }
         return "\(name) · \(rtt) ms"
     }

@@ -27,7 +27,7 @@
 - **No sign-up**: pick a nickname and connect. Your identity is a key generated on your device, and admins hand out roles with privilege tokens.
 - **Screen sharing that stays readable**: resolution, frame rate and bitrate adapt to what you share, so documents and code stay sharp and videos and games stay smooth.
 - **AI noise suppression**: keyboard clicks, barking dogs and background voices are removed on your own device (DeepFilterNet3).
-- **End-to-end encryption**: optional per room, or required server-wide. Compare safety codes to make sure nobody was secretly added.
+- **End-to-end encryption**: optional per room, or required server-wide; covers voice, video, screen shares and chat. Compare safety codes to make sure nobody was secretly added.
 - **Rooms and moderation**: a main room plus temporary rooms with passwords and locks; moderators can mute, move, kick and ban, and every admin action is logged.
 - **Light on resources**: a single Go binary with a built-in media server. Voice for 20 people needs about 3 Mbps of upload bandwidth.
 

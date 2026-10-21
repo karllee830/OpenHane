@@ -2,6 +2,9 @@
 
 export const DEFAULT_PORT = 9800;
 
+/** 地址里没写端口（也没写协议）时依次尝试的端口，排在前面的优先 */
+export const FALLBACK_PORTS = [DEFAULT_PORT, 443];
+
 export interface ServerAddress {
   host: string; // IPv6 不带方括号
   port: number;
@@ -9,6 +12,8 @@ export interface ServerAddress {
   invite?: string;
   /** 是否使用 TLS（wss）。只有显式写 http:// / ws:// 时为 false（本机开发、反向代理之后） */
   secure: boolean;
+  /** 没写协议也没写端口：连接时同时尝试 FALLBACK_PORTS，port 只是第一个候选 */
+  portImplicit?: boolean;
 }
 
 export class AddressError extends Error {}
@@ -36,10 +41,14 @@ export function parseAddress(input: string): ServerAddress {
   s = s.replace(/\/.*$/, '');
   let host: string;
   let port = DEFAULT_PORT;
+  let portImplicit = true;
   const v6 = /^\[([0-9a-f:.]+)\](?::(\d+))?$/i.exec(s);
   if (v6) {
     host = v6[1]!;
-    if (v6[2]) port = Number(v6[2]);
+    if (v6[2]) {
+      port = Number(v6[2]);
+      portImplicit = false;
+    }
   } else if ((s.match(/:/g) ?? []).length > 1) {
     host = s; // 裸 IPv6，没有端口
   } else {
@@ -48,10 +57,16 @@ export function parseAddress(input: string): ServerAddress {
     if (p !== undefined) {
       if (!/^\d+$/.test(p)) throw new AddressError('invalid port');
       port = Number(p);
+      portImplicit = false;
     }
   }
   if (!host || port < 1 || port > 65535) throw new AddressError('invalid address');
-  return { host, port, invite, secure };
+  return portImplicit ? { host, port, invite, secure, portImplicit } : { host, port, invite, secure };
+}
+
+/** 连接时要尝试的地址，按优先级排列 */
+export function candidateAddresses(a: ServerAddress): ServerAddress[] {
+  return a.portImplicit ? FALLBACK_PORTS.map((port) => ({ ...a, port })) : [a];
 }
 
 export function hostPort(a: ServerAddress): string {
@@ -61,6 +76,11 @@ export function hostPort(a: ServerAddress): string {
 /** 控制协议地址 */
 export function controlUrl(a: ServerAddress): string {
   return `${a.secure ? 'wss' : 'ws'}://${hostPort(a)}/ws`;
+}
+
+/** HTTP 接口地址（聊天图片等）：与控制连接同一 host:port */
+export function httpBase(a: ServerAddress): string {
+  return `${a.secure ? 'https' : 'http'}://${hostPort(a)}`;
 }
 
 /** 媒体（LiveKit）地址：与控制连接同一 host:port */

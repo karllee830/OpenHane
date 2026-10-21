@@ -2,6 +2,7 @@
 package signal
 
 import (
+	"encoding/binary"
 	"log/slog"
 	"sync"
 	"sync/atomic"
@@ -20,6 +21,8 @@ const (
 	writeTimeout  = 10 * time.Second
 	// IdleTimeout：45 秒内没收到任何数据即判定断线（客户端每 15 秒发一次 Ping）。
 	IdleTimeout = 45 * time.Second
+	// rttInterval：服务端发 WebSocket 协议层 ping 测往返延迟的间隔（浏览器和系统库都会自动回 pong）
+	rttInterval = 10 * time.Second
 )
 
 // Conn 是一个控制连接。Send / Close 并发安全且不阻塞。
@@ -34,13 +37,47 @@ type Conn struct {
 	closeOnce sync.Once
 	closed    atomic.Bool
 	goodbye   []byte // Close 时要发送的 Goodbye 帧
+
+	rtt atomic.Int64 // 最近一次测得的往返延迟（纳秒），0 表示还没测到
 }
 
 func newConn(ws *websocket.Conn, log *slog.Logger) *Conn {
 	ws.SetReadLimit(MaxFrameBytes)
 	c := &Conn{ws: ws, log: log, out: make(chan []byte, sendQueueLen), closing: make(chan struct{}), done: make(chan struct{})}
+	ws.SetPongHandler(func(data string) error {
+		if len(data) == 8 {
+			sent := time.Unix(0, int64(binary.BigEndian.Uint64([]byte(data))))
+			if d := time.Since(sent); d > 0 && d < time.Minute {
+				c.rtt.Store(int64(d))
+			}
+		}
+		return nil
+	})
 	go c.writeLoop()
+	go c.pingLoop()
 	return c
+}
+
+// RTT 返回最近一次测得的往返延迟，0 表示还没测到。
+func (c *Conn) RTT() time.Duration { return time.Duration(c.rtt.Load()) }
+
+// pingLoop 定时发送带发送时间的 ping 帧，收到 pong 时由 SetPongHandler 计算往返延迟
+func (c *Conn) pingLoop() {
+	t := time.NewTicker(rttInterval)
+	defer t.Stop()
+	for {
+		var b [8]byte
+		binary.BigEndian.PutUint64(b[:], uint64(time.Now().UnixNano()))
+		// WriteControl 可以和 writeLoop 的 WriteMessage 并发调用
+		if c.ws.WriteControl(websocket.PingMessage, b[:], time.Now().Add(writeTimeout)) != nil {
+			return
+		}
+		select {
+		case <-t.C:
+		case <-c.closing:
+			return
+		}
+	}
 }
 
 // Send 序列化并放入发送队列（在调用方协程中序列化，消息可以共享子对象）。

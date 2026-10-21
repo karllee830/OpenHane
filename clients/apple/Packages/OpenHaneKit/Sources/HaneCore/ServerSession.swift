@@ -3,6 +3,17 @@ import Foundation
 import Observation
 import SwiftProtobuf
 
+/// 端到端加密房间里聊天的加解密，由媒体层的密钥管理器提供（它持有自己和各成员的媒体密钥）。
+/// 正文是 ChatPlaintext 的编码，见 proto 的 EncryptedChat
+@MainActor
+public protocol ChatCipher: AnyObject {
+    var chatRoomID: String { get }
+    /// 用自己当前发送用的密钥加密；密钥还没准备好时返回 nil
+    func sealChat(_ plaintext: Data) -> Openhane_V1_EncryptedChat?
+    /// 解密一条消息；还没有发送者的这把密钥、或者解不开时返回 nil
+    func openChat(_ m: Openhane_V1_ChatMessage) -> Data?
+}
+
 /// 一个服务器连接：握手鉴权、请求 / 响应、事件归并到状态、心跳、断线自动恢复。
 /// 与 Web 客户端 core/client.ts 的行为保持一致。
 @MainActor
@@ -48,6 +59,8 @@ public final class ServerSession {
     @ObservationIgnored public private(set) var keyExchange = Curve25519.KeyAgreement.PrivateKey()
     @ObservationIgnored private var conn: ControlConnection?
     @ObservationIgnored private var resumeTicket = Data()
+    /// HTTP 接口（聊天图片）的凭据，Welcome 里下发
+    @ObservationIgnored var apiToken = ""
     @ObservationIgnored private var nextID: UInt32 = 1
     @ObservationIgnored private var pending: [UInt32: CheckedContinuation<Openhane_V1_Response, Error>] = [:]
     @ObservationIgnored private var tasks: [Task<Void, Never>] = []
@@ -58,6 +71,18 @@ public final class ServerSession {
     /// 端到端加密的密钥包：密钥管理器开始接收之前到达的先存起来（见 setKeyPackageSink）
     @ObservationIgnored private var keyInbox: [Openhane_V1_KeyPackage] = []
     @ObservationIgnored private var keySink: (id: UUID, fn: (Openhane_V1_KeyPackage) -> Void)?
+    @ObservationIgnored private weak var chatCipher: (any ChatCipher)?
+    /// 聊天图片的传输节奏：媒体连接期间由媒体层设置（媒体拥堵时放慢），没有时不限速
+    @ObservationIgnored public weak var transferPacer: (any TransferPacer)?
+    /// 还解不开的加密消息（房间 → 消息 ID → 消息），不显示；收到密钥后重试
+    @ObservationIgnored private var hiddenChat: [String: [Int64: ChatMessage]] = [:]
+    /// 每个房间收到过的最早的消息 ID（含解不开的），「加载更早的消息」从这里往前翻
+    @ObservationIgnored private var oldestChat: [String: Int64] = [:]
+    /// 加密图片的解密信息（图片 ID → 密钥），来自解密后的消息或自己的上传
+    @ObservationIgnored var imageKeys: [String: Openhane_V1_EncryptedImageKey] = [:]
+    @ObservationIgnored private var imageKeyOrder: [String] = []
+    static let hiddenChatKeep = 300
+    static let imageKeysKeep = 500
 
     public init(trust: TrustStore, seeds: SeedStore, client: ClientIdentity) {
         self.trust = trust
@@ -103,6 +128,7 @@ public final class ServerSession {
         keyExchange = Curve25519.KeyAgreement.PrivateKey()
         keyInbox = []
         resumeTicket = Data()
+        apiToken = ""
         state = SessionState()
         status = .connecting
         do {
@@ -147,14 +173,39 @@ public final class ServerSession {
         }
     }
 
+    /// 建立控制连接（到 WebSocket 升级完成为止）。地址没写端口时同时尝试几个端口、按优先级选一个。
+    private func dial(_ target: ServerAddress) async throws -> (ServerAddress, ControlConnection) {
+        let trust = trust
+        let attempts = target.candidates.map { a in
+            { @Sendable () async throws -> (ServerAddress, ControlConnection) in
+                let c = ControlConnection(url: a.controlURL, hostPort: a.hostPort, trust: trust)
+                do {
+                    try await withTaskCancellationHandler { try await c.open() } onCancel: { c.close() }
+                } catch {
+                    c.close()
+                    throw error
+                }
+                return (a, c)
+            }
+        }
+        return try await firstByPriority(attempts, grace: .milliseconds(500),
+                                         decisive: { if case .fingerprintChanged = $0 as? HaneError { true } else { false } },
+                                         discard: { $0.1.close() })
+    }
+
     private func open() async throws {
-        guard let address else { return }
+        guard let target = address else { return }
         generation += 1
         let gen = generation
-        let c = ControlConnection(url: address.controlURL, hostPort: address.hostPort, trust: trust)
+        // 选中的端口写回 address，之后断线重连只用这个端口
+        let (address, c) = try await dial(target)
+        guard gen == generation else {
+            c.close()
+            throw HaneError.connectionLost
+        }
+        self.address = address
         conn = c
         let welcome = try await withTimeout(seconds: 10) { [self] in
-            try await c.open()
             try await c.send(.with {
                 $0.clientHello = .with {
                     $0.protocolVersion = 1
@@ -214,7 +265,14 @@ public final class ServerSession {
 
     private func onWelcome(_ w: Openhane_V1_Welcome, connection c: ControlConnection, generation gen: Int) {
         resumeTicket = w.resumeTicket
+        apiToken = w.apiToken
         state.apply(welcome: w, mediaURL: address!.mediaURL)
+        if !w.resumed {
+            hiddenChat = [:]
+            oldestChat = [:]
+            imageKeys = [:]
+            imageKeyOrder = []
+        }
         status = .connected
         lastReceived = Date()
         let room = w.autoJoin.roomID
@@ -310,6 +368,7 @@ public final class ServerSession {
             if r.hasError { cont.resume(throwing: HaneError.from(r.error)) } else { cont.resume(returning: r) }
         case let .event(ev):
             state.apply(event: ev)
+            if case let .chatMessage(m) = ev.body, m.hasEncrypted { addChat(room: m.roomID, [m]) }
             // 被主持人移动、房间关闭等：事件附带新房间的媒体令牌，媒体会话据此直接切换
             if case let .youWereMoved(m) = ev.body, let address { state.apply(join: m.joined, mediaURL: address.mediaURL) }
             if case let .keyPackage(k) = ev.body {
@@ -338,13 +397,13 @@ public final class ServerSession {
 
     // MARK: 请求
 
-    /// 发送请求并等待响应（10 秒超时）；失败时抛出 HaneError。
-    public func request(_ body: Openhane_V1_Request.OneOf_Body) async throws -> Openhane_V1_Response {
+    /// 发送请求并等待响应（默认 10 秒超时）；失败时抛出 HaneError。
+    public func request(_ body: Openhane_V1_Request.OneOf_Body, timeout: Double = 10) async throws -> Openhane_V1_Response {
         guard let c = conn, status == .connected else { throw HaneError.connectionLost }
         let id = nextID
         nextID &+= 1
         let req = Openhane_V1_Envelope.with { $0.request = .with { $0.id = id; $0.body = body } }
-        return try await withTimeout(seconds: 10, onTimeout: { [weak self] in self?.pending[id] = nil }) { [self] in
+        return try await withTimeout(seconds: timeout, onTimeout: { [weak self] in self?.pending[id] = nil }) { [self] in
             try await withCheckedThrowingContinuation { cont in
                 pending[id] = cont
                 Task {
@@ -374,14 +433,99 @@ public final class ServerSession {
         }))
     }
 
-    public func sendChat(_ text: String) async throws {
+    /// 发送聊天消息。imageID 是 uploadChatImage 返回的图片（有图片时 text 可以为空）。
+    /// 端到端加密房间里，加密还没准备好（媒体连接、密钥交换未完成）时抛出 HaneError.e2eeNotReady
+    public func sendChat(_ text: String, imageID: String = "") async throws {
         let room = state.media?.roomID ?? "main"
-        let r = try await request(.sendChat(.with {
+        var msg = Openhane_V1_SendChat.with {
             $0.roomID = room
             $0.text = text
             $0.clientMsgID = UUID().uuidString
-        }))
-        if case let .sendChat(s) = r.body { state.mergeChat(room: room, [s.message]) }
+            $0.imageID = imageID
+        }
+        if state.rooms[room]?.e2Ee == true {
+            var plain = Openhane_V1_ChatPlaintext()
+            plain.text = text
+            if !imageID.isEmpty {
+                guard let k = imageKeys[imageID] else { throw ChatImageError.failed }
+                plain.image = k
+            }
+            guard let c = chatCipher, c.chatRoomID == room, let sealed = try c.sealChat(plain.serializedData()) else { throw HaneError.e2eeNotReady }
+            msg.text = ""
+            msg.encrypted = sealed
+        }
+        let r = try await request(.sendChat(msg))
+        if case let .sendChat(s) = r.body { addChat(room: room, [s.message]) }
+    }
+
+    /// 设置端到端加密聊天的加解密（进入加密房间、密钥管理器启动后），并重试还解不开的消息。返回取消函数
+    public func setChatCipher(_ c: any ChatCipher) -> () -> Void {
+        chatCipher = c
+        retryEncryptedChat()
+        return { [weak self, weak c] in
+            if let self, self.chatCipher === c { self.chatCipher = nil }
+        }
+    }
+
+    /// 重新尝试解密还解不开的消息（密钥管理器收到新密钥后调用）
+    public func retryEncryptedChat() {
+        guard let room = chatCipher?.chatRoomID, let held = hiddenChat[room], !held.isEmpty else { return }
+        addChat(room: room, Array(held.values))
+    }
+
+    /// 把收到的消息放进状态：加密的先解密，解不开的暂存起来不显示（收到密钥后重试）。
+    /// 解密后的消息 text 换成正文，图片补上解密信息里的宽高（显示前的清洗由 mergeChat 负责）
+    private func addChat(room: String, _ msgs: [ChatMessage]) {
+        var shown: [ChatMessage] = []
+        var held = hiddenChat[room] ?? [:]
+        for m in msgs {
+            if m.id < oldestChat[room, default: .max] { oldestChat[room] = m.id }
+            guard m.hasEncrypted else {
+                shown.append(m)
+                continue
+            }
+            if let plain = decryptChat(m) {
+                held[m.id] = nil
+                shown.append(plain)
+            } else {
+                held[m.id] = m
+            }
+        }
+        if held.count > Self.hiddenChatKeep {
+            for id in held.keys.sorted().prefix(held.count - Self.hiddenChatKeep) { held[id] = nil }
+        }
+        hiddenChat[room] = held
+        if !shown.isEmpty { state.mergeChat(room: room, shown) }
+    }
+
+    private func decryptChat(_ m: ChatMessage) -> ChatMessage? {
+        guard let c = chatCipher, c.chatRoomID == m.roomID, let raw = c.openChat(m),
+              let p = try? Openhane_V1_ChatPlaintext(serializedBytes: raw)
+        else { return nil }
+        var out = m
+        out.text = p.text
+        let k = p.image
+        // 图片的解密信息不合格（或消息没带图片）：只显示文字
+        if m.hasImage, p.hasImage, k.key.count == 32, k.digest.count == 32, ["image/png", "image/jpeg"].contains(k.mime),
+           ChatImages.validSize(k.width, k.height)
+        {
+            rememberImageKey(m.image.id, k)
+            out.image.width = k.width
+            out.image.height = k.height
+        } else {
+            out.clearImage()
+        }
+        return out.text.isEmpty && !out.hasImage ? nil : out
+    }
+
+    func rememberImageKey(_ id: String, _ k: Openhane_V1_EncryptedImageKey) {
+        if imageKeys.updateValue(k, forKey: id) == nil { imageKeyOrder.append(id) }
+        while imageKeyOrder.count > Self.imageKeysKeep { imageKeys[imageKeyOrder.removeFirst()] = nil }
+    }
+
+    /// 加载更早的一页聊天（从收到过的最早一条往前，包括解不开、没显示的加密消息）
+    public func loadOlderChat(room: String) async throws {
+        try await loadChatHistory(room: room, before: oldestChat[room] ?? 0)
     }
 
     /// 加载 beforeID 之前的一页聊天（0 表示最新一页）。
@@ -392,7 +536,7 @@ public final class ServerSession {
             $0.limit = 50
         }))
         guard case let .getChatHistory(h) = r.body else { return }
-        state.mergeChat(room: room, h.messages)
+        addChat(room: room, h.messages)
         if beforeID != 0 || state.chatHasMore[room] == nil { state.chatHasMore[room] = h.hasMore_p }
     }
 
@@ -591,6 +735,18 @@ public extension ServerSession {
             $0.uid = uid
             $0.role = role
         }))
+    }
+
+    /// 在线会话的 IP、归属地和往返延迟
+    func sessionInfo(_ sessionID: String) async throws -> Openhane_V1_GetSessionInfoResult {
+        let r = try await request(.getSessionInfo(.with { $0.sessionID = sessionID }))
+        if case let .getSessionInfo(x) = r.body { return x }
+        return .init()
+    }
+
+    /// 让服务器下载 IPv6 归属地库（约 37 MB），完成后才返回
+    func downloadIPv6GeoDB() async throws {
+        _ = try await request(.downloadIpv6GeoDb(.init()), timeout: 600)
     }
 
     func listBans() async throws -> [Openhane_V1_BanInfo] {

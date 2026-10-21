@@ -1,5 +1,5 @@
 import { MediaSession, aiNoiseAvailable, type AudioPrefs } from '@hane/media';
-import { CircleAlert } from 'lucide-react';
+import { CircleAlert, Settings } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 import { Dialog } from '../components/Dialog';
 import { UpdateSettings } from '../components/Updates';
@@ -20,6 +20,8 @@ export function keyLabel(code: string): string {
 
 function LevelMeter() {
   const local = useLevels((s) => s.local);
+  // 还没进入会议：没有麦克风电平可显示
+  if (!local) return null;
   const toPct = (db: number) => Math.max(0, Math.min(100, ((db + 80) / 80) * 100));
   return (
     <div className="relative h-3 overflow-hidden rounded bg-surface-2" aria-hidden>
@@ -39,7 +41,7 @@ export function SettingsDialog({ open, onOpenChange, pttKey, onPttKey }: {
   const { media, platform } = useServices();
   const prefs = useMedia((s) => s.prefs);
   const ns = useLevels((s) => s.local?.ns);
-  const [devices, setDevices] = useState<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[] }>({ inputs: [], outputs: [] });
+  const [devices, setDevices] = useState<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[]; cameras: MediaDeviceInfo[] }>({ inputs: [], outputs: [], cameras: [] });
   const [capturing, setCapturing] = useState(false);
   const nsHint = useId();
 
@@ -92,6 +94,41 @@ export function SettingsDialog({ open, onOpenChange, pttKey, onPttKey }: {
             <select className={select} value={prefs.outputDeviceId} onChange={(e) => set({ outputDeviceId: e.target.value })}>
               <option value="default">{t('settings.default')}</option>
               {devices.outputs.filter((d) => d.deviceId !== 'default' && d.deviceId).map((d) => (
+                <option key={d.deviceId} value={d.deviceId}>
+                  {d.label || d.deviceId.slice(0, 8)}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
+        <div className="grid grid-cols-2 gap-4">
+          {([
+            ['inputVolume', t('audio.inputVolume')],
+            ['outputVolume', t('audio.outputVolume')],
+          ] as const).map(([key, label]) => (
+            <label key={key} className="block">
+              <span className="flex justify-between">
+                {label}
+                <span className="text-muted tabular-nums">{Math.round((prefs[key] ?? 1) * 100)}%</span>
+              </span>
+              <input
+                type="range"
+                min={0}
+                max={200}
+                step={5}
+                value={Math.round((prefs[key] ?? 1) * 100)}
+                onChange={(e) => set({ [key]: Number(e.target.value) / 100 })}
+                className="mt-1 w-full accent-[var(--color-accent)]"
+              />
+            </label>
+          ))}
+        </div>
+        {devices.cameras.length > 0 && (
+          <label className="block">
+            {t('settings.camera')}
+            <select className={select} value={prefs.cameraDeviceId ?? 'default'} onChange={(e) => set({ cameraDeviceId: e.target.value })} data-testid="camera-select">
+              <option value="default">{t('settings.default')}</option>
+              {devices.cameras.filter((d) => d.deviceId !== 'default' && d.deviceId).map((d) => (
                 <option key={d.deviceId} value={d.deviceId}>
                   {d.label || d.deviceId.slice(0, 8)}
                 </option>
@@ -190,5 +227,35 @@ export function SettingsDialog({ open, onOpenChange, pttKey, onPttKey }: {
         </div>
       </div>
     </Dialog>
+  );
+}
+
+/** 主页和加入页右上角的设置按钮（还没进入会议时也能选设备和降噪） */
+export function SettingsButton() {
+  const t = useT();
+  const { platform } = useServices();
+  const [open, setOpen] = useState(false);
+  const [pttKey, setPttKey] = useState(() => platform.storage.get<string>(PTT_KEY_STORAGE) ?? DEFAULT_PTT_KEY);
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className="flex size-9 items-center justify-center rounded-lg text-muted transition hover:bg-surface-2 hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        aria-label={t('settings.title')}
+        title={t('settings.title')}
+        data-testid="home-settings"
+      >
+        <Settings size={18} aria-hidden />
+      </button>
+      <SettingsDialog
+        open={open}
+        onOpenChange={setOpen}
+        pttKey={pttKey}
+        onPttKey={(k) => {
+          setPttKey(k);
+          platform.storage.set(PTT_KEY_STORAGE, k);
+        }}
+      />
+    </>
   );
 }

@@ -5,7 +5,7 @@ import type { TrayActionMsg, TrayStateMsg } from '../shared/ipc';
 /** 托盘 / 菜单栏图标：静音、关闭声音、显示主窗口、离开、退出。 */
 export class AppTray {
   private tray: Tray;
-  private state: TrayStateMsg = { connected: false, muted: false, deafened: false };
+  private state: TrayStateMsg = { connected: false, meeting: false, muted: false, deafened: false };
 
   constructor(
     private readonly resources: string,

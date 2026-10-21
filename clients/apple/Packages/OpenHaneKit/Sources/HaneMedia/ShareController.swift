@@ -79,6 +79,8 @@ final class ShareController {
     private var stopping = false
     /// 正在换编码器（取消发布 → 重新发布）：这期间不调整发送参数
     private var republishing = false
+    /// 语音或摄像头吃紧时让路：按更低的上行带宽调整（见 HaneCore/TrafficPolicy.swift）
+    private var yieldUplink = false
 
     init(session: ServerSession, room: LiveKit.Room, capture: ShareCapture, onStatus: @escaping @MainActor (ShareStatus?) -> Void) {
         self.session = session
@@ -212,9 +214,19 @@ final class ShareController {
                          e2ee: grant.e2Ee, prefer: intent == .custom ? custom?.codec : nil) ?? CodecChoice(codec: .h264, backup: nil)
     }
 
+    static func encoding(_ p: ShareParams) -> VideoEncoding {
+        VideoEncoding(maxBitrate: p.maxKbps * 1000, maxFps: p.fps, bitratePriority: .low, networkPriority: .low)
+    }
+
+    /// 语音或摄像头吃紧时让路（每秒由媒体会话根据流量优先级设置）
+    func setYield(_ on: Bool) {
+        yieldUplink = on
+    }
+
     static func publishOptions(_ choice: CodecChoice, _ p: ShareParams) -> VideoPublishOptions {
         VideoPublishOptions(
-            screenShareEncoding: VideoEncoding(maxBitrate: p.maxKbps * 1000, maxFps: p.fps),
+            // 屏幕共享的优先级低于语音和摄像头
+            screenShareEncoding: Self.encoding(p),
             simulcast: false,
             preferredCodec: videoCodec(choice.codec),
             preferredBackupCodec: choice.backup.map(videoCodec),
@@ -295,6 +307,8 @@ final class ShareController {
             // 往返时间用接收报告（约每秒一次）里的值：候选地址对的往返时间要 5 秒左右才更新一次
             if let rtt = stats.remoteInboundRtpStream.first?.roundTripTime { rttMs = rtt * 1000 }
         }
+        // 让路：告诉引擎的可用带宽比现在实际发出的低三成，引擎随之降低码率，直到语音和摄像头恢复正常
+        if yieldUplink { uplinkKbps = min(uplinkKbps, (s.sentKbps > 0 ? Double(s.sentKbps) : uplinkKbps) * 0.7) }
         let sig = capture.signals() ?? (0, 0) // 没有变化信号时按静止处理
         let p = engine.update(ShareSignals(t: nowMs(), changedAreaRatio: sig.area, changeFps: sig.fps, uplinkKbps: uplinkKbps,
                                            qualityLimitation: limitation, thermal: Self.thermal(),
@@ -316,7 +330,7 @@ final class ShareController {
         if applied?.width != p.width || applied?.height != p.height || applied?.fps != p.fps {
             await capture.apply(width: p.width, height: p.height, fps: p.fps)
         }
-        await publication.setVideoEncoding(VideoEncoding(maxBitrate: p.maxKbps * 1000, maxFps: p.fps),
+        await publication.setVideoEncoding(Self.encoding(p),
                                            degradationPreference: Self.degradation(p))
         applied = p
     }

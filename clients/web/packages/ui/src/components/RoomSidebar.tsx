@@ -1,5 +1,5 @@
 // 房间侧栏：所有房间及成员；点击房间进入，拖拽成员到房间即可移动（主持人），
-// 成员菜单里是音量和主持操作，房间菜单里是编辑、全员静音和关闭。
+// 成员菜单（左键或右键打开）里是音量、主持操作、设为管理员和连接信息，房间菜单里是编辑、全员静音和关闭。
 import type { Participant, Room } from '@hane/protocol';
 import { ModerationAction, Role, RoomKind } from '@hane/protocol';
 import * as DM from '@radix-ui/react-dropdown-menu';
@@ -19,6 +19,8 @@ import {
   Pencil,
   Plus,
   ShieldCheck,
+  ShieldMinus,
+  ShieldPlus,
   Trash2,
   Undo2,
   UserX,
@@ -34,6 +36,7 @@ import { useT } from '../i18n';
 import { useClient, useLevels, useMedia, useServices } from '../services';
 import { Avatar } from './Avatar';
 import { YouTag } from './MeetingBits';
+import { IPv6GeoDialog, MemberInfo } from './MemberInfo';
 import { RoleBadge, StatusIcons } from './ParticipantList';
 
 const DRAG_TYPE = 'application/x-hane-session';
@@ -89,6 +92,8 @@ function MemberRow({ p, self, onNotice, onModerate }: {
   const kick = perms.canKick(p);
   const draggable = self || kick;
   const [menuOpen, setMenuOpen] = useState(false);
+  const [geoDialog, setGeoDialog] = useState(false);
+  const admin = perms.role >= Role.ADMIN;
   const run = (f: () => Promise<unknown>) => void f().catch((e) => onNotice(describeError(e, t)));
 
   const content = (
@@ -123,6 +128,10 @@ function MemberRow({ p, self, onNotice, onModerate }: {
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             onClick={() => setMenuOpen(true)}
+            onContextMenu={(e) => {
+              e.preventDefault();
+              setMenuOpen(true);
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -134,8 +143,11 @@ function MemberRow({ p, self, onNotice, onModerate }: {
           </div>
         </DM.Trigger>
         <DM.Portal>
-          <DM.Content side="right" align="start" sideOffset={6} className={menuContent}>
-            <div className="px-2 pb-1 pt-1 text-sm font-medium">{p.nickname}</div>
+          {/* 固定宽度：长名字、长地址都在菜单里截断或滚动，不把菜单撑宽 */}
+          <DM.Content side="right" align="start" sideOffset={6} className={`${menuContent} w-64`}>
+            <div className="truncate px-2 pb-1 pt-1 text-sm font-medium" title={p.nickname}>
+              {p.nickname}
+            </div>
             <label className="block px-2 pb-2 text-xs text-muted">
               {t('member.volume')} · {Math.round(volume * 100)}%
               <input
@@ -150,7 +162,6 @@ function MemberRow({ p, self, onNotice, onModerate }: {
             </label>
             {moderate && (
               <>
-                <DM.Separator className="my-1 h-px bg-border" />
                 {p.forceMuted ? (
                   <MenuItem icon={<Mic size={15} />} onSelect={() => run(() => client.moderate(p.sessionId, ModerationAction.UNMUTE))} testId="mod-unmute">
                     {t('mod.unmute')}
@@ -194,7 +205,6 @@ function MemberRow({ p, self, onNotice, onModerate }: {
                 )}
                 {kick && (
                   <>
-                    <DM.Separator className="my-1 h-px bg-border" />
                     <MenuItem icon={<UserX size={15} />} danger onSelect={() => onModerate(p, 'kick')} testId="mod-kick">
                       {t('mod.kick')}
                     </MenuItem>
@@ -205,9 +215,45 @@ function MemberRow({ p, self, onNotice, onModerate }: {
                 )}
               </>
             )}
+            {admin && (
+              <>
+                {p.role >= Role.ADMIN ? (
+                  <MenuItem
+                    icon={<ShieldMinus size={15} />}
+                    onSelect={() => run(async () => {
+                      await client.setRole(p.uid, Role.MEMBER);
+                      onNotice(t('member.adminUnset', { name: p.nickname }));
+                    })}
+                    testId="mod-unset-admin"
+                  >
+                    {t('member.unsetAdmin')}
+                  </MenuItem>
+                ) : (
+                  <MenuItem
+                    icon={<ShieldPlus size={15} />}
+                    onSelect={() => run(async () => {
+                      await client.setRole(p.uid, Role.ADMIN);
+                      onNotice(t('member.adminSet', { name: p.nickname }));
+                    })}
+                    testId="mod-set-admin"
+                  >
+                    {t('member.setAdmin')}
+                  </MenuItem>
+                )}
+                <MemberInfo
+                  sessionId={p.sessionId}
+                  platform={p.platform}
+                  onDownloadV6={() => {
+                    setMenuOpen(false);
+                    setGeoDialog(true);
+                  }}
+                />
+              </>
+            )}
           </DM.Content>
         </DM.Portal>
       </DM.Root>
+      {geoDialog && <IPv6GeoDialog onClose={() => setGeoDialog(false)} onNotice={onNotice} />}
     </li>
   );
 }

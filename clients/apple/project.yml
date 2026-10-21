@@ -49,7 +49,10 @@ targets:
         SUFeedURL: https://raw.githubusercontent.com/karllee830/OpenHane/appcast/appcast.xml
         SUPublicEDKey: bRSWCf3habpLN343ApqXfBT5mQY8YwYuXn3CO9aLve8=
         SUEnableAutomaticChecks: true
-        CFBundleDisplayName: 羽见 # 英文环境为 OpenHane（各 target 的 InfoPlist.xcstrings）
+        # macOS 的访达和 Dock 只在默认显示名与 .app 文件名一致、且声明了 LSHasLocalizedDisplayName 时
+        # 才使用本地化名称（中文环境为「羽见」，见 InfoPlist.xcstrings）
+        CFBundleDisplayName: OpenHane
+        LSHasLocalizedDisplayName: true
         CFBundleDevelopmentRegion: zh-Hans
         CFBundleLocalizations: [zh-Hans, en]
         LSApplicationCategoryType: public.app-category.social-networking

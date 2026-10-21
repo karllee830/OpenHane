@@ -48,7 +48,9 @@ function Row({ p, self }: { p: Participant; self: boolean }) {
         <DM.Trigger className="w-full rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent">{content}</DM.Trigger>
         <DM.Portal>
           <DM.Content side="right" align="start" sideOffset={6} className="z-50 w-56 rounded-lg border border-border bg-surface p-3 shadow-lg">
-            <div className="mb-2 text-sm font-medium">{p.nickname}</div>
+            <div className="mb-2 truncate text-sm font-medium" title={p.nickname}>
+              {p.nickname}
+            </div>
             <label className="block text-xs text-muted">
               {t('member.volume')} · {Math.round(volume * 100)}%
               <input

@@ -268,8 +268,13 @@ jobs:
       - name: 打包（签名证书配置好之前不签名）
         working-directory: clients/web/apps/desktop
         # uiohook-napi 是 N-API 模块、自带各平台的预编译文件，不需要重新编译（Linux 上编译还需要额外的 X11 开发库）
-        run: npx electron-builder ${{ matrix.args }} --publish never -c.npmRebuild=false
+        run: |
+          args=(${{ matrix.args }})
+          # 正式版另外打 Microsoft Store 用的 AppX（商店只上架正式版）
+          if [[ "$RUNNER_OS" == Windows && "$version" != *-* ]]; then args=(--win nsis appx --x64); fi
+          npx electron-builder "${args[@]}" --publish never -c.npmRebuild=false
         env:
+          version: ${{ needs.version.outputs.version }}
           BUILD_NUMBER: ${{ needs.version.outputs.build }} # Windows 文件版本的第四段
       - uses: actions/upload-artifact@v4
         with:
@@ -281,6 +286,13 @@ jobs:
             clients/web/apps/desktop/release/*.blockmap
             clients/web/apps/desktop/release/latest*.yml
             clients/web/apps/desktop/release/beta*.yml
+      # 商店包手动上传到 Partner Center，不放进 GitHub Release
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows' && !contains(needs.version.outputs.version, '-')
+        with:
+          name: store-appx
+          path: clients/web/apps/desktop/release/*.appx
+          if-no-files-found: error
 
   release:
     name: 创建 GitHub Release

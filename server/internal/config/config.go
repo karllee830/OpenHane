@@ -25,24 +25,25 @@ const (
 )
 
 type Config struct {
-	Port              int
-	TCPFallbackPort   int // 0 表示关闭 ICE-TCP 回退
-	PublicHost        string
-	TLSMode           TLSMode
-	Domain            string
-	ACMEEmail         string
-	TLSCert           string
-	TLSKey            string
-	TrustedProxies    []netip.Prefix
-	STUNServers       []string
-	DataDir           string
-	LogLevel          slog.Level
-	LogFormat         string // text | json
-	Metrics           bool
-	MetricsToken      string
-	BackupKeep        int
-	MediaMode         string // embedded | subprocess
-	InitialServerName string
+	Port            int
+	TCPFallbackPort int // 0 表示关闭 ICE-TCP 回退
+	PublicHost      string
+	TLSMode         TLSMode
+	Domain          string
+	ACMEEmail       string
+	TLSCert         string
+	TLSKey          string
+	TrustedProxies  []netip.Prefix
+	STUNServers     []string
+	DataDir         string
+	LogLevel        slog.Level
+	LogFormat       string // text | json
+	Metrics         bool
+	MetricsToken    string
+	BackupKeep      int
+	MediaMode       string // embedded | subprocess
+	// ServerName 是管理员没有在管理面板里设置名称时用的服务器名称（HANE_SERVER_NAME）
+	ServerName string
 	// ConnPerMinute 单个 IP 每分钟允许的新连接数（0 表示不限）。整个办公室共用一个出口 IP 时需要调大
 	ConnPerMinute int
 }
@@ -90,23 +91,23 @@ func Load(getenv func(string) string) (*Config, error) {
 	}
 
 	c := &Config{
-		Port:              num("HANE_PORT", 9800, 1, 65535),
-		TCPFallbackPort:   num("HANE_TCP_FALLBACK_PORT", 9801, 0, 65535),
-		PublicHost:        str("HANE_PUBLIC_HOST", ""),
-		TLSMode:           TLSMode(str("HANE_TLS_MODE", string(TLSSelfSigned))),
-		Domain:            str("HANE_DOMAIN", ""),
-		ACMEEmail:         str("HANE_ACME_EMAIL", ""),
-		TLSCert:           str("HANE_TLS_CERT", ""),
-		TLSKey:            str("HANE_TLS_KEY", ""),
-		DataDir:           str("HANE_DATA_DIR", "/data"),
-		LogFormat:         str("HANE_LOG_FORMAT", "text"),
-		Metrics:           boolean("HANE_METRICS", false),
-		MetricsToken:      str("HANE_METRICS_TOKEN", ""),
-		BackupKeep:        num("HANE_BACKUP_KEEP", 7, 0, 365),
-		MediaMode:         str("HANE_MEDIA_MODE", "embedded"),
-		InitialServerName: str("HANE_INITIAL_SERVER_NAME", ""),
-		ConnPerMinute:     num("HANE_CONN_PER_MINUTE", 60, 0, 100000),
-		STUNServers:       DefaultSTUNServers,
+		Port:            num("HANE_PORT", 9800, 1, 65535),
+		TCPFallbackPort: num("HANE_TCP_FALLBACK_PORT", 9801, 0, 65535),
+		PublicHost:      str("HANE_PUBLIC_HOST", ""),
+		TLSMode:         TLSMode(str("HANE_TLS_MODE", string(TLSSelfSigned))),
+		Domain:          str("HANE_DOMAIN", ""),
+		ACMEEmail:       str("HANE_ACME_EMAIL", ""),
+		TLSCert:         str("HANE_TLS_CERT", ""),
+		TLSKey:          str("HANE_TLS_KEY", ""),
+		DataDir:         str("HANE_DATA_DIR", "/data"),
+		LogFormat:       str("HANE_LOG_FORMAT", "text"),
+		Metrics:         boolean("HANE_METRICS", false),
+		MetricsToken:    str("HANE_METRICS_TOKEN", ""),
+		BackupKeep:      num("HANE_BACKUP_KEEP", 7, 0, 365),
+		MediaMode:       str("HANE_MEDIA_MODE", "embedded"),
+		ServerName:      str("HANE_SERVER_NAME", ""),
+		ConnPerMinute:   num("HANE_CONN_PER_MINUTE", 60, 0, 100000),
+		STUNServers:     DefaultSTUNServers,
 	}
 
 	if v := str("HANE_STUN_SERVERS", ""); v != "" {

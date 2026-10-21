@@ -14,6 +14,8 @@ export function describeError(err: unknown, t: Translate, serverUrl = ''): strin
       return t('error.protocol');
     case LocalErrorCode.CONNECTION_LOST:
       return t('error.lost');
+    case LocalErrorCode.E2EE_NOT_READY:
+      return t('error.e2eeNotReady');
     case LocalErrorCode.FINGERPRINT_CHANGED:
     case ErrorCode.TLS_MITM_SUSPECTED:
       return t('error.mitm');

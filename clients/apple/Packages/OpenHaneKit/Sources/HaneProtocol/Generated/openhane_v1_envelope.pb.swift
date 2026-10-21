@@ -379,6 +379,22 @@ public nonisolated struct Openhane_V1_Request: Sendable {
     set {body = .revokeInvite(newValue)}
   }
 
+  public var getSessionInfo: Openhane_V1_GetSessionInfo {
+    get {
+      if case .getSessionInfo(let v)? = body {return v}
+      return Openhane_V1_GetSessionInfo()
+    }
+    set {body = .getSessionInfo(newValue)}
+  }
+
+  public var downloadIpv6GeoDb: Openhane_V1_DownloadIPv6GeoDB {
+    get {
+      if case .downloadIpv6GeoDb(let v)? = body {return v}
+      return Openhane_V1_DownloadIPv6GeoDB()
+    }
+    set {body = .downloadIpv6GeoDb(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public nonisolated enum OneOf_Body: Equatable, Sendable {
@@ -412,6 +428,8 @@ public nonisolated struct Openhane_V1_Request: Sendable {
     case createInvite(Openhane_V1_CreateInvite)
     case listInvites(Openhane_V1_ListInvites)
     case revokeInvite(Openhane_V1_RevokeInvite)
+    case getSessionInfo(Openhane_V1_GetSessionInfo)
+    case downloadIpv6GeoDb(Openhane_V1_DownloadIPv6GeoDB)
 
   }
 
@@ -683,6 +701,22 @@ public nonisolated struct Openhane_V1_Response: @unchecked Sendable {
     set {_uniqueStorage()._body = .revokeInvite(newValue)}
   }
 
+  public var getSessionInfo: Openhane_V1_GetSessionInfoResult {
+    get {
+      if case .getSessionInfo(let v)? = _storage._body {return v}
+      return Openhane_V1_GetSessionInfoResult()
+    }
+    set {_uniqueStorage()._body = .getSessionInfo(newValue)}
+  }
+
+  public var downloadIpv6GeoDb: Openhane_V1_DownloadIPv6GeoDBResult {
+    get {
+      if case .downloadIpv6GeoDb(let v)? = _storage._body {return v}
+      return Openhane_V1_DownloadIPv6GeoDBResult()
+    }
+    set {_uniqueStorage()._body = .downloadIpv6GeoDb(newValue)}
+  }
+
   public var unknownFields = SwiftProtobuf.UnknownStorage()
 
   public nonisolated enum OneOf_Body: Equatable, Sendable {
@@ -716,6 +750,8 @@ public nonisolated struct Openhane_V1_Response: @unchecked Sendable {
     case createInvite(Openhane_V1_CreateInviteResult)
     case listInvites(Openhane_V1_ListInvitesResult)
     case revokeInvite(Openhane_V1_RevokeInviteResult)
+    case getSessionInfo(Openhane_V1_GetSessionInfoResult)
+    case downloadIpv6GeoDb(Openhane_V1_DownloadIPv6GeoDBResult)
 
   }
 
@@ -725,133 +761,139 @@ public nonisolated struct Openhane_V1_Response: @unchecked Sendable {
 }
 
 /// 服务端主动推送的事件，seq 按会话递增，用于断线恢复时补发。
-public nonisolated struct Openhane_V1_Event: Sendable {
+public nonisolated struct Openhane_V1_Event: @unchecked Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
   // methods supported on all messages.
 
-  public var seq: UInt64 = 0
+  public var seq: UInt64 {
+    get {_storage._seq}
+    set {_uniqueStorage()._seq = newValue}
+  }
 
-  public var body: Openhane_V1_Event.OneOf_Body? = nil
+  public var body: OneOf_Body? {
+    get {return _storage._body}
+    set {_uniqueStorage()._body = newValue}
+  }
 
   public var participantJoined: Openhane_V1_ParticipantJoined {
     get {
-      if case .participantJoined(let v)? = body {return v}
+      if case .participantJoined(let v)? = _storage._body {return v}
       return Openhane_V1_ParticipantJoined()
     }
-    set {body = .participantJoined(newValue)}
+    set {_uniqueStorage()._body = .participantJoined(newValue)}
   }
 
   public var participantLeft: Openhane_V1_ParticipantLeft {
     get {
-      if case .participantLeft(let v)? = body {return v}
+      if case .participantLeft(let v)? = _storage._body {return v}
       return Openhane_V1_ParticipantLeft()
     }
-    set {body = .participantLeft(newValue)}
+    set {_uniqueStorage()._body = .participantLeft(newValue)}
   }
 
   public var participantUpdated: Openhane_V1_ParticipantUpdated {
     get {
-      if case .participantUpdated(let v)? = body {return v}
+      if case .participantUpdated(let v)? = _storage._body {return v}
       return Openhane_V1_ParticipantUpdated()
     }
-    set {body = .participantUpdated(newValue)}
+    set {_uniqueStorage()._body = .participantUpdated(newValue)}
   }
 
   public var roomCreated: Openhane_V1_RoomCreated {
     get {
-      if case .roomCreated(let v)? = body {return v}
+      if case .roomCreated(let v)? = _storage._body {return v}
       return Openhane_V1_RoomCreated()
     }
-    set {body = .roomCreated(newValue)}
+    set {_uniqueStorage()._body = .roomCreated(newValue)}
   }
 
   public var roomUpdated: Openhane_V1_RoomUpdated {
     get {
-      if case .roomUpdated(let v)? = body {return v}
+      if case .roomUpdated(let v)? = _storage._body {return v}
       return Openhane_V1_RoomUpdated()
     }
-    set {body = .roomUpdated(newValue)}
+    set {_uniqueStorage()._body = .roomUpdated(newValue)}
   }
 
   public var roomClosed: Openhane_V1_RoomClosed {
     get {
-      if case .roomClosed(let v)? = body {return v}
+      if case .roomClosed(let v)? = _storage._body {return v}
       return Openhane_V1_RoomClosed()
     }
-    set {body = .roomClosed(newValue)}
+    set {_uniqueStorage()._body = .roomClosed(newValue)}
   }
 
   public var youWereMoved: Openhane_V1_YouWereMoved {
     get {
-      if case .youWereMoved(let v)? = body {return v}
+      if case .youWereMoved(let v)? = _storage._body {return v}
       return Openhane_V1_YouWereMoved()
     }
-    set {body = .youWereMoved(newValue)}
+    set {_uniqueStorage()._body = .youWereMoved(newValue)}
   }
 
   public var moderationNotice: Openhane_V1_ModerationNotice {
     get {
-      if case .moderationNotice(let v)? = body {return v}
+      if case .moderationNotice(let v)? = _storage._body {return v}
       return Openhane_V1_ModerationNotice()
     }
-    set {body = .moderationNotice(newValue)}
+    set {_uniqueStorage()._body = .moderationNotice(newValue)}
   }
 
   public var chatMessage: Openhane_V1_ChatMessage {
     get {
-      if case .chatMessage(let v)? = body {return v}
+      if case .chatMessage(let v)? = _storage._body {return v}
       return Openhane_V1_ChatMessage()
     }
-    set {body = .chatMessage(newValue)}
+    set {_uniqueStorage()._body = .chatMessage(newValue)}
   }
 
   public var roleChanged: Openhane_V1_RoleChanged {
     get {
-      if case .roleChanged(let v)? = body {return v}
+      if case .roleChanged(let v)? = _storage._body {return v}
       return Openhane_V1_RoleChanged()
     }
-    set {body = .roleChanged(newValue)}
+    set {_uniqueStorage()._body = .roleChanged(newValue)}
   }
 
   public var policyUpdated: Openhane_V1_PolicyUpdated {
     get {
-      if case .policyUpdated(let v)? = body {return v}
+      if case .policyUpdated(let v)? = _storage._body {return v}
       return Openhane_V1_PolicyUpdated()
     }
-    set {body = .policyUpdated(newValue)}
+    set {_uniqueStorage()._body = .policyUpdated(newValue)}
   }
 
   public var shareStateChanged: Openhane_V1_ShareStateChanged {
     get {
-      if case .shareStateChanged(let v)? = body {return v}
+      if case .shareStateChanged(let v)? = _storage._body {return v}
       return Openhane_V1_ShareStateChanged()
     }
-    set {body = .shareStateChanged(newValue)}
+    set {_uniqueStorage()._body = .shareStateChanged(newValue)}
   }
 
   public var keyPackage: Openhane_V1_KeyPackage {
     get {
-      if case .keyPackage(let v)? = body {return v}
+      if case .keyPackage(let v)? = _storage._body {return v}
       return Openhane_V1_KeyPackage()
     }
-    set {body = .keyPackage(newValue)}
+    set {_uniqueStorage()._body = .keyPackage(newValue)}
   }
 
   public var serverInfoUpdated: Openhane_V1_ServerInfoUpdated {
     get {
-      if case .serverInfoUpdated(let v)? = body {return v}
+      if case .serverInfoUpdated(let v)? = _storage._body {return v}
       return Openhane_V1_ServerInfoUpdated()
     }
-    set {body = .serverInfoUpdated(newValue)}
+    set {_uniqueStorage()._body = .serverInfoUpdated(newValue)}
   }
 
   public var serverNotice: Openhane_V1_ServerNotice {
     get {
-      if case .serverNotice(let v)? = body {return v}
+      if case .serverNotice(let v)? = _storage._body {return v}
       return Openhane_V1_ServerNotice()
     }
-    set {body = .serverNotice(newValue)}
+    set {_uniqueStorage()._body = .serverNotice(newValue)}
   }
 
   public var unknownFields = SwiftProtobuf.UnknownStorage()
@@ -876,6 +918,8 @@ public nonisolated struct Openhane_V1_Event: Sendable {
   }
 
   public init() {}
+
+  fileprivate var _storage = _StorageClass.defaultInstance
 }
 
 /// 应用层心跳：浏览器拿不到 WebSocket 协议层的 ping 帧。客户端每 15 秒发一次。
@@ -1139,7 +1183,7 @@ nonisolated extension Openhane_V1_Envelope: SwiftProtobuf.Message, SwiftProtobuf
 
 nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Request"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{9}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{4}\u{9}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0\u{3}get_session_info\0\u{3}download_ipv6_geo_db\0")
 
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
     while let fieldNumber = try decoder.nextFieldNumber() {
@@ -1538,6 +1582,32 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
           self.body = .revokeInvite(v)
         }
       }()
+      case 114: try {
+        var v: Openhane_V1_GetSessionInfo?
+        var hadOneofValue = false
+        if let current = self.body {
+          hadOneofValue = true
+          if case .getSessionInfo(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.body = .getSessionInfo(v)
+        }
+      }()
+      case 115: try {
+        var v: Openhane_V1_DownloadIPv6GeoDB?
+        var hadOneofValue = false
+        if let current = self.body {
+          hadOneofValue = true
+          if case .downloadIpv6GeoDb(let m) = current {v = m}
+        }
+        try decoder.decodeSingularMessageField(value: &v)
+        if let v = v {
+          if hadOneofValue {try decoder.handleConflictingOneOf()}
+          self.body = .downloadIpv6GeoDb(v)
+        }
+      }()
       default: break
       }
     }
@@ -1672,6 +1742,14 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
       guard case .revokeInvite(let v)? = self.body else { preconditionFailure() }
       try visitor.visitSingularMessageField(value: v, fieldNumber: 113)
     }()
+    case .getSessionInfo?: try {
+      guard case .getSessionInfo(let v)? = self.body else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 114)
+    }()
+    case .downloadIpv6GeoDb?: try {
+      guard case .downloadIpv6GeoDb(let v)? = self.body else { preconditionFailure() }
+      try visitor.visitSingularMessageField(value: v, fieldNumber: 115)
+    }()
     case nil: break
     }
     try unknownFields.traverse(visitor: &visitor)
@@ -1687,7 +1765,7 @@ nonisolated extension Openhane_V1_Request: SwiftProtobuf.Message, SwiftProtobuf.
 
 nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
   public static let protoMessageName: String = _protobuf_package + ".Response"
-  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}error\0\u{4}\u{8}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0")
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}id\0\u{1}error\0\u{4}\u{8}join_room\0\u{3}update_self\0\u{3}create_room\0\u{3}update_room\0\u{3}close_room\0\u{3}move_participant\0\u{3}recall_all\0\u{1}moderate\0\u{3}mute_all\0\u{4}\u{c}send_chat\0\u{3}get_chat_history\0\u{4}\u{9}redeem_token\0\u{4}\u{a}request_screen_share\0\u{3}release_screen_share\0\u{3}join_share_media\0\u{4}\u{8}send_key_package\0\u{4}(get_settings\0\u{3}update_settings\0\u{3}create_token\0\u{3}list_tokens\0\u{3}revoke_token\0\u{3}set_role\0\u{3}list_identities\0\u{3}list_bans\0\u{3}add_ban\0\u{3}remove_ban\0\u{3}get_audit_log\0\u{3}create_invite\0\u{3}list_invites\0\u{3}revoke_invite\0\u{3}get_session_info\0\u{3}download_ipv6_geo_db\0")
 
   fileprivate class _StorageClass {
     var _id: UInt32 = 0
@@ -2116,6 +2194,32 @@ nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf
             _storage._body = .revokeInvite(v)
           }
         }()
+        case 114: try {
+          var v: Openhane_V1_GetSessionInfoResult?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .getSessionInfo(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .getSessionInfo(v)
+          }
+        }()
+        case 115: try {
+          var v: Openhane_V1_DownloadIPv6GeoDBResult?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .downloadIpv6GeoDb(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .downloadIpv6GeoDb(v)
+          }
+        }()
         default: break
         }
       }
@@ -2255,6 +2359,14 @@ nonisolated extension Openhane_V1_Response: SwiftProtobuf.Message, SwiftProtobuf
         guard case .revokeInvite(let v)? = _storage._body else { preconditionFailure() }
         try visitor.visitSingularMessageField(value: v, fieldNumber: 113)
       }()
+      case .getSessionInfo?: try {
+        guard case .getSessionInfo(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 114)
+      }()
+      case .downloadIpv6GeoDb?: try {
+        guard case .downloadIpv6GeoDb(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 115)
+      }()
       case nil: break
       }
     }
@@ -2282,290 +2394,328 @@ nonisolated extension Openhane_V1_Event: SwiftProtobuf.Message, SwiftProtobuf._M
   public static let protoMessageName: String = _protobuf_package + ".Event"
   public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}seq\0\u{4}\u{9}participant_joined\0\u{3}participant_left\0\u{3}participant_updated\0\u{3}room_created\0\u{3}room_updated\0\u{3}room_closed\0\u{3}you_were_moved\0\u{3}moderation_notice\0\u{4}\u{d}chat_message\0\u{4}\u{a}role_changed\0\u{4}\u{a}policy_updated\0\u{3}share_state_changed\0\u{4}\u{9}key_package\0\u{4}(server_info_updated\0\u{3}server_notice\0")
 
+  fileprivate class _StorageClass {
+    var _seq: UInt64 = 0
+    var _body: Openhane_V1_Event.OneOf_Body?
+
+      // This property is used as the initial default value for new instances of the type.
+      // The type itself is protecting the reference to its storage via CoW semantics.
+      // This will force a copy to be made of this reference when the first mutation occurs;
+      // hence, it is safe to mark this as `nonisolated(unsafe)`.
+      static nonisolated(unsafe) let defaultInstance = _StorageClass()
+
+    private init() {}
+
+    init(copying source: _StorageClass) {
+      _seq = source._seq
+      _body = source._body
+    }
+  }
+
+  fileprivate mutating func _uniqueStorage() -> _StorageClass {
+    if !isKnownUniquelyReferenced(&_storage) {
+      _storage = _StorageClass(copying: _storage)
+    }
+    return _storage
+  }
+
   public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
-    while let fieldNumber = try decoder.nextFieldNumber() {
-      // The use of inline closures is to circumvent an issue where the compiler
-      // allocates stack space for every case branch when no optimizations are
-      // enabled. https://github.com/apple/swift-protobuf/issues/1034
-      switch fieldNumber {
-      case 1: try { try decoder.decodeSingularUInt64Field(value: &self.seq) }()
-      case 10: try {
-        var v: Openhane_V1_ParticipantJoined?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .participantJoined(let m) = current {v = m}
+    _ = _uniqueStorage()
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      while let fieldNumber = try decoder.nextFieldNumber() {
+        // The use of inline closures is to circumvent an issue where the compiler
+        // allocates stack space for every case branch when no optimizations are
+        // enabled. https://github.com/apple/swift-protobuf/issues/1034
+        switch fieldNumber {
+        case 1: try { try decoder.decodeSingularUInt64Field(value: &_storage._seq) }()
+        case 10: try {
+          var v: Openhane_V1_ParticipantJoined?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .participantJoined(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .participantJoined(v)
+          }
+        }()
+        case 11: try {
+          var v: Openhane_V1_ParticipantLeft?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .participantLeft(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .participantLeft(v)
+          }
+        }()
+        case 12: try {
+          var v: Openhane_V1_ParticipantUpdated?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .participantUpdated(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .participantUpdated(v)
+          }
+        }()
+        case 13: try {
+          var v: Openhane_V1_RoomCreated?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .roomCreated(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .roomCreated(v)
+          }
+        }()
+        case 14: try {
+          var v: Openhane_V1_RoomUpdated?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .roomUpdated(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .roomUpdated(v)
+          }
+        }()
+        case 15: try {
+          var v: Openhane_V1_RoomClosed?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .roomClosed(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .roomClosed(v)
+          }
+        }()
+        case 16: try {
+          var v: Openhane_V1_YouWereMoved?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .youWereMoved(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .youWereMoved(v)
+          }
+        }()
+        case 17: try {
+          var v: Openhane_V1_ModerationNotice?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .moderationNotice(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .moderationNotice(v)
+          }
+        }()
+        case 30: try {
+          var v: Openhane_V1_ChatMessage?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .chatMessage(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .chatMessage(v)
+          }
+        }()
+        case 40: try {
+          var v: Openhane_V1_RoleChanged?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .roleChanged(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .roleChanged(v)
+          }
+        }()
+        case 50: try {
+          var v: Openhane_V1_PolicyUpdated?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .policyUpdated(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .policyUpdated(v)
+          }
+        }()
+        case 51: try {
+          var v: Openhane_V1_ShareStateChanged?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .shareStateChanged(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .shareStateChanged(v)
+          }
+        }()
+        case 60: try {
+          var v: Openhane_V1_KeyPackage?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .keyPackage(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .keyPackage(v)
+          }
+        }()
+        case 100: try {
+          var v: Openhane_V1_ServerInfoUpdated?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .serverInfoUpdated(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .serverInfoUpdated(v)
+          }
+        }()
+        case 101: try {
+          var v: Openhane_V1_ServerNotice?
+          var hadOneofValue = false
+          if let current = _storage._body {
+            hadOneofValue = true
+            if case .serverNotice(let m) = current {v = m}
+          }
+          try decoder.decodeSingularMessageField(value: &v)
+          if let v = v {
+            if hadOneofValue {try decoder.handleConflictingOneOf()}
+            _storage._body = .serverNotice(v)
+          }
+        }()
+        default: break
         }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .participantJoined(v)
-        }
-      }()
-      case 11: try {
-        var v: Openhane_V1_ParticipantLeft?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .participantLeft(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .participantLeft(v)
-        }
-      }()
-      case 12: try {
-        var v: Openhane_V1_ParticipantUpdated?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .participantUpdated(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .participantUpdated(v)
-        }
-      }()
-      case 13: try {
-        var v: Openhane_V1_RoomCreated?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .roomCreated(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .roomCreated(v)
-        }
-      }()
-      case 14: try {
-        var v: Openhane_V1_RoomUpdated?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .roomUpdated(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .roomUpdated(v)
-        }
-      }()
-      case 15: try {
-        var v: Openhane_V1_RoomClosed?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .roomClosed(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .roomClosed(v)
-        }
-      }()
-      case 16: try {
-        var v: Openhane_V1_YouWereMoved?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .youWereMoved(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .youWereMoved(v)
-        }
-      }()
-      case 17: try {
-        var v: Openhane_V1_ModerationNotice?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .moderationNotice(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .moderationNotice(v)
-        }
-      }()
-      case 30: try {
-        var v: Openhane_V1_ChatMessage?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .chatMessage(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .chatMessage(v)
-        }
-      }()
-      case 40: try {
-        var v: Openhane_V1_RoleChanged?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .roleChanged(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .roleChanged(v)
-        }
-      }()
-      case 50: try {
-        var v: Openhane_V1_PolicyUpdated?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .policyUpdated(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .policyUpdated(v)
-        }
-      }()
-      case 51: try {
-        var v: Openhane_V1_ShareStateChanged?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .shareStateChanged(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .shareStateChanged(v)
-        }
-      }()
-      case 60: try {
-        var v: Openhane_V1_KeyPackage?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .keyPackage(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .keyPackage(v)
-        }
-      }()
-      case 100: try {
-        var v: Openhane_V1_ServerInfoUpdated?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .serverInfoUpdated(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .serverInfoUpdated(v)
-        }
-      }()
-      case 101: try {
-        var v: Openhane_V1_ServerNotice?
-        var hadOneofValue = false
-        if let current = self.body {
-          hadOneofValue = true
-          if case .serverNotice(let m) = current {v = m}
-        }
-        try decoder.decodeSingularMessageField(value: &v)
-        if let v = v {
-          if hadOneofValue {try decoder.handleConflictingOneOf()}
-          self.body = .serverNotice(v)
-        }
-      }()
-      default: break
       }
     }
   }
 
   public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
-    // The use of inline closures is to circumvent an issue where the compiler
-    // allocates stack space for every if/case branch local when no optimizations
-    // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
-    // https://github.com/apple/swift-protobuf/issues/1182
-    if self.seq != 0 {
-      try visitor.visitSingularUInt64Field(value: self.seq, fieldNumber: 1)
-    }
-    switch self.body {
-    case .participantJoined?: try {
-      guard case .participantJoined(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
-    }()
-    case .participantLeft?: try {
-      guard case .participantLeft(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
-    }()
-    case .participantUpdated?: try {
-      guard case .participantUpdated(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
-    }()
-    case .roomCreated?: try {
-      guard case .roomCreated(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
-    }()
-    case .roomUpdated?: try {
-      guard case .roomUpdated(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
-    }()
-    case .roomClosed?: try {
-      guard case .roomClosed(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
-    }()
-    case .youWereMoved?: try {
-      guard case .youWereMoved(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
-    }()
-    case .moderationNotice?: try {
-      guard case .moderationNotice(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
-    }()
-    case .chatMessage?: try {
-      guard case .chatMessage(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 30)
-    }()
-    case .roleChanged?: try {
-      guard case .roleChanged(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 40)
-    }()
-    case .policyUpdated?: try {
-      guard case .policyUpdated(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 50)
-    }()
-    case .shareStateChanged?: try {
-      guard case .shareStateChanged(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 51)
-    }()
-    case .keyPackage?: try {
-      guard case .keyPackage(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 60)
-    }()
-    case .serverInfoUpdated?: try {
-      guard case .serverInfoUpdated(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 100)
-    }()
-    case .serverNotice?: try {
-      guard case .serverNotice(let v)? = self.body else { preconditionFailure() }
-      try visitor.visitSingularMessageField(value: v, fieldNumber: 101)
-    }()
-    case nil: break
+    try withExtendedLifetime(_storage) { (_storage: _StorageClass) in
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every if/case branch local when no optimizations
+      // are enabled. https://github.com/apple/swift-protobuf/issues/1034 and
+      // https://github.com/apple/swift-protobuf/issues/1182
+      if _storage._seq != 0 {
+        try visitor.visitSingularUInt64Field(value: _storage._seq, fieldNumber: 1)
+      }
+      switch _storage._body {
+      case .participantJoined?: try {
+        guard case .participantJoined(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 10)
+      }()
+      case .participantLeft?: try {
+        guard case .participantLeft(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 11)
+      }()
+      case .participantUpdated?: try {
+        guard case .participantUpdated(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 12)
+      }()
+      case .roomCreated?: try {
+        guard case .roomCreated(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 13)
+      }()
+      case .roomUpdated?: try {
+        guard case .roomUpdated(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 14)
+      }()
+      case .roomClosed?: try {
+        guard case .roomClosed(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 15)
+      }()
+      case .youWereMoved?: try {
+        guard case .youWereMoved(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 16)
+      }()
+      case .moderationNotice?: try {
+        guard case .moderationNotice(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 17)
+      }()
+      case .chatMessage?: try {
+        guard case .chatMessage(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 30)
+      }()
+      case .roleChanged?: try {
+        guard case .roleChanged(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 40)
+      }()
+      case .policyUpdated?: try {
+        guard case .policyUpdated(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 50)
+      }()
+      case .shareStateChanged?: try {
+        guard case .shareStateChanged(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 51)
+      }()
+      case .keyPackage?: try {
+        guard case .keyPackage(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 60)
+      }()
+      case .serverInfoUpdated?: try {
+        guard case .serverInfoUpdated(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 100)
+      }()
+      case .serverNotice?: try {
+        guard case .serverNotice(let v)? = _storage._body else { preconditionFailure() }
+        try visitor.visitSingularMessageField(value: v, fieldNumber: 101)
+      }()
+      case nil: break
+      }
     }
     try unknownFields.traverse(visitor: &visitor)
   }
 
   public static func ==(lhs: Openhane_V1_Event, rhs: Openhane_V1_Event) -> Bool {
-    if lhs.seq != rhs.seq {return false}
-    if lhs.body != rhs.body {return false}
+    if lhs._storage !== rhs._storage {
+      let storagesAreEqual: Bool = withExtendedLifetime((lhs._storage, rhs._storage)) { (_args: (_StorageClass, _StorageClass)) in
+        let _storage = _args.0
+        let rhs_storage = _args.1
+        if _storage._seq != rhs_storage._seq {return false}
+        if _storage._body != rhs_storage._body {return false}
+        return true
+      }
+      if !storagesAreEqual {return false}
+    }
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

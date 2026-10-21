@@ -2,9 +2,23 @@
 // 每个人给自己的媒体流生成一把随机密钥，用 HPKE 分别加密发给房间里的每个成员；服务器只中转密钥包，无法解开。
 // - 进入加密房间：生成密钥（索引 0）发给所有人；之后有人进来，把当前密钥发给他；
 // - 有人离开：轮换自己的密钥（索引 +1）并重新分发，约 1 秒后切换到新密钥发送（旧密钥仍可解密路上的包）；
-// - 收到别人的密钥包：解开后交给帧解密器；收到之前对方的画面和声音无法解密（界面显示「正在建立加密…」）。
-import { keyPackageAAD, newMediaKey, openKeyPackage, safetyCode, sealKeyPackage, verifyE2EEKey, type OpenHaneClient } from '@hane/core';
-import { SendKeyPackageSchema, create, type Participant } from '@hane/protocol';
+// - 收到别人的密钥包：解开后交给帧解密器；收到之前对方的画面和声音无法解密（界面显示「正在建立加密…」）；
+// - 聊天：用发送者媒体密钥派生的聊天密钥加解密（ChatCipher），收到新密钥后让客户端重试还解不开的消息。
+import {
+  chatAAD,
+  chatKey,
+  keyPackageAAD,
+  newMediaKey,
+  openChat,
+  openKeyPackage,
+  safetyCodeFromDigest,
+  safetyDigest,
+  sealChat,
+  sealKeyPackage,
+  verifyE2EEKey,
+  type OpenHaneClient,
+} from '@hane/core';
+import { EncryptedChatSchema, SendKeyPackageSchema, create, type ChatMessage, type Participant } from '@hane/protocol';
 import { BaseKeyProvider, createKeyMaterialFromBuffer } from 'livekit-client';
 import { createStore } from 'zustand/vanilla';
 
@@ -15,8 +29,8 @@ export const ROTATE_SWITCH_MS = 1000;
 
 export interface E2EEState {
   enabled: boolean;
-  /** 安全码（所有人相同即说明大家看到的成员列表一致） */
-  safetyCode: string | null;
+  /** 安全码：8 个 emoji 的序号（SAFETY_EMOJI）。所有人相同即说明大家看到的成员列表一致；计算中为 null */
+  safetyCode: number[] | null;
   /** 自己当前发送使用的密钥索引 */
   keyIndex: number;
   /** 还没收到其密钥的成员（session id → true） */
@@ -54,6 +68,10 @@ export class E2EEKeys {
   private unsubs: (() => void)[] = [];
   private switchTimer: ReturnType<typeof setTimeout> | null = null;
   private stopped = false;
+  /** 聊天密钥：发送者 session id → 密钥索引 → 密钥（包括自己的）。离开的人的也留着，已收到的历史消息还要用 */
+  private chatKeys = new Map<string, Map<number, Promise<CryptoKey>>>();
+  /** 当前安全码对应的成员（safetyDigest 的 hex）：成员没变就不重新计算 */
+  private safetyInput = '';
 
   constructor(private readonly client: OpenHaneClient) {}
 
@@ -65,9 +83,11 @@ export class E2EEKeys {
     this.myIndex = 0;
     this.myKey = newMediaKey();
     await this.provider.setParticipantKey(localIdentity, this.myKey, 0);
+    this.addChatKey(this.selfId, 0, this.myKey);
     this.members = this.currentMembers();
     this.state.setState({ enabled: true, keyIndex: 0 });
     this.unsubs.push(
+      this.client.setChatCipher({ roomId, seal: (p) => this.sealChat(p), open: (m) => this.openChat(m) }),
       // 进入房间前（媒体连接建立期间）到达的密钥包由控制连接暂存，这里一并取出
       this.client.setKeyPackageSink(roomId, (k) => void this.onKeyPackage(k)),
       this.client.store.subscribe((s, prev) => {
@@ -83,6 +103,7 @@ export class E2EEKeys {
     for (const u of this.unsubs) u();
     this.unsubs = [];
     if (this.switchTimer) clearTimeout(this.switchTimer);
+    this.safetyInput = '';
     this.state.setState({ enabled: false, safetyCode: null, missing: {} });
   }
 
@@ -112,6 +133,7 @@ export class E2EEKeys {
     const key = newMediaKey();
     this.myIndex = index;
     this.myKey = key;
+    this.addChatKey(this.selfId, index, key);
     const startedAt = performance.now();
     this.state.setState({ lastRotation: { startedAt, switchedAt: null, index } });
     await Promise.all([...this.members].map((id) => this.sendTo(id)));
@@ -161,6 +183,8 @@ export class E2EEKeys {
     try {
       const key = await openKeyPackage(kx.privateKey, k.enc, k.ciphertext, keyPackageAAD(k.roomId, k.fromSessionId, this.selfId, k.keyIndex));
       await this.provider.setParticipantKey(from.mediaIdentity, key, k.keyIndex);
+      this.addChatKey(k.fromSessionId, k.keyIndex, key);
+      void this.client.retryEncryptedChat();
       // 第一次收到对方的密钥：回发一次自己的当前密钥。对方进入房间时我们发的包可能在它开始监听之前就到了（被丢弃）
       const first = !this.haveKeyFrom.has(k.fromSessionId);
       this.haveKeyFrom.add(k.fromSessionId);
@@ -171,13 +195,42 @@ export class E2EEKeys {
     }
   }
 
-  /** 重新计算安全码和「还没收到密钥」的成员 */
+  private addChatKey(sessionId: string, index: number, mediaKey: Uint8Array) {
+    let keys = this.chatKeys.get(sessionId);
+    if (!keys) this.chatKeys.set(sessionId, (keys = new Map()));
+    keys.set(index, chatKey(mediaKey));
+  }
+
+  /** 用自己当前发送用的密钥（与媒体帧相同的索引）加密聊天 */
+  private async sealChat(plaintext: Uint8Array) {
+    const index = this.state.getState().keyIndex;
+    const key = this.chatKeys.get(this.selfId)?.get(index);
+    if (this.stopped || !key) return null;
+    const { nonce, ciphertext } = await sealChat(await key, chatAAD(this.roomId, this.selfId, index), plaintext);
+    return create(EncryptedChatSchema, { keyIndex: index, nonce, ciphertext });
+  }
+
+  private async openChat(m: ChatMessage) {
+    const e = m.encrypted;
+    const key = e && this.chatKeys.get(m.senderSessionId)?.get(e.keyIndex);
+    if (!e || !key) return null;
+    return openChat(await key, chatAAD(m.roomId, m.senderSessionId, e.keyIndex), e.nonce, e.ciphertext).catch(() => null);
+  }
+
+  /** 更新「还没收到密钥」的成员；成员变了时重新计算安全码（要算零点几秒，期间显示为计算中） */
   private async refresh() {
     const s = this.client.store.getState();
-    const room = Object.values(s.participants).filter((p) => p.roomId === this.roomId);
-    const code = await safetyCode(room.map((p) => ({ uid: p.uid, publicKey: p.publicKey })));
     const missing: Record<string, boolean> = {};
     for (const id of this.members) if (!this.haveKeyFrom.has(id)) missing[id] = true;
-    this.state.setState({ safetyCode: code, missing });
+    this.state.setState({ missing });
+    const room = Object.values(s.participants).filter((p) => p.roomId === this.roomId);
+    const digest = await safetyDigest(room.map((p) => ({ uid: p.uid, publicKey: p.publicKey })));
+    const input = Array.from(digest, (b) => b.toString(16).padStart(2, '0')).join('');
+    if (input === this.safetyInput || this.stopped) return;
+    this.safetyInput = input;
+    this.state.setState({ safetyCode: null });
+    const code = await safetyCodeFromDigest(digest);
+    // 计算期间成员又变了：以后一次为准
+    if (input === this.safetyInput && !this.stopped) this.state.setState({ safetyCode: code });
   }
 }

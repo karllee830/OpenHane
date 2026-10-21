@@ -11,7 +11,6 @@ struct OpenHaneApp: App {
         if ProcessInfo.processInfo.environment["HANE_E2E"] == "1" {
             try? AudioManager.shared.setManualRenderingMode(true)
         }
-        OnboardingTips.configure()
     }
 
     var body: some Scene {
@@ -43,8 +42,7 @@ struct RootView: View {
     private func autoconnect() async {
         guard let spec = DevHooks.environment["HANE_AUTOCONNECT"] else { return }
         let parts = spec.split(separator: "|", maxSplits: 1).map(String.init)
-        if parts.count == 2 { model.nickname = parts[1] }
-        await model.connect(address: parts[0], password: "")
+        await model.connect(address: parts[0], password: "", nickname: parts.count == 2 ? parts[1] : nil)
     }
 }
 

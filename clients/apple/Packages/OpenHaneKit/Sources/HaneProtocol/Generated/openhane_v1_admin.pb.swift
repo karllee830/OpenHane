@@ -268,6 +268,73 @@ public nonisolated struct Openhane_V1_ListIdentitiesResult: Sendable {
   public init() {}
 }
 
+/// 在线会话的连接信息：IP、归属地（服务端内置的离线库）和控制连接的往返延迟。
+public nonisolated struct Openhane_V1_GetSessionInfo: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var sessionID: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+public nonisolated struct Openhane_V1_GetSessionInfoResult: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var ip: String = String()
+
+  /// 归属地，查不到的部分为空；名称是中文
+  public var country: String = String()
+
+  public var province: String = String()
+
+  public var city: String = String()
+
+  public var isp: String = String()
+
+  /// 0 表示还没测到
+  public var rttMs: UInt32 = 0
+
+  /// IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+  public var ipv6DbMissing: Bool = false
+
+  /// 客户端自报的版本号（客户端类型见 Participant.platform）
+  public var appVersion: String = String()
+
+  /// ISO 3166-1 两位国家代码（大写，如 CN），客户端据此显示国旗；查不到时为空
+  public var countryCode: String = String()
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+/// 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。
+public nonisolated struct Openhane_V1_DownloadIPv6GeoDB: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
+public nonisolated struct Openhane_V1_DownloadIPv6GeoDBResult: Sendable {
+  // SwiftProtobuf.Message conformance is added in an extension below. See the
+  // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
+  // methods supported on all messages.
+
+  public var unknownFields = SwiftProtobuf.UnknownStorage()
+
+  public init() {}
+}
+
 public nonisolated struct Openhane_V1_ServerInfoUpdated: Sendable {
   // SwiftProtobuf.Message conformance is added in an extension below. See the
   // `Message` and `Message+*Additions` files in the SwiftProtobuf library for
@@ -890,6 +957,144 @@ nonisolated extension Openhane_V1_ListIdentitiesResult: SwiftProtobuf.Message, S
   public static func ==(lhs: Openhane_V1_ListIdentitiesResult, rhs: Openhane_V1_ListIdentitiesResult) -> Bool {
     if lhs.identities != rhs.identities {return false}
     if lhs.total != rhs.total {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_GetSessionInfo: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".GetSessionInfo"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{3}session_id\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.sessionID) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.sessionID.isEmpty {
+      try visitor.visitSingularStringField(value: self.sessionID, fieldNumber: 1)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_GetSessionInfo, rhs: Openhane_V1_GetSessionInfo) -> Bool {
+    if lhs.sessionID != rhs.sessionID {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_GetSessionInfoResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".GetSessionInfoResult"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap(bytecode: "\0\u{1}ip\0\u{1}country\0\u{1}province\0\u{1}city\0\u{1}isp\0\u{3}rtt_ms\0\u{3}ipv6_db_missing\0\u{3}app_version\0\u{3}country_code\0")
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    while let fieldNumber = try decoder.nextFieldNumber() {
+      // The use of inline closures is to circumvent an issue where the compiler
+      // allocates stack space for every case branch when no optimizations are
+      // enabled. https://github.com/apple/swift-protobuf/issues/1034
+      switch fieldNumber {
+      case 1: try { try decoder.decodeSingularStringField(value: &self.ip) }()
+      case 2: try { try decoder.decodeSingularStringField(value: &self.country) }()
+      case 3: try { try decoder.decodeSingularStringField(value: &self.province) }()
+      case 4: try { try decoder.decodeSingularStringField(value: &self.city) }()
+      case 5: try { try decoder.decodeSingularStringField(value: &self.isp) }()
+      case 6: try { try decoder.decodeSingularUInt32Field(value: &self.rttMs) }()
+      case 7: try { try decoder.decodeSingularBoolField(value: &self.ipv6DbMissing) }()
+      case 8: try { try decoder.decodeSingularStringField(value: &self.appVersion) }()
+      case 9: try { try decoder.decodeSingularStringField(value: &self.countryCode) }()
+      default: break
+      }
+    }
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    if !self.ip.isEmpty {
+      try visitor.visitSingularStringField(value: self.ip, fieldNumber: 1)
+    }
+    if !self.country.isEmpty {
+      try visitor.visitSingularStringField(value: self.country, fieldNumber: 2)
+    }
+    if !self.province.isEmpty {
+      try visitor.visitSingularStringField(value: self.province, fieldNumber: 3)
+    }
+    if !self.city.isEmpty {
+      try visitor.visitSingularStringField(value: self.city, fieldNumber: 4)
+    }
+    if !self.isp.isEmpty {
+      try visitor.visitSingularStringField(value: self.isp, fieldNumber: 5)
+    }
+    if self.rttMs != 0 {
+      try visitor.visitSingularUInt32Field(value: self.rttMs, fieldNumber: 6)
+    }
+    if self.ipv6DbMissing != false {
+      try visitor.visitSingularBoolField(value: self.ipv6DbMissing, fieldNumber: 7)
+    }
+    if !self.appVersion.isEmpty {
+      try visitor.visitSingularStringField(value: self.appVersion, fieldNumber: 8)
+    }
+    if !self.countryCode.isEmpty {
+      try visitor.visitSingularStringField(value: self.countryCode, fieldNumber: 9)
+    }
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_GetSessionInfoResult, rhs: Openhane_V1_GetSessionInfoResult) -> Bool {
+    if lhs.ip != rhs.ip {return false}
+    if lhs.country != rhs.country {return false}
+    if lhs.province != rhs.province {return false}
+    if lhs.city != rhs.city {return false}
+    if lhs.isp != rhs.isp {return false}
+    if lhs.rttMs != rhs.rttMs {return false}
+    if lhs.ipv6DbMissing != rhs.ipv6DbMissing {return false}
+    if lhs.appVersion != rhs.appVersion {return false}
+    if lhs.countryCode != rhs.countryCode {return false}
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_DownloadIPv6GeoDB: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".DownloadIPv6GeoDB"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_DownloadIPv6GeoDB, rhs: Openhane_V1_DownloadIPv6GeoDB) -> Bool {
+    if lhs.unknownFields != rhs.unknownFields {return false}
+    return true
+  }
+}
+
+nonisolated extension Openhane_V1_DownloadIPv6GeoDBResult: SwiftProtobuf.Message, SwiftProtobuf._MessageImplementationBase, SwiftProtobuf._ProtoNameProviding {
+  public static let protoMessageName: String = _protobuf_package + ".DownloadIPv6GeoDBResult"
+  public static let _protobuf_nameMap = SwiftProtobuf._NameMap()
+
+  public mutating func decodeMessage<D: SwiftProtobuf.Decoder>(decoder: inout D) throws {
+    // Load everything into unknown fields
+    while try decoder.nextFieldNumber() != nil {}
+  }
+
+  public func traverse<V: SwiftProtobuf.Visitor>(visitor: inout V) throws {
+    try unknownFields.traverse(visitor: &visitor)
+  }
+
+  public static func ==(lhs: Openhane_V1_DownloadIPv6GeoDBResult, rhs: Openhane_V1_DownloadIPv6GeoDBResult) -> Bool {
     if lhs.unknownFields != rhs.unknownFields {return false}
     return true
   }

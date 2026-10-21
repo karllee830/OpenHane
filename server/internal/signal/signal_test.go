@@ -5,17 +5,21 @@ import (
 	"crypto/ed25519"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
+	"net/http"
 	"net/http/httptest"
 	"slices"
 	"strings"
 	"testing"
 	"time"
 
+	"github.com/karllee830/OpenHane/server/internal/chatimage"
 	"github.com/karllee830/OpenHane/server/internal/client"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/hub"
 	"github.com/karllee830/OpenHane/server/internal/identity"
 	"github.com/karllee830/OpenHane/server/internal/media"
@@ -34,6 +38,9 @@ type env struct {
 	store *store.Store
 	media *media.Fake
 	sig   *signal.Server
+	// base 是 HTTPS 地址（聊天图片接口）；images 是聊天图片目录
+	base   string
+	images *chatimage.Store
 }
 
 func setup(t *testing.T) *env {
@@ -52,19 +59,30 @@ func setup(t *testing.T) *env {
 		t.Fatal(err)
 	}
 	fake := media.NewFake()
+	imgs, err := chatimage.Open(dir, log)
+	if err != nil {
+		t.Fatal(err)
+	}
 	h := hub.New(hub.Options{
 		Store: st, Media: fake, Settings: settings.Defaults(), ServerID: []byte("0123456789abcdef"),
 		Version: "test", ProtocolMin: 1, ProtocolMax: 1, Log: log,
 		HashPassword: settings.HashPassword, ResumeGrace: 300 * time.Millisecond, ShareGrace: 300 * time.Millisecond,
+		GeoIP: geoip.Open(dir, log), Images: imgs,
 	})
 	go h.Run(ctx)
 	sig := signal.NewServer(h, st, tm, log)
-	srv := httptest.NewUnstartedServer(gateway.NewRealIP(nil).Middleware(sig))
+	mux := http.NewServeMux()
+	images := chatimage.Handler(imgs, h, log)
+	mux.Handle("/api/v1/chat/images", images)
+	mux.Handle("/api/v1/chat/images/", images)
+	mux.Handle("/", sig)
+	srv := httptest.NewUnstartedServer(gateway.NewRealIP(nil).Middleware(mux))
 	// 不用 StartTLS：它会塞入 httptest 自己的证书，按 IP 连接（没有 SNI）时优先使用，指纹就对不上了
 	srv.Listener = tls.NewListener(srv.Listener, tm.TLSConfig())
 	srv.Start()
 	t.Cleanup(srv.Close)
-	return &env{t: t, url: "wss://" + srv.Listener.Addr().String() + "/ws", hub: h, store: st, media: fake, sig: sig}
+	return &env{t: t, url: "wss://" + srv.Listener.Addr().String() + "/ws", hub: h, store: st, media: fake, sig: sig,
+		base: "https://" + srv.Listener.Addr().String(), images: imgs}
 }
 
 func seed(n byte) []byte { s := make([]byte, 32); s[0] = n; return s }
@@ -127,8 +145,8 @@ func TestJoinChatAndPresence(t *testing.T) {
 		t.Fatalf("first event seq should be 1, got %d", ev.GetSeq())
 	}
 
-	// 聊天
-	resp, err := b.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: " 你好 ", ClientMsgId: "m1"}}})
+	// 聊天（方向控制符等格式字符被去掉）
+	resp, err := b.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: " 你\u202e好 ", ClientMsgId: "m1"}}})
 	if err != nil || resp.GetSendChat().GetMessage().GetText() != "你好" {
 		t.Fatal(resp, err)
 	}
@@ -140,7 +158,7 @@ func TestJoinChatAndPresence(t *testing.T) {
 	if err != nil || len(hist.GetGetChatHistory().GetMessages()) != 1 {
 		t.Fatal(hist, err)
 	}
-	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: "   "}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
+	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_SendChat{SendChat: &pb.SendChat{RoomId: "main", Text: "  \u200b "}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
 		t.Fatal("empty chat should be rejected", err)
 	}
 	// 聊天限流：每 5 秒 5 条
@@ -182,6 +200,50 @@ func TestJoinChatAndPresence(t *testing.T) {
 	}
 	if _, err := a.Request(ctx(t), &pb.Request{Body: &pb.Request_JoinRoom{JoinRoom: &pb.JoinRoom{RoomId: "nope"}}}); client.Code(err) != pb.ErrorCode_ERROR_CODE_ROOM_NOT_FOUND {
 		t.Fatal(err)
+	}
+}
+
+func TestSessionInfo(t *testing.T) {
+	e := setup(t)
+	a := e.mustDial(1, "Owner")
+	b := e.mustDial(2, "Guest")
+	info := func(c *client.Client, id string) (*pb.GetSessionInfoResult, error) {
+		r, err := c.Request(ctx(t), &pb.Request{Body: &pb.Request_GetSessionInfo{GetSessionInfo: &pb.GetSessionInfo{SessionId: id}}})
+		return r.GetGetSessionInfo(), err
+	}
+	// 只有管理员能看
+	if _, err := info(b, a.Welcome.GetSessionId()); client.Code(err) != pb.ErrorCode_ERROR_CODE_PERMISSION_DENIED {
+		t.Fatal(err)
+	}
+	if err := e.store.SetRole(ctx(t), a.Welcome.GetUid(), perm.Admin); err != nil {
+		t.Fatal(err)
+	}
+	if err := e.hub.SetRole(a.Welcome.GetUid(), perm.Admin); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := a.WaitEvent(ctx(t), func(ev *pb.Event) bool { return ev.GetRoleChanged().GetRole() == pb.Role_ROLE_ADMIN }); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := info(a, "nope"); client.Code(err) != pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT {
+		t.Fatal(err)
+	}
+	// 连接建立时服务端立即发出第一个 ping，客户端回 pong 后就有往返延迟
+	deadline := time.Now().Add(3 * time.Second)
+	for {
+		r, err := info(a, b.Welcome.GetSessionId())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if r.GetIp() != "127.0.0.1" || r.GetIpv6DbMissing() || r.GetAppVersion() != "test" {
+			t.Fatalf("info: %v", r)
+		}
+		if r.GetRttMs() > 0 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("no rtt measured: %v", r)
+		}
+		time.Sleep(50 * time.Millisecond)
 	}
 }
 
@@ -560,6 +622,30 @@ func TestRoomDecodableFollowsMembers(t *testing.T) {
 		return strings.Join(ev.GetPolicyUpdated().GetPolicy().GetCodecs().GetRoomDecodable(), ",") == "video/h264"
 	}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// 客户端上报的能力会广播给所有人：不认识的编码器、重复项和超长字符串都不能原样转出去
+func TestJunkCapabilitiesAreDropped(t *testing.T) {
+	e := setup(t)
+	junk := []*pb.CodecCapability{{Mime: "video/H264", Decode: true}, {Mime: "video/h264", Decode: true}}
+	for i := range 500 {
+		junk = append(junk, &pb.CodecCapability{Mime: fmt.Sprintf("video/x-%d-%s", i, strings.Repeat("a", 60)), Decode: true})
+	}
+	a := e.mustDial(1, "Junk", func(o *client.Options) {
+		o.Caps = &pb.Capabilities{HardwareReported: true, Codecs: junk}
+	})
+	b := e.mustDial(2, "Viewer")
+	for _, p := range b.Welcome.GetSnapshot().GetParticipants() {
+		if p.GetSessionId() == a.Welcome.GetSessionId() {
+			if sw := strings.Join(p.GetDecodeSoftware(), ","); sw != "video/h264" || len(p.GetDecodeHardware()) != 0 {
+				t.Fatalf("hw=%v sw=%s", p.GetDecodeHardware(), sw)
+			}
+		}
+	}
+	// 可解码集合只按认识的编码器计算（Viewer 没有上报，按基准集合 H.264 + VP8）
+	if got := strings.Join(b.Welcome.GetAutoJoin().GetPolicy().GetCodecs().GetRoomDecodable(), ","); got != "video/h264" {
+		t.Fatalf("decodable: %s", got)
 	}
 }
 

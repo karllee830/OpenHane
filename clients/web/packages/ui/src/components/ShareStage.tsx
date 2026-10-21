@@ -60,7 +60,8 @@ export function ShareStage({ shares, tracks }: { shares: ShareInfo[]; tracks: Tr
               role="tab"
               aria-selected={s.grantId === current.grantId}
               onClick={() => setSelected(s.grantId)}
-              className={`rounded-t-md px-3 py-1.5 text-sm ${s.grantId === current.grantId ? 'bg-surface-2 font-medium' : 'text-muted'}`}
+              className={`max-w-64 truncate rounded-t-md px-3 py-1.5 text-sm ${s.grantId === current.grantId ? 'bg-surface-2 font-medium' : 'text-muted'}`}
+              title={t('share.of', { name: participants[s.sessionId]?.nickname ?? '?' })}
             >
               {t('share.of', { name: participants[s.sessionId]?.nickname ?? '?' })}
             </button>
@@ -86,7 +87,7 @@ export function ShareStage({ shares, tracks }: { shares: ShareInfo[]; tracks: Tr
         ) : (
           <div className="flex h-full items-center justify-center text-white/60">…</div>
         )}
-        <div className="absolute left-3 bottom-3 rounded bg-black/60 px-2 py-1 text-xs text-white" data-testid="share-label">
+        <div className="absolute left-3 bottom-3 max-w-[calc(100%-1.5rem)] truncate rounded bg-black/60 px-2 py-1 text-xs text-white" data-testid="share-label">
           {t('share.of', { name: sharer?.nickname ?? '?' })}
           {quality && ` · ${quality}`}
         </div>

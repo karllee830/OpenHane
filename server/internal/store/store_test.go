@@ -1,6 +1,7 @@
 package store
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -164,6 +165,18 @@ func TestSettingsChatAuditBans(t *testing.T) {
 	page2, more, _ := s.ChatHistory(ctx, "main", page[0].ID, 3)
 	if len(page2) != 2 || more {
 		t.Fatalf("page2 %d more %v", len(page2), more)
+	}
+	// 加密的消息：密文和发送者的会话 ID 原样存取
+	enc := &ChatMessage{RoomID: "main", SenderName: "A", SenderSession: "s1", EncKeyIndex: 3, EncNonce: []byte{1, 2}, EncCiphertext: []byte{3, 4, 5}}
+	if err := s.InsertChat(ctx, enc); err != nil {
+		t.Fatal(err)
+	}
+	last, _, _ := s.ChatHistory(ctx, "main", 0, 2)
+	if got := last[1]; got.SenderSession != "s1" || got.EncKeyIndex != 3 || !bytes.Equal(got.EncNonce, []byte{1, 2}) || !bytes.Equal(got.EncCiphertext, []byte{3, 4, 5}) {
+		t.Fatalf("encrypted: %+v", got)
+	}
+	if last[0].EncNonce != nil || last[0].SenderSession != "" {
+		t.Fatalf("plain: %+v", last[0])
 	}
 
 	if err := s.InsertAudit(ctx, &AuditEntry{Action: "token.create", Detail: map[string]any{"role": "admin"}}); err != nil {

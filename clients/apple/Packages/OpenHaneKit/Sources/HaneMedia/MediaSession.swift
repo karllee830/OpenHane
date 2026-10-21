@@ -49,6 +49,8 @@ public final class MediaSession {
     public private(set) var localThresholdDb: Double = -55
     public private(set) var transmitting = false
     public private(set) var micError: String?
+    /// 系统里没有音频输入设备（例如没接麦克风的 Mac mini）：不发布麦克风，只能收听。接上设备后自动发布
+    public private(set) var micUnavailable = false
     /// 每人音量（按媒体 identity），0–2，默认 1
     public private(set) var volumes: [String: Double] = [:]
     public var mode: VoiceMode = .voice {
@@ -56,6 +58,14 @@ public final class MediaSession {
     }
     public var manualThresholdDb: Double? {
         didSet { processor.configure(mode: mode, manualThresholdDb: manualThresholdDb) }
+    }
+    /// 麦克风音量（0–2，1 为原始音量）：在发言处理之前调整，电平和语音激活都按调整后的音量算
+    public var inputVolume: Double = 1 {
+        didSet { processor.setInputGain(Float(inputVolume)) }
+    }
+    /// 所有人声音的总音量（0–2），再乘上每个人单独的音量
+    public var outputVolume: Double = 1 {
+        didSet { applyVolumes() }
     }
     /// 降噪档位：AI 降噪在回声消除之后再处理一遍
     public var noiseSuppression: NoiseSuppression = .ai {
@@ -90,6 +100,8 @@ public final class MediaSession {
     public private(set) var e2ee: E2EEKeys?
     /// 媒体连接走的协议（还没连上时为 nil）
     public private(set) var transportProtocol: TransportProtocol?
+    /// 流量优先级的当前判断（诊断和测试用；没有媒体连接时为 nil）
+    public private(set) var traffic: TrafficState?
     /// UDP 不稳定被切到 TCP 的原因（界面提示一次；「始终 TCP」时为 .always）
     public private(set) var tcpSwitched: TransportMonitor.Reason?
 
@@ -126,6 +138,8 @@ public final class MediaSession {
     @ObservationIgnored private var transportTask: Task<Void, Never>?
     /// 已经打开统计的轨道（SDK 每次设置都会重置统计计时器，只设一次）
     @ObservationIgnored private var statsEnabled: Set<ObjectIdentifier> = []
+    @ObservationIgnored private var trafficTask: Task<Void, Never>?
+    @ObservationIgnored private let pacer = TrafficPacer()
 
     private let session: ServerSession
     @ObservationIgnored private var room: LiveKit.Room?
@@ -205,6 +219,10 @@ public final class MediaSession {
         await r?.disconnect()
         transportTask?.cancel()
         transportTask = nil
+        trafficTask?.cancel()
+        trafficTask = nil
+        session.transferPacer = nil
+        traffic = nil
         await closeShareRoom()
         preferTcp = false
         shareUdp = false
@@ -268,6 +286,7 @@ public final class MediaSession {
             try await r.connect(url: target.url.absoluteString, token: target.token,
                                 connectOptions: ConnectOptions(iceServers: relayOnly.map { [IceServer(urls: [$0.url], username: $0.username, credential: $0.credential)] } ?? [],
                                                                iceTransportPolicy: relayOnly == nil ? .all : .relay,
+                                                               isDscpEnabled: true,
                                                                serverTrustEvaluator: session.trust.evaluator(port: port)))
         } catch {
             if switching { await old?.disconnect() }
@@ -288,6 +307,7 @@ public final class MediaSession {
         attachKeys(keys)
         // 先设置并分发自己的密钥，再发布轨道
         await keys?.start(room: r, roomID: target.roomID, localIdentity: localIdentity)
+        watchTraffic(r)
         if switching, let old {
             await handOver(from: old, to: r, policy: target.policy, started: started)
         } else {
@@ -333,7 +353,17 @@ public final class MediaSession {
         Int(d.components.seconds * 1000 + d.components.attoseconds / 1_000_000_000_000_000)
     }
 
+    /// 有没有音频输入设备。没有时不能开麦克风：LiveKit 会把不存在的输入接进音频引擎，AVAudioEngine 抛异常直接闪退
+    private static var hasAudioInput: Bool { AVCaptureDevice.default(for: .audio) != nil }
+
     private func publishMicrophone(_ r: LiveKit.Room, policy: MediaPolicy) async {
+        watchDevices()
+        guard Self.hasAudioInput else {
+            micUnavailable = true
+            micError = nil
+            return
+        }
+        micUnavailable = false
         // 同一个房间的麦克风发布不并发：两次 setMicrophone 撞在一起时，其中一次会等不到服务器的回应而超时
         let id = ObjectIdentifier(r)
         guard !publishingMic.contains(id) else { return }
@@ -344,7 +374,9 @@ public final class MediaSession {
             try await r.localParticipant.setMicrophone(
                 enabled: true,
                 captureOptions: audioCaptureOptions(echoProcessing, noise: noiseSuppression),
-                publishOptions: AudioPublishOptions(encoding: AudioEncoding(maxBitrate: Int(audio.maxBitrateBps == 0 ? 32000 : audio.maxBitrateBps)),
+                // 语音的优先级最高（同一条连接里带宽不够时先保证它，并标记网络优先级）
+                publishOptions: AudioPublishOptions(encoding: AudioEncoding(maxBitrate: Int(audio.maxBitrateBps == 0 ? 32000 : audio.maxBitrateBps),
+                                                                            bitratePriority: .high, networkPriority: .high),
                                                     dtx: audio.dtx, red: audio.red)
             )
             if micMuted { try await r.localParticipant.setMicrophone(enabled: false) }
@@ -390,6 +422,75 @@ public final class MediaSession {
     private func shareMonitorMode(_ p: MediaPolicy?, tcp: Bool) -> TcpFallbackMode {
         guard let t = p?.transport, !tcp, !shareUdp, t.tcpAvailable, t.shareTransport == .udp else { return .off }
         return .auto
+    }
+
+    /// 流量优先级（见 HaneCore/TrafficPolicy.swift）：每秒取一次主连接和共享连接的轨道统计，更新聊天图片的传输速度，
+    /// 并告诉屏幕共享要不要让路。媒体连接期间才给 ServerSession 设置传输节奏，断开后图片传输不再限速。与 Web 版一致
+    private func watchTraffic(_ r: LiveKit.Room) {
+        trafficTask?.cancel()
+        session.transferPacer = pacer
+        let clock = ContinuousClock()
+        let t0 = clock.now
+        trafficTask = Task { [weak self] in
+            var policy = TrafficPolicy()
+            var counters = TrafficCounters()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                guard let self, self.room === r else { return }
+                guard r.connectionState == .connected else { continue }
+                var s = await self.trafficSample(r, counters: &counters)
+                s.t = Double(Self.ms(clock.now - t0))
+                (s.upActive, s.downActive) = self.pacer.takeActivity()
+                let st = policy.update(s)
+                self.pacer.set(up: st.upBps, down: st.downBps)
+                self.shareController?.setYield(st.shareYield)
+                self.traffic = st
+            }
+        }
+    }
+
+    private func statistics(_ t: Track) async -> TrackStatistics? {
+        if statsEnabled.insert(ObjectIdentifier(t)).inserted { await t.set(reportStatistics: true) }
+        return t.statistics
+    }
+
+    /// 一次流量采样（时间和活动标记由调用方填）：上行看自己发出的语音、摄像头、屏幕共享，下行看两条连接上远端的语音和视频
+    private func trafficSample(_ r: LiveKit.Room, counters: inout TrafficCounters) async -> TrafficSample {
+        var s = TrafficSample(t: 0)
+        let mine: [(track: Track, video: Bool, share: Bool)] =
+            r.localParticipant.audioTracks.compactMap(\.track).map { ($0, false, false) }
+                + r.localParticipant.videoTracks.filter { $0.source == .camera }.compactMap(\.track).map { ($0, true, false) }
+                + (shareRoom?.localParticipant.videoTracks.compactMap(\.track).map { ($0, true, true) } ?? [])
+        for m in mine {
+            guard let st = await statistics(m.track) else { continue }
+            if m.video, st.outboundRtpStream.contains(where: { $0.qualityLimitationReason?.rawValue == "bandwidth" }) {
+                if m.share { s.shareLimited = true } else { s.cameraLimited = true }
+            }
+            for ri in st.remoteInboundRtpStream {
+                if let rtt = ri.roundTripTime { s.upRttMs = max(s.upRttMs ?? 0, rtt * 1000) }
+                if let f = ri.fractionLost { s.upLoss = max(s.upLoss ?? 0, f) }
+            }
+        }
+        var now = TrafficCounters()
+        for room in [r, shareRoom].compactMap(\.self) {
+            for p in room.remoteParticipants.values {
+                for t in p.audioTracks.compactMap(\.track) + p.videoTracks.compactMap(\.track) {
+                    guard let st = await statistics(t) else { continue }
+                    for inb in st.inboundRtpStream {
+                        now.lost += max(0, inb.packetsLost ?? 0)
+                        now.received += inb.packetsReceived ?? 0
+                        if t.kind == .audio {
+                            now.jitterDelay += inb.jitterBufferDelay ?? 0
+                            now.jitterEmitted += inb.jitterBufferEmittedCount ?? 0
+                        } else {
+                            now.freezes += UInt64(inb.freezeCount ?? 0)
+                        }
+                    }
+                }
+            }
+        }
+        counters.fill(&s, now: now)
+        return s
     }
 
     /// 共享连接的传输状态（主连接的语音和摄像头始终走 UDP）：每 2 秒从共享连接的轨道统计里取一次采样，更新当前协议。
@@ -489,6 +590,10 @@ public final class MediaSession {
             return
         }
         guard let r = room, r.connectionState == .connected else { return }
+        if !muted, !Self.hasAudioInput {
+            micUnavailable = true
+            return
+        }
         _ = try? await r.localParticipant.setMicrophone(enabled: !muted)
     }
 
@@ -502,9 +607,10 @@ public final class MediaSession {
         if on {
             let devices = (try? await CameraCapturer.captureDevices()) ?? []
             let candidates = devices.map { CameraCandidate(id: $0.uniqueID, connected: $0.isConnected, suspended: $0.isSuspended) }
-            switch chooseCamera(candidates, defaultID: AVCaptureDevice.default(for: .video)?.uniqueID) {
+            switch chooseCamera(candidates, defaultID: preferredCameraID ?? AVCaptureDevice.default(for: .video)?.uniqueID) {
             case let .success(i):
                 device = devices[i]
+                watchCameraDisconnect()
             case let .failure(reason):
                 cameraUnavailable = reason
                 cameraOn = false
@@ -517,15 +623,46 @@ public final class MediaSession {
             try await r.localParticipant.setCamera(
                 enabled: on,
                 captureOptions: CameraCaptureOptions(device: device, dimensions: .h720_169, fps: 30),
-                publishOptions: VideoPublishOptions(simulcast: true)
+                // 摄像头的优先级低于语音、高于屏幕共享（码率与 SDK 的 720p 默认值相同）
+                publishOptions: VideoPublishOptions(encoding: VideoEncoding(maxBitrate: 1_700_000, maxFps: 30, bitratePriority: .medium, networkPriority: .medium),
+                                                    simulcast: true)
             )
             cameraOn = on
+            cameraDeviceID = on ? device?.uniqueID : nil
             cameraError = nil
         } catch {
             cameraOn = false
             cameraError = error.localizedDescription
         }
         refreshVideoTracks()
+    }
+
+    /// 设置里选的摄像头（AVCaptureDevice.uniqueID）；nil 表示系统默认。不可用时自动换一个能用的
+    @ObservationIgnored public var preferredCameraID: String?
+
+    /// 换摄像头：正开着时重新打开，立即换成新设备
+    public func setPreferredCamera(_ id: String?) async {
+        preferredCameraID = id
+        guard cameraOn else { return }
+        await setCameraEnabled(false)
+        await setCameraEnabled(true)
+    }
+
+    /// 正在使用的摄像头（macOS 自己挑选的设备）；被拔掉时据此关闭摄像头
+    @ObservationIgnored private var cameraDeviceID: String?
+    @ObservationIgnored private var cameraDisconnectObserver: NSObjectProtocol?
+
+    /// 摄像头被拔掉后 LiveKit 的轨道还在发布，只是一直没有新画面：主动关闭并提示
+    private func watchCameraDisconnect() {
+        guard cameraDisconnectObserver == nil else { return }
+        cameraDisconnectObserver = NotificationCenter.default.addObserver(forName: AVCaptureDevice.wasDisconnectedNotification, object: nil, queue: .main) { [weak self] note in
+            let id = (note.object as? AVCaptureDevice)?.uniqueID
+            Task { @MainActor in
+                guard let self, self.cameraOn, let id, id == self.cameraDeviceID else { return }
+                await self.setCameraEnabled(false)
+                self.cameraUnavailable = .disconnected
+            }
+        }
     }
 
     // MARK: 屏幕共享
@@ -657,6 +794,7 @@ public final class MediaSession {
                                                                        publisherTransportConnectTimeout: timeout,
                                                                        iceServers: relayOnly.map { [IceServer(urls: [$0.url], username: $0.username, credential: $0.credential)] } ?? [],
                                                                        iceTransportPolicy: relayOnly == nil ? .all : .relay,
+                                                                       isDscpEnabled: true,
                                                                        serverTrustEvaluator: session.trust.evaluator(port: port)))
                     break
                 } catch {
@@ -735,7 +873,7 @@ public final class MediaSession {
         if on {
             mixer.micVolume = micMuted ? 0 : 1
             mixer.appVolume = 1
-            if micMuted { _ = try? await r.localParticipant.setMicrophone(enabled: true) }
+            if micMuted, Self.hasAudioInput { _ = try? await r.localParticipant.setMicrophone(enabled: true) }
             if let pub = r.localParticipant.audioTracks.first as? LocalTrackPublication {
                 await pub.setAudioEncoding(maxBitrate: 128_000)
             }
@@ -819,7 +957,7 @@ public final class MediaSession {
         // 共享连接里别人的共享声音按主连接的身份取音量
         for r in [room, shareRoom].compactMap(\.self) {
             for p in r.remoteParticipants.values {
-                let v = deafened ? 0 : volumes[Self.mainIdentity(p.identity?.stringValue ?? "")] ?? 1
+                let v = deafened ? 0 : (volumes[Self.mainIdentity(p.identity?.stringValue ?? "")] ?? 1) * outputVolume
                 for pub in p.audioTracks {
                     (pub.track as? RemoteAudioTrack)?.volume = v
                 }
@@ -960,20 +1098,42 @@ public final class MediaSession {
     public private(set) var outputDevices: [AudioDevice] = []
     public func selectInput(_ d: AudioDevice) { AudioManager.shared.inputDevice = d }
     public func selectOutput(_ d: AudioDevice) { AudioManager.shared.outputDevice = d }
+    /// 改回跟随系统默认设备
+    public func selectDefaultInput() { if let d = inputDevices.first(where: \.isDefault) { selectInput(d) } }
+    public func selectDefaultOutput() { if let d = outputDevices.first(where: \.isDefault) { selectOutput(d) } }
 
     /// 在后台线程读取设备列表：每次读取都是对 WebRTC 内部线程的同步调用，共享屏幕时它忙着编码，在主线程上读会卡住界面。
     /// 第一次调用后跟随系统的设备变化（插拔耳机等）自动刷新
     public func refreshAudioDevices() async {
         struct Lists: @unchecked Sendable { let inputs, outputs: [AudioDevice] }
-        if !watchingDevices {
-            watchingDevices = true
-            AudioManager.shared.onDeviceUpdate = { [weak self] _ in Task { @MainActor in await self?.refreshAudioDevices() } }
-        }
+        watchDevices()
         let lists = await Task.detached(priority: .userInitiated) {
-            Lists(inputs: AudioManager.shared.inputDevices, outputs: AudioManager.shared.outputDevices)
+            let m = AudioManager.shared
+            let lists = Lists(inputs: m.inputDevices, outputs: m.outputDevices)
+            // 选中的设备被拔掉了：改回系统默认，不让音频引擎继续指向不存在的设备
+            if !lists.inputs.contains(where: { $0.deviceId == m.inputDevice.deviceId }), let d = lists.inputs.first(where: \.isDefault) { m.inputDevice = d }
+            if !lists.outputs.contains(where: { $0.deviceId == m.outputDevice.deviceId }), let d = lists.outputs.first(where: \.isDefault) { m.outputDevice = d }
+            return lists
         }.value
         if lists.inputs.map(\.deviceId) != inputDevices.map(\.deviceId) || lists.inputs.map(\.name) != inputDevices.map(\.name) { inputDevices = lists.inputs }
         if lists.outputs.map(\.deviceId) != outputDevices.map(\.deviceId) || lists.outputs.map(\.name) != outputDevices.map(\.name) { outputDevices = lists.outputs }
+        guard let r = connectedRoom else { return }
+        if micUnavailable, Self.hasAudioInput, let policy = session.state.media?.policy {
+            // 之前没有麦克风、现在接上了：补发布
+            await publishMicrophone(r, policy: policy)
+        } else if !micUnavailable, !Self.hasAudioInput, !sharingAudio,
+                  let pub = r.localParticipant.audioTracks.first as? LocalTrackPublication {
+            // 会议中拔掉了最后一个麦克风：取消发布，只能收听（LiveKit 补丁已保证音频引擎不会因此闪退）
+            micUnavailable = true
+            try? await r.localParticipant.unpublish(publication: pub)
+        }
+    }
+
+    /// 跟随系统的音频设备变化（插拔麦克风、耳机）刷新设备列表并处理麦克风，只注册一次
+    private func watchDevices() {
+        guard !watchingDevices else { return }
+        watchingDevices = true
+        AudioManager.shared.onDeviceUpdate = { [weak self] _ in Task { @MainActor in await self?.refreshAudioDevices() } }
     }
 
     @ObservationIgnored private var watchingDevices = false

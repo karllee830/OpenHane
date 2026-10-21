@@ -270,6 +270,8 @@ type Request struct {
 	//	*Request_CreateInvite
 	//	*Request_ListInvites
 	//	*Request_RevokeInvite
+	//	*Request_GetSessionInfo
+	//	*Request_DownloadIpv6GeoDb
 	Body          isRequest_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -589,6 +591,24 @@ func (x *Request) GetRevokeInvite() *RevokeInvite {
 	return nil
 }
 
+func (x *Request) GetGetSessionInfo() *GetSessionInfo {
+	if x != nil {
+		if x, ok := x.Body.(*Request_GetSessionInfo); ok {
+			return x.GetSessionInfo
+		}
+	}
+	return nil
+}
+
+func (x *Request) GetDownloadIpv6GeoDb() *DownloadIPv6GeoDB {
+	if x != nil {
+		if x, ok := x.Body.(*Request_DownloadIpv6GeoDb); ok {
+			return x.DownloadIpv6GeoDb
+		}
+	}
+	return nil
+}
+
 type isRequest_Body interface {
 	isRequest_Body()
 }
@@ -713,6 +733,14 @@ type Request_RevokeInvite struct {
 	RevokeInvite *RevokeInvite `protobuf:"bytes,113,opt,name=revoke_invite,json=revokeInvite,proto3,oneof"`
 }
 
+type Request_GetSessionInfo struct {
+	GetSessionInfo *GetSessionInfo `protobuf:"bytes,114,opt,name=get_session_info,json=getSessionInfo,proto3,oneof"`
+}
+
+type Request_DownloadIpv6GeoDb struct {
+	DownloadIpv6GeoDb *DownloadIPv6GeoDB `protobuf:"bytes,115,opt,name=download_ipv6_geo_db,json=downloadIpv6GeoDb,proto3,oneof"`
+}
+
 func (*Request_JoinRoom) isRequest_Body() {}
 
 func (*Request_UpdateSelf) isRequest_Body() {}
@@ -773,6 +801,10 @@ func (*Request_ListInvites) isRequest_Body() {}
 
 func (*Request_RevokeInvite) isRequest_Body() {}
 
+func (*Request_GetSessionInfo) isRequest_Body() {}
+
+func (*Request_DownloadIpv6GeoDb) isRequest_Body() {}
+
 // 服务端对请求的响应；error 为空表示成功，此时 body 与请求类型对应（无返回内容的请求 body 为空）。
 type Response struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
@@ -810,6 +842,8 @@ type Response struct {
 	//	*Response_CreateInvite
 	//	*Response_ListInvites
 	//	*Response_RevokeInvite
+	//	*Response_GetSessionInfo
+	//	*Response_DownloadIpv6GeoDb
 	Body          isResponse_Body `protobuf_oneof:"body"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -1136,6 +1170,24 @@ func (x *Response) GetRevokeInvite() *RevokeInviteResult {
 	return nil
 }
 
+func (x *Response) GetGetSessionInfo() *GetSessionInfoResult {
+	if x != nil {
+		if x, ok := x.Body.(*Response_GetSessionInfo); ok {
+			return x.GetSessionInfo
+		}
+	}
+	return nil
+}
+
+func (x *Response) GetDownloadIpv6GeoDb() *DownloadIPv6GeoDBResult {
+	if x != nil {
+		if x, ok := x.Body.(*Response_DownloadIpv6GeoDb); ok {
+			return x.DownloadIpv6GeoDb
+		}
+	}
+	return nil
+}
+
 type isResponse_Body interface {
 	isResponse_Body()
 }
@@ -1260,6 +1312,14 @@ type Response_RevokeInvite struct {
 	RevokeInvite *RevokeInviteResult `protobuf:"bytes,113,opt,name=revoke_invite,json=revokeInvite,proto3,oneof"`
 }
 
+type Response_GetSessionInfo struct {
+	GetSessionInfo *GetSessionInfoResult `protobuf:"bytes,114,opt,name=get_session_info,json=getSessionInfo,proto3,oneof"`
+}
+
+type Response_DownloadIpv6GeoDb struct {
+	DownloadIpv6GeoDb *DownloadIPv6GeoDBResult `protobuf:"bytes,115,opt,name=download_ipv6_geo_db,json=downloadIpv6GeoDb,proto3,oneof"`
+}
+
 func (*Response_JoinRoom) isResponse_Body() {}
 
 func (*Response_UpdateSelf) isResponse_Body() {}
@@ -1319,6 +1379,10 @@ func (*Response_CreateInvite) isResponse_Body() {}
 func (*Response_ListInvites) isResponse_Body() {}
 
 func (*Response_RevokeInvite) isResponse_Body() {}
+
+func (*Response_GetSessionInfo) isResponse_Body() {}
+
+func (*Response_DownloadIpv6GeoDb) isResponse_Body() {}
 
 // 服务端主动推送的事件，seq 按会话递增，用于断线恢复时补发。
 type Event struct {
@@ -1788,7 +1852,7 @@ const file_openhane_v1_envelope_proto_rawDesc = "" +
 	"\x04ping\x18\x14 \x01(\v2\x11.openhane.v1.PingH\x00R\x04ping\x12'\n" +
 	"\x04pong\x18\x15 \x01(\v2\x11.openhane.v1.PongH\x00R\x04pong\x120\n" +
 	"\agoodbye\x18\x1e \x01(\v2\x14.openhane.v1.GoodbyeH\x00R\agoodbyeB\x05\n" +
-	"\x03msg\"\x88\x0f\n" +
+	"\x03msg\"\xa4\x10\n" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x124\n" +
 	"\tjoin_room\x18\n" +
@@ -1828,8 +1892,10 @@ const file_openhane_v1_envelope_proto_rawDesc = "" +
 	"\rget_audit_log\x18n \x01(\v2\x18.openhane.v1.GetAuditLogH\x00R\vgetAuditLog\x12@\n" +
 	"\rcreate_invite\x18o \x01(\v2\x19.openhane.v1.CreateInviteH\x00R\fcreateInvite\x12=\n" +
 	"\flist_invites\x18p \x01(\v2\x18.openhane.v1.ListInvitesH\x00R\vlistInvites\x12@\n" +
-	"\rrevoke_invite\x18q \x01(\v2\x19.openhane.v1.RevokeInviteH\x00R\frevokeInviteB\x06\n" +
-	"\x04body\"\xd5\x10\n" +
+	"\rrevoke_invite\x18q \x01(\v2\x19.openhane.v1.RevokeInviteH\x00R\frevokeInvite\x12G\n" +
+	"\x10get_session_info\x18r \x01(\v2\x1b.openhane.v1.GetSessionInfoH\x00R\x0egetSessionInfo\x12Q\n" +
+	"\x14download_ipv6_geo_db\x18s \x01(\v2\x1e.openhane.v1.DownloadIPv6GeoDBH\x00R\x11downloadIpv6GeoDbB\x06\n" +
+	"\x04body\"\xfd\x11\n" +
 	"\bResponse\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\rR\x02id\x12(\n" +
 	"\x05error\x18\x02 \x01(\v2\x12.openhane.v1.ErrorR\x05error\x12:\n" +
@@ -1870,7 +1936,9 @@ const file_openhane_v1_envelope_proto_rawDesc = "" +
 	"\rget_audit_log\x18n \x01(\v2\x1e.openhane.v1.GetAuditLogResultH\x00R\vgetAuditLog\x12F\n" +
 	"\rcreate_invite\x18o \x01(\v2\x1f.openhane.v1.CreateInviteResultH\x00R\fcreateInvite\x12C\n" +
 	"\flist_invites\x18p \x01(\v2\x1e.openhane.v1.ListInvitesResultH\x00R\vlistInvites\x12F\n" +
-	"\rrevoke_invite\x18q \x01(\v2\x1f.openhane.v1.RevokeInviteResultH\x00R\frevokeInviteB\x06\n" +
+	"\rrevoke_invite\x18q \x01(\v2\x1f.openhane.v1.RevokeInviteResultH\x00R\frevokeInvite\x12M\n" +
+	"\x10get_session_info\x18r \x01(\v2!.openhane.v1.GetSessionInfoResultH\x00R\x0egetSessionInfo\x12W\n" +
+	"\x14download_ipv6_geo_db\x18s \x01(\v2$.openhane.v1.DownloadIPv6GeoDBResultH\x00R\x11downloadIpv6GeoDbB\x06\n" +
 	"\x04body\"\xc1\b\n" +
 	"\x05Event\x12\x10\n" +
 	"\x03seq\x18\x01 \x01(\x04R\x03seq\x12O\n" +
@@ -1958,52 +2026,56 @@ var file_openhane_v1_envelope_proto_goTypes = []any{
 	(*CreateInvite)(nil),             // 38: openhane.v1.CreateInvite
 	(*ListInvites)(nil),              // 39: openhane.v1.ListInvites
 	(*RevokeInvite)(nil),             // 40: openhane.v1.RevokeInvite
-	(*Error)(nil),                    // 41: openhane.v1.Error
-	(*JoinRoomResult)(nil),           // 42: openhane.v1.JoinRoomResult
-	(*UpdateSelfResult)(nil),         // 43: openhane.v1.UpdateSelfResult
-	(*CreateRoomResult)(nil),         // 44: openhane.v1.CreateRoomResult
-	(*UpdateRoomResult)(nil),         // 45: openhane.v1.UpdateRoomResult
-	(*CloseRoomResult)(nil),          // 46: openhane.v1.CloseRoomResult
-	(*MoveParticipantResult)(nil),    // 47: openhane.v1.MoveParticipantResult
-	(*RecallAllResult)(nil),          // 48: openhane.v1.RecallAllResult
-	(*ModerateResult)(nil),           // 49: openhane.v1.ModerateResult
-	(*MuteAllResult)(nil),            // 50: openhane.v1.MuteAllResult
-	(*SendChatResult)(nil),           // 51: openhane.v1.SendChatResult
-	(*GetChatHistoryResult)(nil),     // 52: openhane.v1.GetChatHistoryResult
-	(*RedeemTokenResult)(nil),        // 53: openhane.v1.RedeemTokenResult
-	(*ScreenShareGrant)(nil),         // 54: openhane.v1.ScreenShareGrant
-	(*ReleaseScreenShareResult)(nil), // 55: openhane.v1.ReleaseScreenShareResult
-	(*MediaGrant)(nil),               // 56: openhane.v1.MediaGrant
-	(*SendKeyPackageResult)(nil),     // 57: openhane.v1.SendKeyPackageResult
-	(*GetSettingsResult)(nil),        // 58: openhane.v1.GetSettingsResult
-	(*UpdateSettingsResult)(nil),     // 59: openhane.v1.UpdateSettingsResult
-	(*CreateTokenResult)(nil),        // 60: openhane.v1.CreateTokenResult
-	(*ListTokensResult)(nil),         // 61: openhane.v1.ListTokensResult
-	(*RevokeTokenResult)(nil),        // 62: openhane.v1.RevokeTokenResult
-	(*SetRoleResult)(nil),            // 63: openhane.v1.SetRoleResult
-	(*ListIdentitiesResult)(nil),     // 64: openhane.v1.ListIdentitiesResult
-	(*ListBansResult)(nil),           // 65: openhane.v1.ListBansResult
-	(*AddBanResult)(nil),             // 66: openhane.v1.AddBanResult
-	(*RemoveBanResult)(nil),          // 67: openhane.v1.RemoveBanResult
-	(*GetAuditLogResult)(nil),        // 68: openhane.v1.GetAuditLogResult
-	(*CreateInviteResult)(nil),       // 69: openhane.v1.CreateInviteResult
-	(*ListInvitesResult)(nil),        // 70: openhane.v1.ListInvitesResult
-	(*RevokeInviteResult)(nil),       // 71: openhane.v1.RevokeInviteResult
-	(*ParticipantJoined)(nil),        // 72: openhane.v1.ParticipantJoined
-	(*ParticipantLeft)(nil),          // 73: openhane.v1.ParticipantLeft
-	(*ParticipantUpdated)(nil),       // 74: openhane.v1.ParticipantUpdated
-	(*RoomCreated)(nil),              // 75: openhane.v1.RoomCreated
-	(*RoomUpdated)(nil),              // 76: openhane.v1.RoomUpdated
-	(*RoomClosed)(nil),               // 77: openhane.v1.RoomClosed
-	(*YouWereMoved)(nil),             // 78: openhane.v1.YouWereMoved
-	(*ModerationNotice)(nil),         // 79: openhane.v1.ModerationNotice
-	(*ChatMessage)(nil),              // 80: openhane.v1.ChatMessage
-	(*RoleChanged)(nil),              // 81: openhane.v1.RoleChanged
-	(*PolicyUpdated)(nil),            // 82: openhane.v1.PolicyUpdated
-	(*ShareStateChanged)(nil),        // 83: openhane.v1.ShareStateChanged
-	(*KeyPackage)(nil),               // 84: openhane.v1.KeyPackage
-	(*ServerInfoUpdated)(nil),        // 85: openhane.v1.ServerInfoUpdated
-	(*ServerNotice)(nil),             // 86: openhane.v1.ServerNotice
+	(*GetSessionInfo)(nil),           // 41: openhane.v1.GetSessionInfo
+	(*DownloadIPv6GeoDB)(nil),        // 42: openhane.v1.DownloadIPv6GeoDB
+	(*Error)(nil),                    // 43: openhane.v1.Error
+	(*JoinRoomResult)(nil),           // 44: openhane.v1.JoinRoomResult
+	(*UpdateSelfResult)(nil),         // 45: openhane.v1.UpdateSelfResult
+	(*CreateRoomResult)(nil),         // 46: openhane.v1.CreateRoomResult
+	(*UpdateRoomResult)(nil),         // 47: openhane.v1.UpdateRoomResult
+	(*CloseRoomResult)(nil),          // 48: openhane.v1.CloseRoomResult
+	(*MoveParticipantResult)(nil),    // 49: openhane.v1.MoveParticipantResult
+	(*RecallAllResult)(nil),          // 50: openhane.v1.RecallAllResult
+	(*ModerateResult)(nil),           // 51: openhane.v1.ModerateResult
+	(*MuteAllResult)(nil),            // 52: openhane.v1.MuteAllResult
+	(*SendChatResult)(nil),           // 53: openhane.v1.SendChatResult
+	(*GetChatHistoryResult)(nil),     // 54: openhane.v1.GetChatHistoryResult
+	(*RedeemTokenResult)(nil),        // 55: openhane.v1.RedeemTokenResult
+	(*ScreenShareGrant)(nil),         // 56: openhane.v1.ScreenShareGrant
+	(*ReleaseScreenShareResult)(nil), // 57: openhane.v1.ReleaseScreenShareResult
+	(*MediaGrant)(nil),               // 58: openhane.v1.MediaGrant
+	(*SendKeyPackageResult)(nil),     // 59: openhane.v1.SendKeyPackageResult
+	(*GetSettingsResult)(nil),        // 60: openhane.v1.GetSettingsResult
+	(*UpdateSettingsResult)(nil),     // 61: openhane.v1.UpdateSettingsResult
+	(*CreateTokenResult)(nil),        // 62: openhane.v1.CreateTokenResult
+	(*ListTokensResult)(nil),         // 63: openhane.v1.ListTokensResult
+	(*RevokeTokenResult)(nil),        // 64: openhane.v1.RevokeTokenResult
+	(*SetRoleResult)(nil),            // 65: openhane.v1.SetRoleResult
+	(*ListIdentitiesResult)(nil),     // 66: openhane.v1.ListIdentitiesResult
+	(*ListBansResult)(nil),           // 67: openhane.v1.ListBansResult
+	(*AddBanResult)(nil),             // 68: openhane.v1.AddBanResult
+	(*RemoveBanResult)(nil),          // 69: openhane.v1.RemoveBanResult
+	(*GetAuditLogResult)(nil),        // 70: openhane.v1.GetAuditLogResult
+	(*CreateInviteResult)(nil),       // 71: openhane.v1.CreateInviteResult
+	(*ListInvitesResult)(nil),        // 72: openhane.v1.ListInvitesResult
+	(*RevokeInviteResult)(nil),       // 73: openhane.v1.RevokeInviteResult
+	(*GetSessionInfoResult)(nil),     // 74: openhane.v1.GetSessionInfoResult
+	(*DownloadIPv6GeoDBResult)(nil),  // 75: openhane.v1.DownloadIPv6GeoDBResult
+	(*ParticipantJoined)(nil),        // 76: openhane.v1.ParticipantJoined
+	(*ParticipantLeft)(nil),          // 77: openhane.v1.ParticipantLeft
+	(*ParticipantUpdated)(nil),       // 78: openhane.v1.ParticipantUpdated
+	(*RoomCreated)(nil),              // 79: openhane.v1.RoomCreated
+	(*RoomUpdated)(nil),              // 80: openhane.v1.RoomUpdated
+	(*RoomClosed)(nil),               // 81: openhane.v1.RoomClosed
+	(*YouWereMoved)(nil),             // 82: openhane.v1.YouWereMoved
+	(*ModerationNotice)(nil),         // 83: openhane.v1.ModerationNotice
+	(*ChatMessage)(nil),              // 84: openhane.v1.ChatMessage
+	(*RoleChanged)(nil),              // 85: openhane.v1.RoleChanged
+	(*PolicyUpdated)(nil),            // 86: openhane.v1.PolicyUpdated
+	(*ShareStateChanged)(nil),        // 87: openhane.v1.ShareStateChanged
+	(*KeyPackage)(nil),               // 88: openhane.v1.KeyPackage
+	(*ServerInfoUpdated)(nil),        // 89: openhane.v1.ServerInfoUpdated
+	(*ServerNotice)(nil),             // 90: openhane.v1.ServerNotice
 }
 var file_openhane_v1_envelope_proto_depIdxs = []int32{
 	7,  // 0: openhane.v1.Envelope.client_hello:type_name -> openhane.v1.ClientHello
@@ -2046,58 +2118,62 @@ var file_openhane_v1_envelope_proto_depIdxs = []int32{
 	38, // 37: openhane.v1.Request.create_invite:type_name -> openhane.v1.CreateInvite
 	39, // 38: openhane.v1.Request.list_invites:type_name -> openhane.v1.ListInvites
 	40, // 39: openhane.v1.Request.revoke_invite:type_name -> openhane.v1.RevokeInvite
-	41, // 40: openhane.v1.Response.error:type_name -> openhane.v1.Error
-	42, // 41: openhane.v1.Response.join_room:type_name -> openhane.v1.JoinRoomResult
-	43, // 42: openhane.v1.Response.update_self:type_name -> openhane.v1.UpdateSelfResult
-	44, // 43: openhane.v1.Response.create_room:type_name -> openhane.v1.CreateRoomResult
-	45, // 44: openhane.v1.Response.update_room:type_name -> openhane.v1.UpdateRoomResult
-	46, // 45: openhane.v1.Response.close_room:type_name -> openhane.v1.CloseRoomResult
-	47, // 46: openhane.v1.Response.move_participant:type_name -> openhane.v1.MoveParticipantResult
-	48, // 47: openhane.v1.Response.recall_all:type_name -> openhane.v1.RecallAllResult
-	49, // 48: openhane.v1.Response.moderate:type_name -> openhane.v1.ModerateResult
-	50, // 49: openhane.v1.Response.mute_all:type_name -> openhane.v1.MuteAllResult
-	51, // 50: openhane.v1.Response.send_chat:type_name -> openhane.v1.SendChatResult
-	52, // 51: openhane.v1.Response.get_chat_history:type_name -> openhane.v1.GetChatHistoryResult
-	53, // 52: openhane.v1.Response.redeem_token:type_name -> openhane.v1.RedeemTokenResult
-	54, // 53: openhane.v1.Response.request_screen_share:type_name -> openhane.v1.ScreenShareGrant
-	55, // 54: openhane.v1.Response.release_screen_share:type_name -> openhane.v1.ReleaseScreenShareResult
-	56, // 55: openhane.v1.Response.join_share_media:type_name -> openhane.v1.MediaGrant
-	57, // 56: openhane.v1.Response.send_key_package:type_name -> openhane.v1.SendKeyPackageResult
-	58, // 57: openhane.v1.Response.get_settings:type_name -> openhane.v1.GetSettingsResult
-	59, // 58: openhane.v1.Response.update_settings:type_name -> openhane.v1.UpdateSettingsResult
-	60, // 59: openhane.v1.Response.create_token:type_name -> openhane.v1.CreateTokenResult
-	61, // 60: openhane.v1.Response.list_tokens:type_name -> openhane.v1.ListTokensResult
-	62, // 61: openhane.v1.Response.revoke_token:type_name -> openhane.v1.RevokeTokenResult
-	63, // 62: openhane.v1.Response.set_role:type_name -> openhane.v1.SetRoleResult
-	64, // 63: openhane.v1.Response.list_identities:type_name -> openhane.v1.ListIdentitiesResult
-	65, // 64: openhane.v1.Response.list_bans:type_name -> openhane.v1.ListBansResult
-	66, // 65: openhane.v1.Response.add_ban:type_name -> openhane.v1.AddBanResult
-	67, // 66: openhane.v1.Response.remove_ban:type_name -> openhane.v1.RemoveBanResult
-	68, // 67: openhane.v1.Response.get_audit_log:type_name -> openhane.v1.GetAuditLogResult
-	69, // 68: openhane.v1.Response.create_invite:type_name -> openhane.v1.CreateInviteResult
-	70, // 69: openhane.v1.Response.list_invites:type_name -> openhane.v1.ListInvitesResult
-	71, // 70: openhane.v1.Response.revoke_invite:type_name -> openhane.v1.RevokeInviteResult
-	72, // 71: openhane.v1.Event.participant_joined:type_name -> openhane.v1.ParticipantJoined
-	73, // 72: openhane.v1.Event.participant_left:type_name -> openhane.v1.ParticipantLeft
-	74, // 73: openhane.v1.Event.participant_updated:type_name -> openhane.v1.ParticipantUpdated
-	75, // 74: openhane.v1.Event.room_created:type_name -> openhane.v1.RoomCreated
-	76, // 75: openhane.v1.Event.room_updated:type_name -> openhane.v1.RoomUpdated
-	77, // 76: openhane.v1.Event.room_closed:type_name -> openhane.v1.RoomClosed
-	78, // 77: openhane.v1.Event.you_were_moved:type_name -> openhane.v1.YouWereMoved
-	79, // 78: openhane.v1.Event.moderation_notice:type_name -> openhane.v1.ModerationNotice
-	80, // 79: openhane.v1.Event.chat_message:type_name -> openhane.v1.ChatMessage
-	81, // 80: openhane.v1.Event.role_changed:type_name -> openhane.v1.RoleChanged
-	82, // 81: openhane.v1.Event.policy_updated:type_name -> openhane.v1.PolicyUpdated
-	83, // 82: openhane.v1.Event.share_state_changed:type_name -> openhane.v1.ShareStateChanged
-	84, // 83: openhane.v1.Event.key_package:type_name -> openhane.v1.KeyPackage
-	85, // 84: openhane.v1.Event.server_info_updated:type_name -> openhane.v1.ServerInfoUpdated
-	86, // 85: openhane.v1.Event.server_notice:type_name -> openhane.v1.ServerNotice
-	41, // 86: openhane.v1.Goodbye.error:type_name -> openhane.v1.Error
-	87, // [87:87] is the sub-list for method output_type
-	87, // [87:87] is the sub-list for method input_type
-	87, // [87:87] is the sub-list for extension type_name
-	87, // [87:87] is the sub-list for extension extendee
-	0,  // [0:87] is the sub-list for field type_name
+	41, // 40: openhane.v1.Request.get_session_info:type_name -> openhane.v1.GetSessionInfo
+	42, // 41: openhane.v1.Request.download_ipv6_geo_db:type_name -> openhane.v1.DownloadIPv6GeoDB
+	43, // 42: openhane.v1.Response.error:type_name -> openhane.v1.Error
+	44, // 43: openhane.v1.Response.join_room:type_name -> openhane.v1.JoinRoomResult
+	45, // 44: openhane.v1.Response.update_self:type_name -> openhane.v1.UpdateSelfResult
+	46, // 45: openhane.v1.Response.create_room:type_name -> openhane.v1.CreateRoomResult
+	47, // 46: openhane.v1.Response.update_room:type_name -> openhane.v1.UpdateRoomResult
+	48, // 47: openhane.v1.Response.close_room:type_name -> openhane.v1.CloseRoomResult
+	49, // 48: openhane.v1.Response.move_participant:type_name -> openhane.v1.MoveParticipantResult
+	50, // 49: openhane.v1.Response.recall_all:type_name -> openhane.v1.RecallAllResult
+	51, // 50: openhane.v1.Response.moderate:type_name -> openhane.v1.ModerateResult
+	52, // 51: openhane.v1.Response.mute_all:type_name -> openhane.v1.MuteAllResult
+	53, // 52: openhane.v1.Response.send_chat:type_name -> openhane.v1.SendChatResult
+	54, // 53: openhane.v1.Response.get_chat_history:type_name -> openhane.v1.GetChatHistoryResult
+	55, // 54: openhane.v1.Response.redeem_token:type_name -> openhane.v1.RedeemTokenResult
+	56, // 55: openhane.v1.Response.request_screen_share:type_name -> openhane.v1.ScreenShareGrant
+	57, // 56: openhane.v1.Response.release_screen_share:type_name -> openhane.v1.ReleaseScreenShareResult
+	58, // 57: openhane.v1.Response.join_share_media:type_name -> openhane.v1.MediaGrant
+	59, // 58: openhane.v1.Response.send_key_package:type_name -> openhane.v1.SendKeyPackageResult
+	60, // 59: openhane.v1.Response.get_settings:type_name -> openhane.v1.GetSettingsResult
+	61, // 60: openhane.v1.Response.update_settings:type_name -> openhane.v1.UpdateSettingsResult
+	62, // 61: openhane.v1.Response.create_token:type_name -> openhane.v1.CreateTokenResult
+	63, // 62: openhane.v1.Response.list_tokens:type_name -> openhane.v1.ListTokensResult
+	64, // 63: openhane.v1.Response.revoke_token:type_name -> openhane.v1.RevokeTokenResult
+	65, // 64: openhane.v1.Response.set_role:type_name -> openhane.v1.SetRoleResult
+	66, // 65: openhane.v1.Response.list_identities:type_name -> openhane.v1.ListIdentitiesResult
+	67, // 66: openhane.v1.Response.list_bans:type_name -> openhane.v1.ListBansResult
+	68, // 67: openhane.v1.Response.add_ban:type_name -> openhane.v1.AddBanResult
+	69, // 68: openhane.v1.Response.remove_ban:type_name -> openhane.v1.RemoveBanResult
+	70, // 69: openhane.v1.Response.get_audit_log:type_name -> openhane.v1.GetAuditLogResult
+	71, // 70: openhane.v1.Response.create_invite:type_name -> openhane.v1.CreateInviteResult
+	72, // 71: openhane.v1.Response.list_invites:type_name -> openhane.v1.ListInvitesResult
+	73, // 72: openhane.v1.Response.revoke_invite:type_name -> openhane.v1.RevokeInviteResult
+	74, // 73: openhane.v1.Response.get_session_info:type_name -> openhane.v1.GetSessionInfoResult
+	75, // 74: openhane.v1.Response.download_ipv6_geo_db:type_name -> openhane.v1.DownloadIPv6GeoDBResult
+	76, // 75: openhane.v1.Event.participant_joined:type_name -> openhane.v1.ParticipantJoined
+	77, // 76: openhane.v1.Event.participant_left:type_name -> openhane.v1.ParticipantLeft
+	78, // 77: openhane.v1.Event.participant_updated:type_name -> openhane.v1.ParticipantUpdated
+	79, // 78: openhane.v1.Event.room_created:type_name -> openhane.v1.RoomCreated
+	80, // 79: openhane.v1.Event.room_updated:type_name -> openhane.v1.RoomUpdated
+	81, // 80: openhane.v1.Event.room_closed:type_name -> openhane.v1.RoomClosed
+	82, // 81: openhane.v1.Event.you_were_moved:type_name -> openhane.v1.YouWereMoved
+	83, // 82: openhane.v1.Event.moderation_notice:type_name -> openhane.v1.ModerationNotice
+	84, // 83: openhane.v1.Event.chat_message:type_name -> openhane.v1.ChatMessage
+	85, // 84: openhane.v1.Event.role_changed:type_name -> openhane.v1.RoleChanged
+	86, // 85: openhane.v1.Event.policy_updated:type_name -> openhane.v1.PolicyUpdated
+	87, // 86: openhane.v1.Event.share_state_changed:type_name -> openhane.v1.ShareStateChanged
+	88, // 87: openhane.v1.Event.key_package:type_name -> openhane.v1.KeyPackage
+	89, // 88: openhane.v1.Event.server_info_updated:type_name -> openhane.v1.ServerInfoUpdated
+	90, // 89: openhane.v1.Event.server_notice:type_name -> openhane.v1.ServerNotice
+	43, // 90: openhane.v1.Goodbye.error:type_name -> openhane.v1.Error
+	91, // [91:91] is the sub-list for method output_type
+	91, // [91:91] is the sub-list for method input_type
+	91, // [91:91] is the sub-list for extension type_name
+	91, // [91:91] is the sub-list for extension extendee
+	0,  // [0:91] is the sub-list for field type_name
 }
 
 func init() { file_openhane_v1_envelope_proto_init() }
@@ -2157,6 +2233,8 @@ func file_openhane_v1_envelope_proto_init() {
 		(*Request_CreateInvite)(nil),
 		(*Request_ListInvites)(nil),
 		(*Request_RevokeInvite)(nil),
+		(*Request_GetSessionInfo)(nil),
+		(*Request_DownloadIpv6GeoDb)(nil),
 	}
 	file_openhane_v1_envelope_proto_msgTypes[2].OneofWrappers = []any{
 		(*Response_JoinRoom)(nil),
@@ -2189,6 +2267,8 @@ func file_openhane_v1_envelope_proto_init() {
 		(*Response_CreateInvite)(nil),
 		(*Response_ListInvites)(nil),
 		(*Response_RevokeInvite)(nil),
+		(*Response_GetSessionInfo)(nil),
+		(*Response_DownloadIpv6GeoDb)(nil),
 	}
 	file_openhane_v1_envelope_proto_msgTypes[3].OneofWrappers = []any{
 		(*Event_ParticipantJoined)(nil),

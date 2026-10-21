@@ -5,20 +5,21 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/netip"
 	"os"
 	ossignal "os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/karllee830/OpenHane/server/internal/adminsock"
+	"github.com/karllee830/OpenHane/server/internal/chatimage"
 	"github.com/karllee830/OpenHane/server/internal/config"
 	"github.com/karllee830/OpenHane/server/internal/gateway"
+	"github.com/karllee830/OpenHane/server/internal/geoip"
 	"github.com/karllee830/OpenHane/server/internal/hub"
+	"github.com/karllee830/OpenHane/server/internal/logo"
 	"github.com/karllee830/OpenHane/server/internal/media"
 	"github.com/karllee830/OpenHane/server/internal/ratelimit"
 	"github.com/karllee830/OpenHane/server/internal/settings"
@@ -44,6 +45,8 @@ type App struct {
 	settings *settings.Settings
 	tls      *tlsmgr.Manager
 	gw       *gateway.Gateway
+	logo     *logo.Store
+	images   *chatimage.Store
 	media    media.Engine
 	hub      *hub.Hub
 
@@ -78,6 +81,9 @@ func (a *App) Run(ctx context.Context) error {
 	if err := a.loadServerState(ctx); err != nil {
 		return err
 	}
+	if err := a.openChatImages(ctx); err != nil {
+		return err
+	}
 
 	a.tls, err = tlsmgr.New(a.Cfg, a.Log)
 	if err != nil {
@@ -85,7 +91,8 @@ func (a *App) Run(ctx context.Context) error {
 	}
 
 	a.fatal = make(chan error, 4)
-	handlers := gateway.Handlers{Info: a.info, Ready: a.ready, Metrics: a.metrics}
+	a.logo = logo.New(a.Cfg.DataDir, a.Log)
+	handlers := gateway.Handlers{Info: a.info, Ready: a.ready, Metrics: a.metrics, Logo: a.logo.Get}
 	if web := webui.New(); web != nil {
 		handlers.Web = web
 	}
@@ -108,6 +115,8 @@ func (a *App) Run(ctx context.Context) error {
 	a.hub = hub.New(hub.Options{
 		Store: a.store, Media: a.media, Settings: a.settings, ServerID: a.serverID, Version: a.Version,
 		ProtocolMin: ProtocolMin, ProtocolMax: ProtocolMax, Log: a.Log,
+		GeoIP:  geoip.Open(a.Cfg.DataDir, a.Log.With("component", "geoip")),
+		Images: a.images,
 	})
 	hubCtx, stopHub := context.WithCancel(context.Background())
 	defer stopHub()
@@ -124,6 +133,7 @@ func (a *App) Run(ctx context.Context) error {
 		ws.ConnLimit = ratelimit.NewWindow(a.Cfg.ConnPerMinute, time.Minute)
 	}
 	handlers.WS = ws
+	handlers.ChatImages = chatimage.Handler(a.images, a.hub, a.Log.With("component", "chatimage"))
 
 	go func() {
 		if err := a.gw.Serve(); err != nil {
@@ -177,30 +187,40 @@ func (a *App) loadServerState(ctx context.Context) error {
 		return fmt.Errorf("corrupt server_id in database: %q", idHex)
 	}
 
+	// HANE_SERVER_NAME：管理员没有在管理面板里设置名称时用它；面板里设置的名称优先
+	if a.Cfg.ServerName != "" {
+		if err := settings.SetDefaultServerName(a.Cfg.ServerName); err != nil {
+			return fmt.Errorf("HANE_SERVER_NAME: %w", err)
+		}
+	}
 	stored, err := a.store.LoadSettings(ctx)
 	if err != nil {
 		return err
-	}
-	// HANE_INITIAL_SERVER_NAME 只在首次启动时写入，之后以管理面板中的设置为准
-	if a.Cfg.InitialServerName != "" {
-		if _, err := a.store.GetMeta(ctx, "initial_name_applied"); errors.Is(err, store.ErrNotFound) {
-			_, kv, err := settings.Defaults().Apply(settings.Patch{"server.name": strconv.Quote(a.Cfg.InitialServerName)}, settings.HashPassword)
-			if err != nil {
-				return fmt.Errorf("HANE_INITIAL_SERVER_NAME: %w", err)
-			}
-			if err := a.store.PutSettings(ctx, kv, store.SystemCreator); err != nil {
-				return err
-			}
-			if _, err := a.store.GetOrInitMeta(ctx, "initial_name_applied", func() string { return "1" }); err != nil {
-				return err
-			}
-			stored["server.name"] = kv["server.name"]
-		}
 	}
 	a.settings, err = settings.FromStored(stored)
 	if err != nil {
 		a.Log.Warn("some stored settings are invalid and were reset to defaults", "err", err)
 	}
+	return nil
+}
+
+// openChatImages 打开聊天图片目录，删掉数据库里的聊天记录没有引用的图片
+// （上次运行时只在内存里的聊天、上传了没发出去的图片）
+func (a *App) openChatImages(ctx context.Context) error {
+	var err error
+	a.images, err = chatimage.Open(a.Cfg.DataDir, a.Log.With("component", "chatimage"))
+	if err != nil {
+		return fmt.Errorf("chat images: %w", err)
+	}
+	refs, err := a.store.ChatImages(ctx)
+	if err != nil {
+		return fmt.Errorf("chat images: %w", err)
+	}
+	keep := make(map[string]bool, len(refs))
+	for _, r := range refs {
+		keep[r.RoomID+"/"+r.ID] = true
+	}
+	a.images.Sweep(keep)
 	return nil
 }
 
@@ -226,7 +246,23 @@ func (a *App) info() gateway.Info {
 		Protocol:         gateway.Range{Min: ProtocolMin, Max: ProtocolMax},
 		RequiresPassword: s.ServerPassword != "",
 		WebClient:        webui.Available(),
+		Online:           a.online(),
+		Logo:             a.logoETag(),
 	}
+}
+
+func (a *App) logoETag() string {
+	if img := a.logo.Get(); img != nil {
+		return img.ETag
+	}
+	return ""
+}
+
+func (a *App) online() int {
+	if a.hub == nil {
+		return 0
+	}
+	return a.hub.Online()
 }
 
 // certReloadLoop：file 模式下每分钟检查证书文件是否更新（例如 certbot 续期后），收到 SIGHUP 时立即检查，无需重启。
@@ -261,8 +297,11 @@ func (a *App) maintenanceLoop(ctx context.Context) {
 		s := a.currentSettings()
 		now := time.Now()
 		if s.ChatRetentionDays > 0 {
-			if n, err := a.store.PurgeChat(ctx, now.AddDate(0, 0, -s.ChatRetentionDays).UnixMilli()); err == nil && n > 0 {
-				a.Log.Info("purged old chat messages", "count", n)
+			if n, images, err := a.store.PurgeChat(ctx, now.AddDate(0, 0, -s.ChatRetentionDays).UnixMilli()); err == nil && n > 0 {
+				for _, img := range images {
+					a.images.Delete(img.RoomID, img.ID)
+				}
+				a.Log.Info("purged old chat messages", "count", n, "images", len(images))
 			}
 		}
 		if n, err := a.store.PurgeAudit(ctx, now.AddDate(0, 0, -s.AuditRetentionDays).UnixMilli()); err == nil && n > 0 {

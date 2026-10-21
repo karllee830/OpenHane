@@ -15,6 +15,9 @@ struct StatusBanner: View {
             } else if model.media.status == .connecting {
                 pill("正在建立语音通道…", icon: "waveform", tint: .secondary, busy: true)
             }
+            if model.media.micUnavailable {
+                pill("没有找到麦克风，只能收听。接上麦克风后会自动开启。", icon: "mic.slash.fill", tint: .orange)
+            }
             if let e = model.media.micError {
                 pill("麦克风出错：\(e)", icon: "mic.slash.fill", tint: .red)
             }
@@ -26,6 +29,8 @@ struct StatusBanner: View {
                 pill("内置摄像头不可用：笔记本合上了屏幕。打开屏幕或连接外接摄像头后再试", icon: "video.slash.fill", tint: .orange)
             case .none?:
                 pill("没有找到摄像头", icon: "video.slash.fill", tint: .orange)
+            case .disconnected?:
+                pill("摄像头已断开，已自动关闭", icon: "video.slash.fill", tint: .orange)
             case nil:
                 EmptyView()
             }

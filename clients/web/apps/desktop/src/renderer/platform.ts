@@ -45,7 +45,7 @@ export function createDesktopPlatform(bridge: DesktopBridge): PlatformServices {
       audioSupported: false, // Windows 进程环回扩展完成后开启
     },
     deepLinks: { onLink: (cb) => bridge.onDeepLink(cb) },
-    updates: {
+    updates: update.store ? undefined : {
       automatic: update.automatic,
       state: () => updateState,
       onChange: (cb) => {

@@ -6,6 +6,8 @@ public enum CameraUnavailable: Error, Sendable, Equatable {
     case suspended
     /// 一个摄像头都没有
     case none
+    /// 正在使用的摄像头在会议中被拔掉了
+    case disconnected
 }
 
 /// 选择摄像头用的设备信息（与 AVCaptureDevice 解耦，便于测试）

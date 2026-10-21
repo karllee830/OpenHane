@@ -36,6 +36,42 @@ func TestNickname(t *testing.T) {
 	}
 }
 
+func TestDisplayName(t *testing.T) {
+	// NFC：分解形式的「é」（e + 组合重音）和合成形式结果相同
+	if got, ok := NormalizeDisplayName("Cafe\u0301", 32); !ok || got != "Caf\u00e9" {
+		t.Errorf("NFC: %q %v", got, ok)
+	}
+	// 越南语等正常文字会叠两三个组合字符，可以
+	if _, ok := NormalizeDisplayName("Việt Nam", 32); !ok {
+		t.Error("Vietnamese should be valid")
+	}
+	// 把字往上下堆出界的 Zalgo 文字、零宽字符、方向控制符、换行：不行
+	for _, bad := range []string{"Z\u0300\u0301\u0302\u0303\u0304algo", "a\u200bb", "evil\u202egpj.exe", "a\u2028b", "a\tb"} {
+		if _, ok := NormalizeDisplayName(bad, 32); ok {
+			t.Errorf("%q should be invalid", bad)
+		}
+	}
+}
+
+// 与 Web 客户端 core/src/names.test.ts、Swift 版 DisplayNameTests 相同的用例
+func TestCleanChatText(t *testing.T) {
+	for in, want := range map[string]string{
+		"  你好 \n":                       "你好",
+		"Cafe\u0301":                    "Caf\u00e9",
+		"👨\u200d👩\u200d👧 1\ufe0f\u20e3": "👨\u200d👩\u200d👧 1\ufe0f\u20e3",
+		"🏴\U000e0067\U000e0062\U000e0065\U000e006e\U000e0067\U000e007f": "🏴\U000e0067\U000e0062\U000e0065\U000e006e\U000e0067\U000e007f",
+		"evil\u202egpj.exe":                         "evilgpj.exe",
+		"a\u200bb\u2066c\u2069":                     "abc",
+		"l1\r\nl2\rl3\u2028l4\tend":                 "l1\nl2\nl3\nl4\tend",
+		"\u0000a\u0007":                             "a",
+		"Z" + strings.Repeat("\u0300", 50) + "algo": "Z\u0300\u0300\u0300algo",
+	} {
+		if got := CleanChatText(in); got != want {
+			t.Errorf("%q → %q, want %q", in, got, want)
+		}
+	}
+}
+
 func TestUniquify(t *testing.T) {
 	taken := map[string]bool{"小明": true, "小明 (2)": true}
 	got := Uniquify("小明", func(s string) bool { return taken[s] })

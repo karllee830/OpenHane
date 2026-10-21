@@ -7,6 +7,7 @@ import { VoiceProcessorNode, aiNoiseAvailable, defaultNoiseSuppression, type Noi
 import { E2EEKeys, type E2EEState } from './e2ee';
 import { ShareTransport } from '@hane/protocol';
 import { TransportMonitor, sampleTransport, type TcpFallbackMode } from './transport';
+import { TrafficPacer, TrafficPolicy, newTrafficCounters, sampleTraffic, type TrafficState } from './traffic';
 import { ShareController, type ShareIntentName, type ShareStatus } from './share/controller';
 import type { CustomShare } from './share/engine';
 import E2EEWorker from 'livekit-client/e2ee-worker?worker';
@@ -22,6 +23,7 @@ import {
   Room,
   RoomEvent,
   Track,
+  TrackEvent,
   createLocalAudioTrack,
   type AudioProcessorOptions,
   type Participant,
@@ -39,6 +41,12 @@ export interface AudioPrefs {
   threshold: 'auto' | number;
   inputDeviceId: string;
   outputDeviceId: string;
+  /** 摄像头；旧版本保存的设置里没有 */
+  cameraDeviceId?: string;
+  /** 麦克风音量（0–2，1 为原始音量）；旧版本保存的设置里没有 */
+  inputVolume?: number;
+  /** 所有人声音的总音量（0–2，再乘上每个人单独的音量）；旧版本保存的设置里没有 */
+  outputVolume?: number;
   /** 戴耳机时可以关闭回声消除，音质更自然 */
   headphones: boolean;
 }
@@ -76,6 +84,8 @@ export interface MediaState {
   e2ee: E2EEState | null;
   /** 媒体连接走的协议；UDP 不稳定被切到 TCP 时 switched 记下原因（界面提示一次） */
   transport: { protocol: 'udp' | 'tcp' | null; switched: 'loss' | 'rtt' | 'always' | null };
+  /** 流量优先级的当前判断（诊断和测试用；没有媒体连接时为 null） */
+  traffic: TrafficState | null;
 }
 
 /** 某个参与者某一路视频（摄像头或屏幕）的轨道 */
@@ -111,6 +121,8 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
   processedTrack?: MediaStreamTrack;
   voice: VoiceProcessorNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
+  /** 麦克风音量：放在发言处理之前，电平和语音激活都按调整后的音量算 */
+  private gain: GainNode | null = null;
   private dest: MediaStreamAudioDestinationNode | null = null;
   /** 第一次 init 拿到的音频上下文：完整重连后 SDK 重新发布轨道时调用 restart / init 不一定带上它 */
   private ctx: AudioContext | null = null;
@@ -127,7 +139,9 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
     this.voice ??= await VoiceProcessorNode.create(ctx, { ns: p.ns, mode: p.mode, threshold: p.threshold });
     this.source = ctx.createMediaStreamSource(new MediaStream([opts.track]));
     this.dest = ctx.createMediaStreamDestination();
-    this.source.connect(this.voice.node).connect(this.dest);
+    this.gain ??= ctx.createGain();
+    this.gain.gain.value = p.inputVolume ?? 1;
+    this.source.connect(this.gain).connect(this.voice.node).connect(this.dest);
     this.processedTrack = this.dest.stream.getAudioTracks()[0];
     this.onVoice(this.voice);
   }
@@ -138,13 +152,19 @@ class VoiceTrackProcessor implements TrackProcessor<Track.Kind.Audio, AudioProce
     const ctx = (this.ctx = opts.audioContext ?? this.ctx);
     if (!ctx || !this.voice) return this.init(opts);
     this.source = ctx.createMediaStreamSource(new MediaStream([opts.track]));
-    this.source.connect(this.voice.node);
+    this.source.connect(this.gain ?? this.voice.node);
+  }
+
+  setInputVolume(v: number): void {
+    if (this.gain) this.gain.gain.value = v;
   }
 
   async destroy(): Promise<void> {
     this.source?.disconnect();
     this.voice?.dispose();
     this.voice = null;
+    this.gain?.disconnect();
+    this.gain = null;
     this.source = this.dest = null;
   }
 }
@@ -166,6 +186,7 @@ export class MediaSession {
     lastSwitch: null,
     e2ee: null,
     transport: { protocol: null, switched: null },
+    traffic: null,
   }));
   readonly levels = createStore<LevelState>()(() => ({ speaking: {}, local: null }));
 
@@ -240,12 +261,21 @@ export class MediaSession {
     };
     this.unsubClient = this.client.store.subscribe(follow);
     follow();
+    navigator.mediaDevices?.addEventListener('devicechange', this.onDeviceChange);
   }
+
+  /** 插上麦克风：之前因为没有设备而没能发布麦克风的，现在补发布 */
+  private readonly onDeviceChange = () => {
+    const room = this.room;
+    if (this.state.getState().micError !== 'no-device' || !room || room.state !== ConnectionState.Connected) return;
+    if (!room.localParticipant.getTrackPublication(Track.Source.Microphone)) void this.publishMic(room);
+  };
 
   /** 离开：断开媒体，释放麦克风和音频上下文。 */
   async stop(): Promise<void> {
     await this.stopScreenShare().catch(() => undefined);
     this.stopped = true;
+    navigator.mediaDevices?.removeEventListener('devicechange', this.onDeviceChange);
     this.unsubClient?.();
     this.unsubClient = null;
     if (this.retryTimer) clearTimeout(this.retryTimer);
@@ -324,6 +354,7 @@ export class MediaSession {
       }
       this.room = room;
       this.watchIce(room);
+      this.watchTraffic(room);
       this.roomId = t.roomId;
       this.roomE2EE = e2ee;
       // 加密房间每次连接都换一套密钥：共享连接用的是旧密钥，重新连接（不加密时共享连接不受主连接重连影响）
@@ -523,6 +554,47 @@ export class MediaSession {
     }, 500);
   }
 
+  /**
+   * 流量优先级（见 traffic.ts）：每秒取一次主连接和共享连接的统计，更新聊天图片的传输速度，并告诉屏幕共享要不要让路。
+   * 媒体连接期间才给客户端设置传输节奏，断开后图片传输不再限速
+   */
+  private watchTraffic(room: Room) {
+    const policy = new TrafficPolicy();
+    const counters = newTrafficCounters();
+    const pacer = new TrafficPacer();
+    this.client.setTransferPacer(pacer);
+    type Pcs = { engine?: { pcManager?: { publisher?: { pc?: RTCPeerConnection }; subscriber?: { pc?: RTCPeerConnection } } } };
+    const pcs = (r: Room | null) => (r as unknown as Pcs | null)?.engine?.pcManager;
+    const stats = (pc?: RTCPeerConnection) => (pc ? pc.getStats().catch(() => null) : Promise.resolve(null));
+    const some = (xs: (RTCStatsReport | null)[]) => xs.filter((x): x is RTCStatsReport => !!x);
+    const timer = setInterval(async () => {
+      if (this.room !== room) {
+        clearInterval(timer);
+        if (!this.room) {
+          this.client.setTransferPacer(null);
+          this.state.setState({ traffic: null });
+        }
+        return;
+      }
+      if (room.state !== ConnectionState.Connected) return;
+      const main = pcs(room);
+      const share = pcs(this.shareRoom);
+      const [camera, mainDown, shareUp, shareDown] = await Promise.all([
+        stats(main?.publisher?.pc),
+        stats(main?.subscriber?.pc),
+        stats(share?.publisher?.pc),
+        stats(share?.subscriber?.pc),
+      ]);
+      if (this.room !== room) return;
+      const sample = sampleTraffic(performance.now(), { camera: some([camera]), share: some([shareUp]), down: some([mainDown, shareDown]) }, counters);
+      const active = pacer.takeActivity();
+      const st = policy.update({ ...sample, upActive: active.up, downActive: active.down });
+      pacer.set(st.upBps, st.downBps);
+      this.shareCtl?.setYield(st.shareYield);
+      this.state.setState({ traffic: st });
+    }, 1000);
+  }
+
   /** 共享连接要请求的传输方式：TCP 连不上过就要 UDP，从 UDP 切到过 TCP 就要 TCP，否则按服务器设置 */
   private shareTransport(): ShareTransport {
     if (this.shareUdp) return ShareTransport.UDP;
@@ -588,6 +660,16 @@ export class MediaSession {
 
   // ---------- 摄像头 ----------
 
+  /** getUserMedia 的错误 → 界面显示用的代码 */
+  private static deviceError(e: unknown): string {
+    const name = (e as DOMException)?.name;
+    if (name === 'NotAllowedError') return 'permission-denied';
+    if (name === 'NotFoundError') return 'no-device';
+    // 设备被别的程序占用，或者驱动出错
+    if (name === 'NotReadableError' || name === 'AbortError') return 'busy';
+    return String(e);
+  }
+
   /** 开关摄像头：分辨率和帧率受服务器策略限制；≥ 540p 时三层 simulcast（避开两层） */
   async setCameraEnabled(on: boolean): Promise<void> {
     const room = await this.connectedRoom();
@@ -599,15 +681,23 @@ export class MediaSession {
     const maxH = cam?.maxHeight || 720;
     const preset = maxH >= 720 ? VideoPresets.h720 : maxH >= 540 ? VideoPresets.h540 : VideoPresets.h360;
     try {
+      const deviceId = this.state.getState().prefs.cameraDeviceId;
       await room.localParticipant.setCameraEnabled(
         on,
-        { resolution: { ...preset.resolution, frameRate: Math.min(cam?.maxFps || 30, 30) } },
+        { deviceId: deviceId && deviceId !== 'default' ? deviceId : undefined, resolution: { ...preset.resolution, frameRate: Math.min(cam?.maxFps || 30, 30) } },
         { videoCodec: 'vp8', simulcast: maxH >= 540, videoSimulcastLayers: [VideoPresets.h180, VideoPresets.h360] },
       );
       this.state.setState({ cameraOn: on, cameraError: null });
+      // 摄像头的优先级低于语音（语音默认最高）、高于屏幕共享
+      if (on) await setPriority(room.localParticipant.getTrackPublication(Track.Source.Camera)?.track?.sender, 'medium');
+      // 摄像头在会议中被拔掉：轨道结束后不会再有画面，关掉并提示
+      const track = on ? room.localParticipant.getTrackPublication(Track.Source.Camera)?.track : undefined;
+      track?.once(TrackEvent.Ended, () => {
+        if (!this.state.getState().cameraOn) return;
+        void this.setCameraEnabled(false).then(() => this.state.setState({ cameraError: 'disconnected' }));
+      });
     } catch (e) {
-      const name = (e as DOMException)?.name;
-      this.state.setState({ cameraOn: false, cameraError: name === 'NotAllowedError' ? 'permission-denied' : name === 'NotFoundError' ? 'no-device' : String(e) });
+      this.state.setState({ cameraOn: false, cameraError: MediaSession.deviceError(e) });
     }
   }
 
@@ -788,6 +878,8 @@ export class MediaSession {
           channelCount: 1,
         });
         this.micTrack.setAudioContext(this.ctx);
+        const track = this.micTrack;
+        track.on(TrackEvent.Ended, () => void this.onMicEnded(room, track));
         this.processor = new VoiceTrackProcessor(
           () => this.state.getState().prefs,
           (v) => this.attachVoice(v),
@@ -804,9 +896,28 @@ export class MediaSession {
       });
       this.state.setState({ micError: null });
     } catch (e) {
-      const name = (e as DOMException)?.name;
-      this.state.setState({ micError: name === 'NotAllowedError' ? 'permission-denied' : name === 'NotFoundError' ? 'no-device' : String(e) });
+      this.state.setState({ micError: MediaSession.deviceError(e) });
     }
+  }
+
+  /** 麦克风轨道结束（设备被拔掉）：还有别的麦克风就换到默认设备；一个都没有了就取消发布，接上后由 devicechange 补发布 */
+  private async onMicEnded(room: Room, track: LocalAudioTrack) {
+    if (this.micTrack !== track || this.room !== room) return;
+    const devices = await navigator.mediaDevices.enumerateDevices().catch(() => []);
+    if (devices.some((d) => d.kind === 'audioinput')) {
+      try {
+        await track.restartTrack({ deviceId: 'default' });
+        return;
+      } catch {
+        // 换设备也失败：按没有麦克风处理
+      }
+    }
+    if (this.micTrack !== track) return;
+    this.micTrack = null;
+    await room.localParticipant.unpublishTrack(track).catch(() => undefined);
+    await track.stopProcessor().catch(() => undefined);
+    track.stop();
+    this.state.setState({ micError: 'no-device' });
   }
 
   private attachVoice(v: VoiceProcessorNode) {
@@ -855,6 +966,13 @@ export class MediaSession {
       await this.room.switchActiveDevice('audioinput', prefs.inputDeviceId).catch(() => undefined);
     }
     if (patch.outputDeviceId !== undefined) for (const el of this.audioEls.values()) await this.applyOutputDevice(el);
+    if (patch.inputVolume !== undefined) this.processor?.setInputVolume(prefs.inputVolume ?? 1);
+    if (patch.outputVolume !== undefined) {
+      for (const r of [this.room, this.shareRoom]) for (const p of r?.remoteParticipants.values() ?? []) this.applyVolume(p);
+    }
+    if (patch.cameraDeviceId !== undefined && this.room && this.state.getState().cameraOn) {
+      await this.room.switchActiveDevice('videoinput', prefs.cameraDeviceId || 'default').catch(() => undefined);
+    }
     if (patch.headphones !== undefined && this.micTrack) {
       await this.micTrack.restartTrack({ echoCancellation: !prefs.headphones, noiseSuppression: false, autoGainControl: true });
     }
@@ -877,8 +995,8 @@ export class MediaSession {
 
   private applyVolume(p: Participant) {
     if (!(p instanceof RemoteParticipant)) return;
-    const v = this.state.getState().volumes[mainIdentity(p.identity)] ?? 1;
-    p.setVolume(v);
+    const s = this.state.getState();
+    p.setVolume((s.volumes[mainIdentity(p.identity)] ?? 1) * (s.prefs.outputVolume ?? 1));
   }
 
   /** 浏览器阻止自动播放时，在用户点击后调用。 */
@@ -890,9 +1008,9 @@ export class MediaSession {
   }
 
   /** 列出音频设备（需要已获得麦克风权限才有设备名称）。 */
-  static async devices(): Promise<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[] }> {
+  static async devices(): Promise<{ inputs: MediaDeviceInfo[]; outputs: MediaDeviceInfo[]; cameras: MediaDeviceInfo[] }> {
     const all = await navigator.mediaDevices.enumerateDevices();
-    return { inputs: all.filter((d) => d.kind === 'audioinput'), outputs: all.filter((d) => d.kind === 'audiooutput') };
+    return { inputs: all.filter((d) => d.kind === 'audioinput'), outputs: all.filter((d) => d.kind === 'audiooutput'), cameras: all.filter((d) => d.kind === 'videoinput') };
   }
 
   /** 用于诊断：当前的 Room（测试和连接信息页）。 */
@@ -907,3 +1025,15 @@ export class MediaSession {
 }
 
 export type { RemoteAudioTrack };
+
+/** 发送轨道的优先级：同一条连接里带宽不够时按它分配码率，并据此标记网络优先级（DSCP，局域网和部分 Wi-Fi 会照做） */
+export async function setPriority(sender: RTCRtpSender | undefined, priority: RTCPriorityType): Promise<void> {
+  if (!sender) return;
+  const p = sender.getParameters();
+  if (!p.encodings?.length) return;
+  for (const e of p.encodings) {
+    e.priority = priority;
+    e.networkPriority = priority;
+  }
+  await sender.setParameters(p).catch(() => undefined);
+}

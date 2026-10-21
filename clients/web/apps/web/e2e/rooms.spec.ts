@@ -66,7 +66,7 @@ async function remoteAudioEnergy(page: Page): Promise<number> {
   });
 }
 
-test('rooms: create, fast switch without audio gap, password, moderation, drag to move, close, kick', async () => {
+test('rooms: create, fast switch without audio gap, password, moderation, drag to move, close, member menu, kick', async () => {
   const alice = await join('Alice');
   const bob = await join('Bob');
   await alice.evaluate((t) => (window as any).__hane.client.redeemToken(t), server.adminToken);
@@ -126,6 +126,16 @@ test('rooms: create, fast switch without audio gap, password, moderation, drag t
   await expect(alice.getByTestId('notice')).toContainText(/已关闭|was closed/);
   await expect.poll(() => mediaRoom(alice), { timeout: 10_000 }).toBe('main');
   await expect(alice.getByTestId('room-设计评审')).toHaveCount(0);
+
+  // 右键也打开成员菜单；管理员能看到 IP 和延迟，能设为 / 取消管理员
+  await alice.getByTestId('member-Bob').click({ button: 'right' });
+  await expect(alice.getByTestId('member-info')).toContainText(/127\.0\.0\.1|::1/);
+  await expect(alice.getByTestId('member-info')).toContainText(/\d+ ms · /);
+  await alice.getByTestId('mod-set-admin').click();
+  await expect(alice.getByTestId('notice')).toContainText(/设为管理员|now an admin/);
+  await alice.getByTestId('member-Bob').click();
+  await alice.getByTestId('mod-unset-admin').click();
+  await expect(alice.getByTestId('notice')).toContainText(/取消|no longer/);
 
   // 踢出：Bob 回到连接页，看到操作者和原因
   await alice.getByTestId('member-Bob').click();

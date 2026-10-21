@@ -1,0 +1,4436 @@
+{
+  "version": 1,
+  "vectors": [
+    {
+      "name": "平稳：传输中逐步加速到上限",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 10000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 11000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 12000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 13000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 14000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 15000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 16000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 17000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 18000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 19000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 20000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 21000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 22000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 23000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 24000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 25000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 26000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 27000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 28000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 29000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 30000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 31000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 32000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 33000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 34000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 35000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 36000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 37000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 38000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 39000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 4271486,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6407229,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 9610844,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 14416266,
+          "downBps": 14416266
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 21624399,
+          "downBps": 21624399
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 32436599,
+          "downBps": 32436599
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 48654899,
+          "downBps": 48654899
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 72982349,
+          "downBps": 72982349
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 109473524,
+          "downBps": 109473524
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 125000000,
+          "downBps": 125000000
+        }
+      ]
+    },
+    {
+      "name": "上行往返时间升高（排队）：图片减速，屏幕共享让路",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 130,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 130,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 130,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 130,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 130,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 10000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 11000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 12000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 13000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 14000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 15000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 949219,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 474610,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 237305,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 118653,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 59327,
+          "downBps": 14416266
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 88991,
+          "downBps": 21624399
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 133487,
+          "downBps": 32436599
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 200231,
+          "downBps": 48654899
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 300347,
+          "downBps": 72982349
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 450521,
+          "downBps": 109473524
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 675782,
+          "downBps": 125000000
+        }
+      ]
+    },
+    {
+      "name": "往返时间小幅波动不算拥堵",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 65,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 90,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 65,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 90,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 65,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 90,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 4271486,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6407229,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 9610844,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 14416266,
+          "downBps": 14416266
+        }
+      ]
+    },
+    {
+      "name": "上行丢包",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.08,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.08,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.08,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0.01,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 632813,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 316407,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 158204,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 237306,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 355959,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 533939,
+          "downBps": 14416266
+        }
+      ]
+    },
+    {
+      "name": "摄像头受带宽限制：图片减速，屏幕共享让路",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 421875,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 210938,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 105469,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 158204,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 237306,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 355959,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 533939,
+          "downBps": 14416266
+        }
+      ]
+    },
+    {
+      "name": "屏幕共享自己受带宽限制：图片减速，共享不让路",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": true,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": true,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": true,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 421875,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 210938,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 105469,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 158204,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 237306,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 355959,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 533939,
+          "downBps": 14416266
+        }
+      ]
+    },
+    {
+      "name": "下行丢包；包太少时不算",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 20,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 20,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0.06,
+          "downPackets": 20,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 10000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 11000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 421875
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 210938
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 105469
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 4271486,
+          "downBps": 158204
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6407229,
+          "downBps": 237306
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 9610844,
+          "downBps": 355959
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 14416266,
+          "downBps": 533939
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 21624399,
+          "downBps": 800909
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 32436599,
+          "downBps": 1201364
+        }
+      ]
+    },
+    {
+      "name": "下行抖动缓冲变长",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 120,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 120,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 120,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 632813
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 316407
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 4271486,
+          "downBps": 158204
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6407229,
+          "downBps": 237306
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 9610844,
+          "downBps": 355959
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 14416266,
+          "downBps": 533939
+        }
+      ]
+    },
+    {
+      "name": "远端视频卡顿",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 1,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": true,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 421875
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 632813
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 949220
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 4271486,
+          "downBps": 1423830
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6407229,
+          "downBps": 2135745
+        }
+      ]
+    },
+    {
+      "name": "持续拥堵：速度降到下限",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 10000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 11000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 12000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": true,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 200,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 13000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 125000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 62500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 31250,
+          "downBps": 843750
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 15625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 7813,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 14416266
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 21624399
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 32436599
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 48654899
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 72982349
+        }
+      ]
+    },
+    {
+      "name": "没有传输时不加速；空闲 10 秒后回到起始速度",
+      "samples": [
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 4000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 5000
+        },
+        {
+          "upRttMs": 140,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 6000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 7000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 8000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 9000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 10000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 11000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 12000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 13000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 14000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 15000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 16000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 17000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 18000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": false,
+          "downActive": false,
+          "t": 19000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 20000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 21000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 22000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 23000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 24000
+        },
+        {
+          "upRttMs": 40,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": false,
+          "t": 25000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 632813,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 250000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 250000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 250000
+        }
+      ]
+    },
+    {
+      "name": "没有媒体统计时不算拥堵",
+      "samples": [
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": null,
+          "upLoss": null,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": null,
+          "downPackets": 0,
+          "jitterBufferMs": null,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1265625,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 1898438,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 2847657,
+          "downBps": 2847657
+        }
+      ]
+    },
+    {
+      "name": "基准只看最近 30 秒：链路变慢后成为新的基准",
+      "samples": [
+        {
+          "upRttMs": 20,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 0
+        },
+        {
+          "upRttMs": 20,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 1000
+        },
+        {
+          "upRttMs": 20,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 2000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 3000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 4000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 5000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 6000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 7000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 8000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 9000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 10000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 11000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 12000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 13000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 14000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 15000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 16000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 17000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 18000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 19000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 20000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 21000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 22000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 23000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 24000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 25000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 26000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 27000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 28000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 29000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 30000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 31000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 32000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 33000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 34000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 35000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 36000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 37000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 38000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 39000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 40000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 41000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 42000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 43000
+        },
+        {
+          "upRttMs": 100,
+          "upLoss": 0,
+          "cameraLimited": false,
+          "shareLimited": false,
+          "downLoss": 0,
+          "downPackets": 200,
+          "jitterBufferMs": 30,
+          "freezes": 0,
+          "upActive": true,
+          "downActive": true,
+          "t": 44000
+        }
+      ],
+      "expected": [
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 375000,
+          "downBps": 375000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 562500,
+          "downBps": 562500
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 843750,
+          "downBps": 843750
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 421875,
+          "downBps": 1265625
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 210938,
+          "downBps": 1898438
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 105469,
+          "downBps": 2847657
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 52735,
+          "downBps": 4271486
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 26368,
+          "downBps": 6407229
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 13184,
+          "downBps": 9610844
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 6592,
+          "downBps": 14416266
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 21624399
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 32436599
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 48654899
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 72982349
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 109473524
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": true,
+          "downCongested": false,
+          "shareYield": true,
+          "upBps": 4000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 6000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 9000,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 13500,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 20250,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 30375,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 45563,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 68345,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 102518,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 153777,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 230666,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 345999,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 518999,
+          "downBps": 125000000
+        },
+        {
+          "upCongested": false,
+          "downCongested": false,
+          "shareYield": false,
+          "upBps": 778499,
+          "downBps": 125000000
+        }
+      ]
+    }
+  ]
+}

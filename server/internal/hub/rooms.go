@@ -208,6 +208,7 @@ func (h *Hub) closeRoom(room *Room, by *Session, why string) {
 		room.emptyTimer.Stop()
 	}
 	delete(h.rooms, room.ID)
+	h.dropRoomImages(room.ID)
 	h.broadcast(nil, &pb.Event{Body: &pb.Event_RoomClosed{RoomClosed: &pb.RoomClosed{RoomId: room.ID}}})
 	go func() {
 		ctx, cancel := bg()
@@ -276,11 +277,12 @@ func (h *Hub) handleCreateRoom(s *Session, r *pb.CreateRoom) *pb.Response {
 	return &pb.Response{Body: &pb.Response_CreateRoom{CreateRoom: res}}
 }
 
+// overridesOrEmpty 只取已知字段重新构造（不保留未知字段：房间信息会广播给所有人）
 func overridesOrEmpty(o *pb.RoomOverrides) *pb.RoomOverrides {
-	if o == nil {
-		return &pb.RoomOverrides{}
+	return &pb.RoomOverrides{
+		ScreenModeratorOnly: o.GetScreenModeratorOnly(), CameraModeratorOnly: o.GetCameraModeratorOnly(),
+		E2Ee: o.GetE2Ee(), AudioMaxKbps: o.GetAudioMaxKbps(),
 	}
-	return proto.Clone(o).(*pb.RoomOverrides)
 }
 
 func (h *Hub) handleUpdateRoom(s *Session, r *pb.UpdateRoom) *pb.Response {

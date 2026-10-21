@@ -2,9 +2,21 @@
 package ratelimit
 
 import (
+	"net/netip"
 	"sync"
 	"time"
 )
+
+// IPKey 是按 IP 限流时用的键：IPv4 按单个地址；IPv6 按 /64，因为一个用户通常分到一整个 /64 网段，
+// 可以随意换地址绕过按单个地址的限制。
+func IPKey(a netip.Addr) string {
+	a = a.Unmap()
+	if a.Is6() {
+		p, _ := a.Prefix(64)
+		return p.String()
+	}
+	return a.String()
+}
 
 // Window 是滑动窗口计数器：每个键在 per 时间内最多 limit 次。并发安全。
 type Window struct {

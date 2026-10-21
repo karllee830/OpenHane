@@ -29,7 +29,7 @@ struct ShareStageView: View {
                 } else {
                     HStack(spacing: 6) {
                         if let sharer { AvatarView(name: sharer.nickname, uid: sharer.uid, size: 20) }
-                        Text(L("\(sharer?.nickname ?? "?") 正在共享屏幕")).lineLimit(1)
+                        Text(L("\(sharer?.nickname ?? "?") 正在共享屏幕")).lineLimit(1).truncationMode(.middle)
                     }
                 }
                 Text(ShareIntentName(current.intent).label)

@@ -1,6 +1,6 @@
 import HaneCore
+import HaneMedia
 import SwiftUI
-import TipKit
 
 /// 会议主界面：侧栏成员 | 舞台 | 聊天（检查器），工具栏是控制栏。
 struct MeetingView: View {
@@ -40,7 +40,7 @@ struct MeetingView: View {
                 ChatView().inspectorColumnWidth(min: 260, ideal: 320, max: 480)
             }
         }
-        .navigationTitle(model.session.state.serverInfo.name)
+        .navigationTitle(model.meetingTitle)
         .toolbar { ControlBar(sheet: $sheet) }
         .sheet(item: $sheet) { s in
             switch s {
@@ -50,6 +50,7 @@ struct MeetingView: View {
             }
         }
         .onAppear { if model.linkToken != nil { sheet = .redeem } }
+        .task { await model.media.refreshAudioDevices() }
         .task {
             // 截图检查：HANE_SNAPSHOT_SHEET=admin|info|redeem 进入会议 4 秒后（截图工具兑换完权限令牌之后）打开对应的面板
             guard let s = DevHooks.environment["HANE_SNAPSHOT_SHEET"].flatMap(Sheet.init(rawValue:)) else { return }
@@ -87,8 +88,6 @@ struct SidebarView: View {
         let perms = state.permissions
         let current = state.media?.roomID ?? "main"
         List {
-            TipView(RoomsTip())
-            TipView(MenuBarTip())
             ForEach(state.sortedRooms, id: \.id) { room in
                 let members = state.members(of: room.id)
                 Section {
@@ -110,7 +109,8 @@ struct SidebarView: View {
             HStack(spacing: 6) {
                 Image(systemName: model.session.address?.secure == false ? "lock.open" : "lock.fill")
                     .foregroundStyle(model.session.address?.secure == false ? .orange : .green)
-                Text(state.serverInfo.name).font(.headline).lineLimit(1)
+                if let logo = model.currentServerLogo { ServerLogoImage(data: logo, size: 20) }
+                Text(verbatim: model.meetingTitle).font(.headline).lineLimit(1)
                 Spacer()
                 if perms.isModerator, state.rooms.values.contains(where: { $0.kind == .temporary }) {
                     Button { run { _ = try await model.session.recallAll() } } label: { Image(systemName: "arrow.uturn.backward") }
@@ -203,7 +203,8 @@ struct MemberRow: View {
     let p: Participant
     let isSelf: Bool
     let onKickBan: (ModerationSheet.Kind) -> Void
-    @State private var showVolume = false
+    @State private var showMenu = false
+    @State private var showGeoAlert = false
 
     var body: some View {
         let perms = model.session.state.permissions
@@ -218,28 +219,113 @@ struct MemberRow: View {
             StatusIcons(p: p)
         }
         .contentShape(Rectangle())
-        .onTapGesture { if !isSelf { showVolume = true } }
-        .popover(isPresented: $showVolume, arrowEdge: .trailing) {
-            let v = model.media.volumes[p.mediaIdentity] ?? 1
-            VStack(alignment: .leading) {
-                Text(p.nickname).font(.headline)
-                Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
-                Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
-                    .frame(width: 200)
-            }
-            .padding()
+        // 左键、右键都打开同一个弹出框
+        .onTapGesture { if !isSelf { showMenu = true } }
+        .overlay { if !isSelf { RightClickCatcher { showMenu = true } } }
+        .popover(isPresented: $showMenu, arrowEdge: .trailing) {
+            MemberPopover(p: p, onKickBan: onKickBan, onDownloadV6: { showMenu = false; showGeoAlert = true })
         }
-        .contextMenu {
-            if !isSelf { Button("调整音量…") { showVolume = true } }
-            ModerationMenuItems(p: p, onKickBan: onKickBan)
-        }
+        .ipv6GeoAlert(isPresented: $showGeoAlert, model: model)
         .accessibilityElement(children: .combine)
+        .accessibilityAction(named: Text("成员菜单")) { if !isSelf { showMenu = true } }
         // 自己可以拖到别的房间（等同于进入）；主持人可以拖动角色更低的人
         if isSelf || perms.canKick(p) {
             row.draggable(p.sessionID)
         } else {
             row
         }
+    }
+}
+
+/// 成员弹出框：音量、主持和管理员操作、连接信息（仅管理员）
+struct MemberPopover: View {
+    @Environment(AppModel.self) private var model
+    @Environment(\.dismiss) private var dismiss
+    let p: Participant
+    let onKickBan: (ModerationSheet.Kind) -> Void
+    let onDownloadV6: () -> Void
+
+    var body: some View {
+        let v = model.media.volumes[p.mediaIdentity] ?? 1
+        VStack(alignment: .leading, spacing: 6) {
+            // 和下面的菜单项一样左右缩进，左右两边都对齐
+            VStack(alignment: .leading, spacing: 6) {
+                Text(p.nickname).font(.headline).lineLimit(1).truncationMode(.tail).help(p.nickname)
+                Text("音量 \(Int(v * 100))%").font(.caption).foregroundStyle(.secondary)
+                Slider(value: Binding(get: { v }, set: { model.media.setVolume($0, for: p.mediaIdentity) }), in: 0 ... 2, step: 0.05)
+            }
+            .padding(.horizontal, 6)
+            .padding(.bottom, 6)
+            VStack(alignment: .leading, spacing: 2) {
+                ModerationMenuItems(p: p, onKickBan: onKickBan, onAction: { dismiss() }, dividers: false)
+                    .buttonStyle(PopoverRowButtonStyle())
+                    // 「移动到」子菜单也用整行按钮的样式，和其他行对齐
+                    .menuStyle(.button)
+                    .menuIndicator(.hidden)
+                if model.session.state.permissions.role == .admin {
+                    // 和菜单项相同的内边距，文字左边对齐
+                    MemberInfoView(p: p, onDownloadV6: onDownloadV6)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 4)
+                }
+            }
+        }
+        .padding(12)
+        .frame(width: 240)
+    }
+}
+
+/// 弹出框里像菜单项一样的整行按钮
+private struct PopoverRowButtonStyle: ButtonStyle {
+    @State private var hover = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .labelStyle(PopoverRowLabelStyle())
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 6)
+            .padding(.vertical, 4)
+            .background(RoundedRectangle(cornerRadius: 5).fill(Color.primary.opacity(configuration.isPressed ? 0.12 : hover ? 0.06 : 0)))
+            .contentShape(Rectangle())
+            .onHover { hover = $0 }
+            .foregroundStyle(configuration.role == .destructive ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+    }
+}
+
+/// 图标放在固定宽度的格子里：各图标宽窄不一，文字的起点仍然对齐
+private struct PopoverRowLabelStyle: LabelStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        HStack(spacing: 8) {
+            configuration.icon.frame(width: 20)
+            configuration.title
+        }
+    }
+}
+
+/// SwiftUI 没有右键手势：透明的 NSView 只在右键时接收点击，左键和拖动照常交给下面的视图
+private struct RightClickCatcher: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context: Context) -> CatcherView { CatcherView(action: action) }
+    func updateNSView(_ view: CatcherView, context: Context) { view.action = action }
+
+    final class CatcherView: NSView {
+        var action: () -> Void
+        init(action: @escaping () -> Void) {
+            self.action = action
+            super.init(frame: .zero)
+        }
+
+        @available(*, unavailable) required init?(coder: NSCoder) { fatalError() }
+
+        override func hitTest(_ point: NSPoint) -> NSView? {
+            switch NSApp.currentEvent?.type {
+            case .rightMouseDown, .rightMouseUp: super.hitTest(point)
+            default: nil
+            }
+        }
+
+        override func rightMouseDown(with event: NSEvent) { action() }
     }
 }
 
@@ -319,7 +405,7 @@ struct SelfCard: View {
                     Image(systemName: "gearshape")
                 }
                 .buttonStyle(.borderless)
-                .help("音频设置…")
+                .help("音视频设置…")
             }
             .padding(10)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(0.05)))
@@ -347,21 +433,8 @@ struct ControlBar: ToolbarContent {
 
     var body: some ToolbarContent {
         ToolbarItemGroup(placement: .principal) {
-            let muted = model.media.micMuted
-            Button { Task { await model.setMuted(!muted) } } label: {
-                Label(muted ? L("取消静音") : L("静音"), systemImage: muted ? "mic.slash.fill" : "mic.fill")
-                    .foregroundStyle(muted ? AnyShapeStyle(.red) : model.media.transmitting && model.voiceMode != .open ? AnyShapeStyle(.green) : AnyShapeStyle(.primary))
-            }
-            .help(muted ? L("取消静音") : L("静音"))
-            .keyboardShortcut("m", modifiers: [.command, .shift])
-            .popoverTip(VoiceTip(), arrowEdge: .bottom)
-            let deaf = model.media.deafened
-            Button { Task { await model.setDeafened(!deaf) } } label: {
-                Label(deaf ? L("开启声音") : L("关闭声音"), systemImage: deaf ? "speaker.slash.fill" : "speaker.wave.2.fill")
-                    .foregroundStyle(deaf ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
-            }
-            .help(deaf ? L("开启声音") : L("关闭声音"))
-            .keyboardShortcut("d", modifiers: [.command, .shift])
+            MicButton()
+            SpeakerButton()
             let raised = model.session.state.selfParticipant?.state.handRaised ?? false
             Button { Task { try? await model.session.updateSelf(handRaised: !raised) } } label: {
                 Label(raised ? L("放下手") : L("举手"), systemImage: raised ? "hand.raised.fill" : "hand.raised")
@@ -384,7 +457,7 @@ struct ControlBar: ToolbarContent {
                 if model.session.state.me?.role == .admin { Button("服务器管理…") { sheet = .admin } }
                 Button("连接信息") { sheet = .info }
                 Button("关于羽见…") { openWindow(id: "about") }
-                SettingsLink { Text("音频设置…") }
+                SettingsLink { Text("音视频设置…") }
             } label: {
                 Label("更多", systemImage: "ellipsis.circle")
             }
@@ -397,6 +470,145 @@ struct ControlBar: ToolbarContent {
                 Label("离开", systemImage: "phone.down.fill").foregroundStyle(.red)
             }
             .help("离开")
+        }
+    }
+}
+
+/// 麦克风按钮：点按静音；右键（或 Control+点按）弹出麦克风面板
+struct MicButton: View {
+    @Environment(AppModel.self) private var model
+    @State private var showPanel = false
+
+    var body: some View {
+        let muted = model.media.micMuted
+        Button { Task { await model.setMuted(!muted) } } label: {
+            Label(muted ? L("取消静音") : L("静音"), systemImage: muted ? "mic.slash.fill" : "mic.fill")
+                .foregroundStyle(muted ? AnyShapeStyle(.red) : model.media.transmitting && model.voiceMode != .open ? AnyShapeStyle(.green) : AnyShapeStyle(.primary))
+        }
+        .help(muted ? L("取消静音（右键：麦克风选项）") : L("静音（右键：麦克风选项）"))
+        .keyboardShortcut("m", modifiers: [.command, .shift])
+        .background(ToolbarRightClick { showPanel = true })
+        .popover(isPresented: $showPanel, arrowEdge: .bottom) { MicPanel() }
+    }
+}
+
+/// 声音按钮：点按关闭 / 开启声音；右键（或 Control+点按）弹出声音面板
+struct SpeakerButton: View {
+    @Environment(AppModel.self) private var model
+    @State private var showPanel = false
+
+    var body: some View {
+        let deaf = model.media.deafened
+        Button { Task { await model.setDeafened(!deaf) } } label: {
+            Label(deaf ? L("开启声音") : L("关闭声音"), systemImage: deaf ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .foregroundStyle(deaf ? AnyShapeStyle(.red) : AnyShapeStyle(.primary))
+        }
+        .help(deaf ? L("开启声音（右键：声音选项）") : L("关闭声音（右键：声音选项）"))
+        .keyboardShortcut("d", modifiers: [.command, .shift])
+        .background(ToolbarRightClick { showPanel = true })
+        .popover(isPresented: $showPanel, arrowEdge: .bottom) { OutputPanel() }
+    }
+}
+
+/// 麦克风面板：输入设备、麦克风音量（带电平），以及降噪、回声消除、发言模式这几项常用设置
+struct MicPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        Form {
+            Section {
+                Picker("输入设备", selection: model.inputDeviceBinding) {
+                    Text("系统默认").tag("")
+                    ForEach(model.media.inputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
+                }
+                VolumeSlider(title: "麦克风音量", value: $model.inputVolume)
+                LiveLevelMeter()
+            }
+            Section {
+                if MediaSession.aiNoiseAvailable {
+                    Picker("降噪", selection: $model.noiseSuppression) {
+                        ForEach(NoiseSuppression.allCases, id: \.self) { Text($0.title).tag($0) }
+                    }
+                }
+                Picker("回声消除", selection: $model.echoProcessing) {
+                    ForEach(EchoProcessing.allCases, id: \.self) { Text($0.title).tag($0) }
+                }
+                Picker("发言模式", selection: $model.voiceMode) {
+                    Text("语音激活").tag(VoiceMode.voice)
+                    Text("按键说话").tag(VoiceMode.ptt)
+                    Text("常开").tag(VoiceMode.open)
+                }
+            }
+            SettingsLink { Text("音视频设置…") }
+                .buttonStyle(.link)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .formStyle(.grouped)
+        .frame(width: 340)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// 声音面板：输出设备和输出音量
+struct OutputPanel: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        @Bindable var model = model
+        Form {
+            Section {
+                Picker("输出设备", selection: model.outputDeviceBinding) {
+                    Text("系统默认").tag("")
+                    ForEach(model.media.outputDevices, id: \.deviceId) { Text($0.name).tag($0.deviceId) }
+                }
+                VolumeSlider(title: "输出音量", value: $model.outputVolume)
+            }
+            SettingsLink { Text("音视频设置…") }
+                .buttonStyle(.link)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .formStyle(.grouped)
+        .frame(width: 340)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// 工具栏按钮的右键：右键（或 Control+点按）点在这个视图的范围内时调用 action，并且不再弹出系统菜单。
+/// 工具栏里右键默认是工具栏自己的菜单（「图标和文字 / 仅图标」），contextMenu 和普通的点按拦截都不起作用，所以在窗口层面拦截
+private struct ToolbarRightClick: NSViewRepresentable {
+    let action: () -> Void
+
+    func makeNSView(context _: Context) -> ToolbarRightClickView {
+        let v = ToolbarRightClickView()
+        v.action = action
+        return v
+    }
+
+    func updateNSView(_ view: ToolbarRightClickView, context _: Context) { view.action = action }
+}
+
+/// ToolbarRightClick 的视图：在窗口层面监听右键，命中自己的范围时调用 action
+final class ToolbarRightClickView: NSView {
+    var action: (() -> Void)?
+    private var monitor: Any?
+
+    /// 不参与普通的点按：左键照常交给按钮
+    override func hitTest(_: NSPoint) -> NSView? { nil }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        // 离开窗口（包括视图被销毁前）时移除监听
+        if let monitor { NSEvent.removeMonitor(monitor) }
+        monitor = nil
+        guard window != nil else { return }
+        monitor = NSEvent.addLocalMonitorForEvents(matching: [.rightMouseDown, .leftMouseDown]) { [weak self] event in
+            guard let self, let window = self.window, event.window === window, !self.isHiddenOrHasHiddenAncestor,
+                  event.type == .rightMouseDown || event.modifierFlags.contains(.control),
+                  self.bounds.contains(self.convert(event.locationInWindow, from: nil))
+            else { return event }
+            self.action?()
+            return nil
         }
     }
 }
@@ -417,8 +629,6 @@ struct ShareButton: View {
         .help(sharing ? L("停止共享") : L("共享屏幕"))
         .keyboardShortcut("s", modifiers: [.command, .shift])
         .popover(isPresented: $showOptions, arrowEdge: .bottom) { SharePopover() }
-        .popoverTip(ShareTip(), arrowEdge: .bottom)
         .accessibilityIdentifier("share")
-        .onChange(of: showOptions) { _, open in if open { ShareTip().invalidate(reason: .actionPerformed) } }
     }
 }

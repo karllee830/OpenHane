@@ -1,6 +1,7 @@
 import { ModerationAction } from '@hane/protocol';
 import { Info, Lock, Megaphone, Settings, Unlock, Volume2, X } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { displayAddress, hostPort } from '@hane/core';
 import { Avatar } from '../components/Avatar';
 import { ChatPanel } from '../components/ChatPanel';
 import { ControlBar, type DialogName } from '../components/ControlBar';
@@ -9,7 +10,6 @@ import { RoomSidebar } from '../components/RoomSidebar';
 import { ShareBar } from '../components/ShareBar';
 import { ShareStage } from '../components/ShareStage';
 import { Stage } from '../components/Stage';
-import { OnboardingTips } from '../components/OnboardingTips';
 import { RoleBadge } from '../components/ParticipantList';
 import { StatusBanner } from '../components/StatusBanner';
 import { AboutDialog } from '../dialogs/AboutDialog';
@@ -21,6 +21,8 @@ import { useT } from '../i18n';
 import { useVoiceActions } from '../actions';
 import { moderationText, moveText } from '../notices';
 import { useClient, useLevels, useMedia, useServices, useVideoTracks } from '../services';
+import { useLogoImage, useServerLogo } from '../probe';
+import { findRecent, loadRecent, serverTitle } from '../recent';
 import { sounds } from '../sounds';
 
 const NO_SHARES: never[] = [];
@@ -35,6 +37,13 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
   const { client, media, platform } = useServices();
   const info = useClient((s) => s.serverInfo);
   const address = useClient((s) => s.address);
+  const logo = useLogoImage(useServerLogo(address));
+  // 左上角的名称：有备注时显示备注，否则显示服务器名称，都没有时显示地址
+  const title = useMemo(() => {
+    const shown = address ? displayAddress(address) : '';
+    const r = address ? findRecent(loadRecent(platform.storage), `${address.secure ? '' : 'http://'}${hostPort(address)}`) : undefined;
+    return serverTitle({ note: r?.note, name: info?.name ?? '', address: shown });
+  }, [address, info?.name, platform.storage]);
   const mode = useMedia((s) => s.prefs.mode);
   const [dialog, setDialog] = useState<DialogName | null>(pendingToken ? 'redeem' : null);
   useEffect(() => {
@@ -133,8 +142,9 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
         <aside className="hidden w-64 shrink-0 flex-col border-r border-border bg-surface sm:flex">
           <header className="app-drag flex h-12 shrink-0 items-center gap-2 border-b border-border pr-4 pl-[max(1rem,var(--wco-left))]">
             {secure ? <Lock size={14} className="shrink-0 text-success" /> : <Unlock size={14} className="shrink-0 text-warning" />}
+            {logo && <img src={logo} alt="" className="size-5 shrink-0 rounded-md object-cover" data-testid="server-logo" />}
             <h1 className="truncate font-semibold" data-testid="server-name">
-              {info?.name}
+              {title}
             </h1>
             <E2EEBadge />
           </header>
@@ -168,7 +178,6 @@ export function MeetingPage({ pendingToken, onTokenHandled }: { pendingToken?: s
               </p>
             )}
           </div>
-          <OnboardingTips />
           {shares.length ? <ShareStage shares={shares} tracks={tracks} /> : <Stage />}
           {mode === 'ptt' && <p className="pb-2 text-center text-xs text-muted">{t('control.pttHint', { key: keyLabel(pttKey) })}</p>}
           <ControlBar

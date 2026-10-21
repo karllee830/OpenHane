@@ -513,12 +513,32 @@
         }
       }
     },
+    "不支持这种图片格式": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This image format is not supported"
+          }
+        }
+      }
+    },
     "不改变": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "None"
+          }
+        }
+      }
+    },
+    "不能在这个房间发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You can't send images in this room"
           }
         }
       }
@@ -1055,16 +1075,6 @@
         }
       }
     },
-    "关掉主窗口也能留在会议里：菜单栏的麦克风图标可以静音、打开主窗口或离开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Closing the main window keeps you in the meeting: use the microphone icon in the menu bar to mute, reopen the window or leave."
-          }
-        }
-      }
-    },
     "关闭": {
       "localizations": {
         "en": {
@@ -1295,6 +1305,26 @@
         }
       }
     },
+    "单张上限为 0 时不允许发送图片。存储满了之后新图片会被拒绝，旧图片随聊天记录一起过期删除。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With a limit of 0, images can't be sent. When storage is full, new images are rejected; old images expire with the chat history."
+          }
+        }
+      }
+    },
+    "单张图片上限（MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image size limit (MB)"
+          }
+        }
+      }
+    },
     "原因": {
       "localizations": {
         "en": {
@@ -1351,6 +1381,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Send"
+          }
+        }
+      }
+    },
+    "发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send an image"
           }
         }
       }
@@ -1555,12 +1595,62 @@
         }
       }
     },
-    "在成员列表里点房间名即可进入，切换时声音几乎不中断。": {
+    "图片": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tap a room name in the member list to enter it; switching barely interrupts the audio."
+            "value": "Image"
+          }
+        }
+      }
+    },
+    "图片上传失败": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image couldn't be uploaded"
+          }
+        }
+      }
+    },
+    "图片发得太快了，请稍后再试": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too many images. Try again shortly."
+          }
+        }
+      }
+    },
+    "图片太大（上限 %lld MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The image is too large (limit %lld MB)"
+          }
+        }
+      }
+    },
+    "图片总存储上限（MB）": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total image storage (MB)"
+          }
+        }
+      }
+    },
+    "图片无法显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image can't be shown"
           }
         }
       }
@@ -1581,16 +1671,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Messages sent here are visible to everyone in the room."
-          }
-        }
-      }
-    },
-    "填写服务器地址和昵称即可加入，不需要注册。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter the server address and a nickname to join. No account needed."
           }
         }
       }
@@ -1635,6 +1715,16 @@
         }
       }
     },
+    "存储…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save…"
+          }
+        }
+      }
+    },
     "安全": {
       "localizations": {
         "en": {
@@ -1645,12 +1735,716 @@
         }
       }
     },
-    "安全码（与其他人核对：所有人看到的相同，就说明没有人被偷偷加进来）": {
+    "安全码": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Safety code (compare with the others: if everyone sees the same code, nobody was secretly added)"
+            "value": "Safety code"
+          }
+        }
+      }
+    },
+    "狗": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dog"
+          }
+        }
+      }
+    },
+    "猫": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cat"
+          }
+        }
+      }
+    },
+    "狮子": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lion"
+          }
+        }
+      }
+    },
+    "马": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Horse"
+          }
+        }
+      }
+    },
+    "独角兽": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unicorn"
+          }
+        }
+      }
+    },
+    "猪": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pig"
+          }
+        }
+      }
+    },
+    "大象": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elephant"
+          }
+        }
+      }
+    },
+    "兔子": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rabbit"
+          }
+        }
+      }
+    },
+    "熊猫": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Panda"
+          }
+        }
+      }
+    },
+    "公鸡": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rooster"
+          }
+        }
+      }
+    },
+    "企鹅": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Penguin"
+          }
+        }
+      }
+    },
+    "乌龟": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turtle"
+          }
+        }
+      }
+    },
+    "鱼": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fish"
+          }
+        }
+      }
+    },
+    "章鱼": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Octopus"
+          }
+        }
+      }
+    },
+    "蝴蝶": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Butterfly"
+          }
+        }
+      }
+    },
+    "花": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flower"
+          }
+        }
+      }
+    },
+    "树": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tree"
+          }
+        }
+      }
+    },
+    "仙人掌": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cactus"
+          }
+        }
+      }
+    },
+    "蘑菇": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mushroom"
+          }
+        }
+      }
+    },
+    "地球": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Globe"
+          }
+        }
+      }
+    },
+    "月亮": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moon"
+          }
+        }
+      }
+    },
+    "云": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud"
+          }
+        }
+      }
+    },
+    "火": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fire"
+          }
+        }
+      }
+    },
+    "香蕉": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Banana"
+          }
+        }
+      }
+    },
+    "苹果": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple"
+          }
+        }
+      }
+    },
+    "草莓": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strawberry"
+          }
+        }
+      }
+    },
+    "玉米": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corn"
+          }
+        }
+      }
+    },
+    "披萨": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pizza"
+          }
+        }
+      }
+    },
+    "蛋糕": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cake"
+          }
+        }
+      }
+    },
+    "爱心": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart"
+          }
+        }
+      }
+    },
+    "笑脸": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Smiley"
+          }
+        }
+      }
+    },
+    "机器人": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Robot"
+          }
+        }
+      }
+    },
+    "帽子": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hat"
+          }
+        }
+      }
+    },
+    "眼镜": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Glasses"
+          }
+        }
+      }
+    },
+    "扳手": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wrench"
+          }
+        }
+      }
+    },
+    "圣诞老人": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Santa"
+          }
+        }
+      }
+    },
+    "点赞": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thumbs up"
+          }
+        }
+      }
+    },
+    "雨伞": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Umbrella"
+          }
+        }
+      }
+    },
+    "沙漏": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hourglass"
+          }
+        }
+      }
+    },
+    "闹钟": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clock"
+          }
+        }
+      }
+    },
+    "礼物": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gift"
+          }
+        }
+      }
+    },
+    "灯泡": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light bulb"
+          }
+        }
+      }
+    },
+    "书": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Book"
+          }
+        }
+      }
+    },
+    "铅笔": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pencil"
+          }
+        }
+      }
+    },
+    "回形针": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paperclip"
+          }
+        }
+      }
+    },
+    "剪刀": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scissors"
+          }
+        }
+      }
+    },
+    "锁": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock"
+          }
+        }
+      }
+    },
+    "钥匙": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Key"
+          }
+        }
+      }
+    },
+    "锤子": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hammer"
+          }
+        }
+      }
+    },
+    "电话": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telephone"
+          }
+        }
+      }
+    },
+    "旗子": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Flag"
+          }
+        }
+      }
+    },
+    "火车": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Train"
+          }
+        }
+      }
+    },
+    "自行车": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bicycle"
+          }
+        }
+      }
+    },
+    "飞机": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Airplane"
+          }
+        }
+      }
+    },
+    "火箭": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rocket"
+          }
+        }
+      }
+    },
+    "奖杯": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trophy"
+          }
+        }
+      }
+    },
+    "足球": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ball"
+          }
+        }
+      }
+    },
+    "吉他": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guitar"
+          }
+        }
+      }
+    },
+    "小号": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trumpet"
+          }
+        }
+      }
+    },
+    "铃铛": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bell"
+          }
+        }
+      }
+    },
+    "锚": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anchor"
+          }
+        }
+      }
+    },
+    "耳机": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Headphones"
+          }
+        }
+      }
+    },
+    "文件夹": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder"
+          }
+        }
+      }
+    },
+    "图钉": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin"
           }
         }
       }
@@ -2515,12 +3309,322 @@
         }
       }
     },
-    "最近连接": {
+    "服务器的图片存储空间已满，请联系管理员": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recent servers"
+            "value": "The server's image storage is full. Contact an admin."
+          }
+        }
+      }
+    },
+    "松开以添加图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop to add the image"
+          }
+        }
+      }
+    },
+    "查看大图": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View full size"
+          }
+        }
+      }
+    },
+    "移除图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove image"
+          }
+        }
+      }
+    },
+    "聊天图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chat images"
+          }
+        }
+      }
+    },
+    "还没有服务器": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No servers yet"
+          }
+        }
+      }
+    },
+    "在上方输入服务器地址开始连接；连接过的服务器会显示在这里，可以收藏和加备注。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter a server address above to connect. Servers you connect to show up here, where you can favorite them and add notes."
+          }
+        }
+      }
+    },
+    "更多操作": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "More actions"
+          }
+        }
+      }
+    },
+    "取消收藏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "备注和昵称…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note and Nickname…"
+          }
+        }
+      }
+    },
+    "备注和昵称": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note and Nickname"
+          }
+        }
+      }
+    },
+    "从列表中移除": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove from List"
+          }
+        }
+      }
+    },
+    "这台服务器不允许发送图片": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This server doesn't allow images"
+          }
+        }
+      }
+    },
+    "连接到 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect to %@"
+          }
+        }
+      }
+    },
+    "正在检测…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking…"
+          }
+        }
+      }
+    },
+    "无法连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unreachable"
+          }
+        }
+      }
+    },
+    "延迟 %lld ms": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latency %lld ms"
+          }
+        }
+      }
+    },
+    "%lld 人在线": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld online"
+          }
+        }
+      }
+    },
+    "昵称 %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickname %@"
+          }
+        }
+      }
+    },
+    "默认：%@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default: %@"
+          }
+        }
+      }
+    },
+    "代替服务器名称显示": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shown instead of the server name"
+          }
+        }
+      }
+    },
+    "备注": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Note"
+          }
+        }
+      }
+    },
+    "未连接的摄像头": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnected camera"
+          }
+        }
+      }
+    },
+    "音频输出": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Output"
+          }
+        }
+      }
+    },
+    "麦克风和扬声器跟随系统：接上耳机或连上蓝牙设备后自动切换。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone and speaker follow the system and switch automatically when you plug in headphones or connect a Bluetooth device."
+          }
+        }
+      }
+    },
+    "服务器列表": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Servers"
+          }
+        }
+      }
+    },
+    "搜索或输入服务器地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search or enter an address"
+          }
+        }
+      }
+    },
+    "列表里没有匹配的服务器，按回车连接这个地址。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No matching servers. Press Return to connect to this address."
+          }
+        }
+      }
+    },
+    "麦克风音量": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone Volume"
+          }
+        }
+      }
+    },
+    "输出音量": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output Volume"
+          }
+        }
+      }
+    },
+    "音视频设置…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio & Video Settings…"
+          }
+        }
+      }
+    },
+    "加入收藏": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add to Favorites"
           }
         }
       }
@@ -2935,16 +4039,6 @@
         }
       }
     },
-    "点击房间名即可进入，切换时声音几乎不中断。主持人可以把成员拖到其他房间。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Click a room name to enter it; switching barely interrupts the audio. Moderators can drag members into other rooms."
-          }
-        }
-      }
-    },
     "版本": {
       "localizations": {
         "en": {
@@ -3305,16 +4399,6 @@
         }
       }
     },
-    "菜单栏": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Menu bar"
-          }
-        }
-      }
-    },
     "角色": {
       "localizations": {
         "en": {
@@ -3455,32 +4539,12 @@
         }
       }
     },
-    "说话方式": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "How you talk"
-          }
-        }
-      }
-    },
     "调整自定义参数": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Adjust custom settings"
-          }
-        }
-      }
-    },
-    "调整音量…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adjust volume…"
           }
         }
       }
@@ -3595,12 +4659,22 @@
         }
       }
     },
-    "这个房间的声音、视频和屏幕共享只有房间里的人能解密，服务器也无法查看。": {
+    "本房间已开启端到端加密，对话无法被窃听，即使是服务器也无法获取。": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Audio, video and screen shares in this room can only be decrypted by the people in it. Not even the server can see them."
+            "value": "End-to-end encryption is on in this room. Conversations can't be intercepted, not even by the server."
+          }
+        }
+      }
+    },
+    "与他人核对安全码，如一致说明未被窃听。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare the safety code with the others. If it matches, nobody is listening in."
           }
         }
       }
@@ -3711,16 +4785,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fit"
-          }
-        }
-      }
-    },
-    "选「智能」模式就好：文档会保持清晰，视频和游戏会保持流畅。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Just pick \"Smart\" : documents stay sharp, videos and games stay smooth."
           }
         }
       }
@@ -3865,16 +4929,6 @@
         }
       }
     },
-    "音频设置…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Audio Settings…"
-          }
-        }
-      }
-    },
     "高清 64 kbps": {
       "localizations": {
         "en": {
@@ -3911,26 +4965,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mic Mode (Voice Isolation)…"
-          }
-        }
-      }
-    },
-    "默认是语音激活。⌘⇧M 静音；在设置里可以改用按键说话（支持鼠标侧键）或常开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voice activation is the default. ⌘⇧M mutes; in Settings you can switch to push-to-talk (mouse side buttons work too) or always on."
-          }
-        }
-      }
-    },
-    "默认是语音激活。在「更多」里可以改用按键说话或常开。": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Voice activation is the default. Under More you can switch to push-to-talk or always on."
           }
         }
       }
@@ -4111,6 +5145,196 @@
           "stringUnit": {
             "state": "translated",
             "value": "Receive beta versions"
+          }
+        }
+      }
+    },
+    "IP 未知": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP unknown"
+          }
+        }
+      }
+    },
+    "IPv6 归属地库已下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6 location database downloaded"
+          }
+        }
+      }
+    },
+    "IPv6 归属地需要下载数据库": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv6 location needs a database download"
+          }
+        }
+      }
+    },
+    "下载": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        }
+      }
+    },
+    "下载 IPv6 归属地库": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download the IPv6 location database"
+          }
+        }
+      }
+    },
+    "下载失败：%@。也可以手动把 ip2region_v6.xdb 放进服务器的数据目录，然后重启服务器。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed: %@. You can also put ip2region_v6.xdb into the server's data directory and restart the server."
+          }
+        }
+      }
+    },
+    "取消管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove admin"
+          }
+        }
+      }
+    },
+    "已取消 %@ 的管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is no longer an admin"
+          }
+        }
+      }
+    },
+    "已将 %@ 设为管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is now an admin"
+          }
+        }
+      }
+    },
+    "成员菜单": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Member menu"
+          }
+        }
+      }
+    },
+    "服务器内置的归属地库只包含 IPv4。IPv6 库约 37 MB，会从 GitHub 下载到服务器的数据目录，之后一直可用（Docker 部署时数据目录需要持久化，否则重建容器后要重新下载）。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The server's built-in location database only covers IPv4. The IPv6 database (about 37 MB) is downloaded from GitHub into the server's data directory and kept there. With Docker, keep the data directory on a persistent volume, or it has to be downloaded again after the container is recreated."
+          }
+        }
+      }
+    },
+    "正在下载 IPv6 归属地库…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading the IPv6 location database…"
+          }
+        }
+      }
+    },
+    "正在获取连接信息…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading connection info…"
+          }
+        }
+      }
+    },
+    "设为管理员": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Make admin"
+          }
+        }
+      }
+    },
+    "点击复制 IP 地址": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Click to copy the IP address"
+          }
+        }
+      }
+    },
+    "已复制": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copied"
+          }
+        }
+      }
+    },
+    "没有找到麦克风，只能收听。接上麦克风后会自动开启。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No microphone found. You can only listen; it turns on automatically once one is connected."
+          }
+        }
+      }
+    },
+    "摄像头已断开，已自动关闭": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The camera was disconnected and turned off"
+          }
+        }
+      }
+    },
+    "端到端加密还没准备好，请稍等几秒再发送。": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End-to-end encryption is not ready yet. Wait a few seconds and send again."
           }
         }
       }

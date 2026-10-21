@@ -6,6 +6,8 @@ import (
 	"testing"
 	"time"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/karllee830/OpenHane/server/internal/client"
 	"github.com/karllee830/OpenHane/server/internal/hub"
 	"github.com/karllee830/OpenHane/server/internal/media"
@@ -71,6 +73,10 @@ func req(t *testing.T, c *client.Client, body any) (*pb.Response, error) {
 		r.Body = &pb.Request_UpdateSettings{UpdateSettings: b}
 	case *pb.RequestScreenShare:
 		r.Body = &pb.Request_RequestScreenShare{RequestScreenShare: b}
+	case *pb.SendChat:
+		r.Body = &pb.Request_SendChat{SendChat: b}
+	case *pb.GetChatHistory:
+		r.Body = &pb.Request_GetChatHistory{GetChatHistory: b}
 	default:
 		t.Fatalf("unsupported request %T", body)
 	}
@@ -494,6 +500,48 @@ func TestE2EERoomsAndKeyRelay(t *testing.T) {
 	}
 	_, err = e.dial(4, "Old")
 	wantCode(t, err, pb.ErrorCode_ERROR_CODE_E2EE_UNSUPPORTED)
+}
+
+// 端到端加密房间里的聊天：只收密文，原样转发和保存（带发送者的会话 ID）；其他房间不收密文
+func TestE2EEChat(t *testing.T) {
+	e := setup(t)
+	admin := e.mustDial(1, "Admin", func(o *client.Options) { o.E2EE = true })
+	alice := e.mustDial(2, "Alice", func(o *client.Options) { o.E2EE = true })
+	e.promote(admin, perm.Admin)
+	sealed := &pb.EncryptedChat{KeyIndex: 2, Nonce: make([]byte, 12), Ciphertext: make([]byte, 40)}
+	rand.Read(sealed.Ciphertext)
+	_, err := req(t, alice, &pb.SendChat{RoomId: "main", Encrypted: sealed})
+	wantCode(t, err, pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT)
+
+	if _, err := req(t, admin, &pb.UpdateSettings{Patch: map[string]string{"security.e2ee_policy": `"required"`}}); err != nil {
+		t.Fatal(err)
+	}
+	_, err = req(t, alice, &pb.SendChat{RoomId: "main", Text: "明文"})
+	wantCode(t, err, pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT)
+	_, err = req(t, alice, &pb.SendChat{RoomId: "main", Text: "明文", Encrypted: sealed})
+	wantCode(t, err, pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT)
+	_, err = req(t, alice, &pb.SendChat{RoomId: "main", Encrypted: &pb.EncryptedChat{Nonce: make([]byte, 8), Ciphertext: sealed.Ciphertext}})
+	wantCode(t, err, pb.ErrorCode_ERROR_CODE_INVALID_ARGUMENT)
+
+	resp, err := req(t, alice, &pb.SendChat{RoomId: "main", ClientMsgId: "m1", Encrypted: sealed})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if m := resp.GetSendChat().GetMessage(); m.GetText() != "" || !proto.Equal(m.GetEncrypted(), sealed) {
+		t.Fatal(m)
+	}
+	ev, err := admin.WaitEvent(ctx(t), func(ev *pb.Event) bool { return ev.GetChatMessage() != nil })
+	if m := ev.GetChatMessage(); err != nil || !proto.Equal(m.GetEncrypted(), sealed) || m.GetSenderSessionId() != alice.Welcome.GetSessionId() {
+		t.Fatal(ev, err)
+	}
+	hist, err := req(t, admin, &pb.GetChatHistory{RoomId: "main"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	msgs := hist.GetGetChatHistory().GetMessages()
+	if len(msgs) != 1 || !proto.Equal(msgs[0].GetEncrypted(), sealed) || msgs[0].GetSenderSessionId() != alice.Welcome.GetSessionId() {
+		t.Fatal(msgs)
+	}
 }
 
 func waitPerm(t *testing.T, e *env, room, identity string, ok func(media.Permission) bool) {

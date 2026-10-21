@@ -13,7 +13,7 @@ export function DesktopIntegration() {
     const push = () => {
       const c = client.store.getState();
       const m = media.state.getState();
-      tray.setState({ connected: c.status === 'connected', muted: m.micMuted, deafened: m.deafened, serverName: c.serverInfo?.name });
+      tray.setState({ connected: c.status === 'connected', meeting: c.status === 'connected' || c.status === 'reconnecting', muted: m.micMuted, deafened: m.deafened, serverName: c.serverInfo?.name });
     };
     push();
     const u1 = client.store.subscribe((s, p) => {

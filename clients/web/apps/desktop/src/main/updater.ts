@@ -1,5 +1,6 @@
 // 应用自动更新：从 GitHub Releases 检查并在后台下载，下载完成后由用户决定何时重启安装（退出时也会自动安装）。
 // Windows 安装版和 AppImage 自动安装；deb、Dev 版和未打包的开发环境只报告状态，不下载。
+// Microsoft Store 版由商店更新，这里什么都不做。
 import { app, ipcMain, type BrowserWindow } from 'electron';
 import electronUpdater from 'electron-updater';
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -11,7 +12,8 @@ const CHECK_INTERVAL_MS = 6 * 60 * 60 * 1000;
 
 export function setupUpdater(getWindow: () => BrowserWindow | null, log: (msg: string) => void): void {
   const version = app.getVersion();
-  const automatic = app.isPackaged && !version.includes('-dev') && (process.platform === 'win32' || !!process.env.APPIMAGE);
+  const store = !!process.windowsStore;
+  const automatic = !store && app.isPackaged && !version.includes('-dev') && (process.platform === 'win32' || !!process.env.APPIMAGE);
   const prefsFile = join(app.getPath('userData'), 'updates.json');
   let beta = readBeta(prefsFile) ?? version.includes('-beta');
   let state: UpdateStateMsg = { status: 'idle' };
@@ -22,7 +24,7 @@ export function setupUpdater(getWindow: () => BrowserWindow | null, log: (msg: s
   };
 
   ipcMain.on(IPC.updateGet, (e) => {
-    e.returnValue = { automatic, beta, state } satisfies UpdateInfoMsg;
+    e.returnValue = { automatic, store, beta, state } satisfies UpdateInfoMsg;
   });
   ipcMain.on(IPC.updateSetBeta, (_e, on: boolean) => {
     beta = !!on;

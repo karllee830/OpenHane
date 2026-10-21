@@ -25,6 +25,8 @@ if [ "${SKIP_WEB:-}" != 1 ]; then
 fi
 test -f internal/webui/dist/index.html || { echo "缺少网页版（internal/webui/dist）" >&2; exit 1; }
 
+./scripts/fetch-geoip.sh
+
 rm -rf "$OUT" && mkdir -p "$OUT"
 for t in "${targets[@]}"; do
   os=${t%/*} arch=${t#*/}

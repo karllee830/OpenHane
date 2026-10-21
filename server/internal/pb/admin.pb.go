@@ -67,7 +67,7 @@ func (x ServerNotice_Kind) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use ServerNotice_Kind.Descriptor instead.
 func (ServerNotice_Kind) EnumDescriptor() ([]byte, []int) {
-	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{17, 0}
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{21, 0}
 }
 
 // 服务器设置以「键 → JSON 值」表示，键名见管理员手册（https://github.com/karllee830/OpenHane/wiki/Admin-Guide）第 10 节。
@@ -920,6 +920,233 @@ func (x *ListIdentitiesResult) GetTotal() uint32 {
 	return 0
 }
 
+// 在线会话的连接信息：IP、归属地（服务端内置的离线库）和控制连接的往返延迟。
+type GetSessionInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	SessionId     string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSessionInfo) Reset() {
+	*x = GetSessionInfo{}
+	mi := &file_openhane_v1_admin_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSessionInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSessionInfo) ProtoMessage() {}
+
+func (x *GetSessionInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_admin_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSessionInfo.ProtoReflect.Descriptor instead.
+func (*GetSessionInfo) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *GetSessionInfo) GetSessionId() string {
+	if x != nil {
+		return x.SessionId
+	}
+	return ""
+}
+
+type GetSessionInfoResult struct {
+	state protoimpl.MessageState `protogen:"open.v1"`
+	Ip    string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
+	// 归属地，查不到的部分为空；名称是中文
+	Country       string `protobuf:"bytes,2,opt,name=country,proto3" json:"country,omitempty"`
+	Province      string `protobuf:"bytes,3,opt,name=province,proto3" json:"province,omitempty"`
+	City          string `protobuf:"bytes,4,opt,name=city,proto3" json:"city,omitempty"`
+	Isp           string `protobuf:"bytes,5,opt,name=isp,proto3" json:"isp,omitempty"`
+	RttMs         uint32 `protobuf:"varint,6,opt,name=rtt_ms,json=rttMs,proto3" json:"rtt_ms,omitempty"`                           // 0 表示还没测到
+	Ipv6DbMissing bool   `protobuf:"varint,7,opt,name=ipv6_db_missing,json=ipv6DbMissing,proto3" json:"ipv6_db_missing,omitempty"` // IPv6 地址，但服务器还没有 IPv6 归属地库（可用 DownloadIPv6GeoDB 下载）
+	AppVersion    string `protobuf:"bytes,8,opt,name=app_version,json=appVersion,proto3" json:"app_version,omitempty"`             // 客户端自报的版本号（客户端类型见 Participant.platform）
+	CountryCode   string `protobuf:"bytes,9,opt,name=country_code,json=countryCode,proto3" json:"country_code,omitempty"`          // ISO 3166-1 两位国家代码（大写，如 CN），客户端据此显示国旗；查不到时为空
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetSessionInfoResult) Reset() {
+	*x = GetSessionInfoResult{}
+	mi := &file_openhane_v1_admin_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetSessionInfoResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetSessionInfoResult) ProtoMessage() {}
+
+func (x *GetSessionInfoResult) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_admin_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetSessionInfoResult.ProtoReflect.Descriptor instead.
+func (*GetSessionInfoResult) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{17}
+}
+
+func (x *GetSessionInfoResult) GetIp() string {
+	if x != nil {
+		return x.Ip
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetCountry() string {
+	if x != nil {
+		return x.Country
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetProvince() string {
+	if x != nil {
+		return x.Province
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetCity() string {
+	if x != nil {
+		return x.City
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetIsp() string {
+	if x != nil {
+		return x.Isp
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetRttMs() uint32 {
+	if x != nil {
+		return x.RttMs
+	}
+	return 0
+}
+
+func (x *GetSessionInfoResult) GetIpv6DbMissing() bool {
+	if x != nil {
+		return x.Ipv6DbMissing
+	}
+	return false
+}
+
+func (x *GetSessionInfoResult) GetAppVersion() string {
+	if x != nil {
+		return x.AppVersion
+	}
+	return ""
+}
+
+func (x *GetSessionInfoResult) GetCountryCode() string {
+	if x != nil {
+		return x.CountryCode
+	}
+	return ""
+}
+
+// 下载 IPv6 归属地库（约 37 MB）到数据目录，下载并校验完成后才响应。已有时直接成功。
+type DownloadIPv6GeoDB struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DownloadIPv6GeoDB) Reset() {
+	*x = DownloadIPv6GeoDB{}
+	mi := &file_openhane_v1_admin_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DownloadIPv6GeoDB) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DownloadIPv6GeoDB) ProtoMessage() {}
+
+func (x *DownloadIPv6GeoDB) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_admin_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DownloadIPv6GeoDB.ProtoReflect.Descriptor instead.
+func (*DownloadIPv6GeoDB) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{18}
+}
+
+type DownloadIPv6GeoDBResult struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DownloadIPv6GeoDBResult) Reset() {
+	*x = DownloadIPv6GeoDBResult{}
+	mi := &file_openhane_v1_admin_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DownloadIPv6GeoDBResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DownloadIPv6GeoDBResult) ProtoMessage() {}
+
+func (x *DownloadIPv6GeoDBResult) ProtoReflect() protoreflect.Message {
+	mi := &file_openhane_v1_admin_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DownloadIPv6GeoDBResult.ProtoReflect.Descriptor instead.
+func (*DownloadIPv6GeoDBResult) Descriptor() ([]byte, []int) {
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{19}
+}
+
 type ServerInfoUpdated struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Info          *ServerInfo            `protobuf:"bytes,1,opt,name=info,proto3" json:"info,omitempty"`
@@ -929,7 +1156,7 @@ type ServerInfoUpdated struct {
 
 func (x *ServerInfoUpdated) Reset() {
 	*x = ServerInfoUpdated{}
-	mi := &file_openhane_v1_admin_proto_msgTypes[16]
+	mi := &file_openhane_v1_admin_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -941,7 +1168,7 @@ func (x *ServerInfoUpdated) String() string {
 func (*ServerInfoUpdated) ProtoMessage() {}
 
 func (x *ServerInfoUpdated) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_admin_proto_msgTypes[16]
+	mi := &file_openhane_v1_admin_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -954,7 +1181,7 @@ func (x *ServerInfoUpdated) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerInfoUpdated.ProtoReflect.Descriptor instead.
 func (*ServerInfoUpdated) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{16}
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *ServerInfoUpdated) GetInfo() *ServerInfo {
@@ -974,7 +1201,7 @@ type ServerNotice struct {
 
 func (x *ServerNotice) Reset() {
 	*x = ServerNotice{}
-	mi := &file_openhane_v1_admin_proto_msgTypes[17]
+	mi := &file_openhane_v1_admin_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -986,7 +1213,7 @@ func (x *ServerNotice) String() string {
 func (*ServerNotice) ProtoMessage() {}
 
 func (x *ServerNotice) ProtoReflect() protoreflect.Message {
-	mi := &file_openhane_v1_admin_proto_msgTypes[17]
+	mi := &file_openhane_v1_admin_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -999,7 +1226,7 @@ func (x *ServerNotice) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerNotice.ProtoReflect.Descriptor instead.
 func (*ServerNotice) Descriptor() ([]byte, []int) {
-	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{17}
+	return file_openhane_v1_admin_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *ServerNotice) GetKind() ServerNotice_Kind {
@@ -1085,7 +1312,23 @@ const file_openhane_v1_admin_proto_rawDesc = "" +
 	"\n" +
 	"identities\x18\x01 \x03(\v2\x15.openhane.v1.IdentityR\n" +
 	"identities\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\rR\x05total\"@\n" +
+	"\x05total\x18\x02 \x01(\rR\x05total\"/\n" +
+	"\x0eGetSessionInfo\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\tR\tsessionId\"\x85\x02\n" +
+	"\x14GetSessionInfoResult\x12\x0e\n" +
+	"\x02ip\x18\x01 \x01(\tR\x02ip\x12\x18\n" +
+	"\acountry\x18\x02 \x01(\tR\acountry\x12\x1a\n" +
+	"\bprovince\x18\x03 \x01(\tR\bprovince\x12\x12\n" +
+	"\x04city\x18\x04 \x01(\tR\x04city\x12\x10\n" +
+	"\x03isp\x18\x05 \x01(\tR\x03isp\x12\x15\n" +
+	"\x06rtt_ms\x18\x06 \x01(\rR\x05rttMs\x12&\n" +
+	"\x0fipv6_db_missing\x18\a \x01(\bR\ripv6DbMissing\x12\x1f\n" +
+	"\vapp_version\x18\b \x01(\tR\n" +
+	"appVersion\x12!\n" +
+	"\fcountry_code\x18\t \x01(\tR\vcountryCode\"\x13\n" +
+	"\x11DownloadIPv6GeoDB\"\x19\n" +
+	"\x17DownloadIPv6GeoDBResult\"@\n" +
 	"\x11ServerInfoUpdated\x12+\n" +
 	"\x04info\x18\x01 \x01(\v2\x17.openhane.v1.ServerInfoR\x04info\"\xa0\x01\n" +
 	"\fServerNotice\x122\n" +
@@ -1111,46 +1354,50 @@ func file_openhane_v1_admin_proto_rawDescGZIP() []byte {
 }
 
 var file_openhane_v1_admin_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_openhane_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
+var file_openhane_v1_admin_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
 var file_openhane_v1_admin_proto_goTypes = []any{
-	(ServerNotice_Kind)(0),       // 0: openhane.v1.ServerNotice.Kind
-	(*GetSettings)(nil),          // 1: openhane.v1.GetSettings
-	(*GetSettingsResult)(nil),    // 2: openhane.v1.GetSettingsResult
-	(*UpdateSettings)(nil),       // 3: openhane.v1.UpdateSettings
-	(*UpdateSettingsResult)(nil), // 4: openhane.v1.UpdateSettingsResult
-	(*TokenInfo)(nil),            // 5: openhane.v1.TokenInfo
-	(*CreateToken)(nil),          // 6: openhane.v1.CreateToken
-	(*CreateTokenResult)(nil),    // 7: openhane.v1.CreateTokenResult
-	(*ListTokens)(nil),           // 8: openhane.v1.ListTokens
-	(*ListTokensResult)(nil),     // 9: openhane.v1.ListTokensResult
-	(*RevokeToken)(nil),          // 10: openhane.v1.RevokeToken
-	(*RevokeTokenResult)(nil),    // 11: openhane.v1.RevokeTokenResult
-	(*SetRole)(nil),              // 12: openhane.v1.SetRole
-	(*SetRoleResult)(nil),        // 13: openhane.v1.SetRoleResult
-	(*Identity)(nil),             // 14: openhane.v1.Identity
-	(*ListIdentities)(nil),       // 15: openhane.v1.ListIdentities
-	(*ListIdentitiesResult)(nil), // 16: openhane.v1.ListIdentitiesResult
-	(*ServerInfoUpdated)(nil),    // 17: openhane.v1.ServerInfoUpdated
-	(*ServerNotice)(nil),         // 18: openhane.v1.ServerNotice
-	nil,                          // 19: openhane.v1.GetSettingsResult.ValuesEntry
-	nil,                          // 20: openhane.v1.UpdateSettings.PatchEntry
-	nil,                          // 21: openhane.v1.UpdateSettingsResult.ValuesEntry
-	(Role)(0),                    // 22: openhane.v1.Role
-	(*ServerInfo)(nil),           // 23: openhane.v1.ServerInfo
+	(ServerNotice_Kind)(0),          // 0: openhane.v1.ServerNotice.Kind
+	(*GetSettings)(nil),             // 1: openhane.v1.GetSettings
+	(*GetSettingsResult)(nil),       // 2: openhane.v1.GetSettingsResult
+	(*UpdateSettings)(nil),          // 3: openhane.v1.UpdateSettings
+	(*UpdateSettingsResult)(nil),    // 4: openhane.v1.UpdateSettingsResult
+	(*TokenInfo)(nil),               // 5: openhane.v1.TokenInfo
+	(*CreateToken)(nil),             // 6: openhane.v1.CreateToken
+	(*CreateTokenResult)(nil),       // 7: openhane.v1.CreateTokenResult
+	(*ListTokens)(nil),              // 8: openhane.v1.ListTokens
+	(*ListTokensResult)(nil),        // 9: openhane.v1.ListTokensResult
+	(*RevokeToken)(nil),             // 10: openhane.v1.RevokeToken
+	(*RevokeTokenResult)(nil),       // 11: openhane.v1.RevokeTokenResult
+	(*SetRole)(nil),                 // 12: openhane.v1.SetRole
+	(*SetRoleResult)(nil),           // 13: openhane.v1.SetRoleResult
+	(*Identity)(nil),                // 14: openhane.v1.Identity
+	(*ListIdentities)(nil),          // 15: openhane.v1.ListIdentities
+	(*ListIdentitiesResult)(nil),    // 16: openhane.v1.ListIdentitiesResult
+	(*GetSessionInfo)(nil),          // 17: openhane.v1.GetSessionInfo
+	(*GetSessionInfoResult)(nil),    // 18: openhane.v1.GetSessionInfoResult
+	(*DownloadIPv6GeoDB)(nil),       // 19: openhane.v1.DownloadIPv6GeoDB
+	(*DownloadIPv6GeoDBResult)(nil), // 20: openhane.v1.DownloadIPv6GeoDBResult
+	(*ServerInfoUpdated)(nil),       // 21: openhane.v1.ServerInfoUpdated
+	(*ServerNotice)(nil),            // 22: openhane.v1.ServerNotice
+	nil,                             // 23: openhane.v1.GetSettingsResult.ValuesEntry
+	nil,                             // 24: openhane.v1.UpdateSettings.PatchEntry
+	nil,                             // 25: openhane.v1.UpdateSettingsResult.ValuesEntry
+	(Role)(0),                       // 26: openhane.v1.Role
+	(*ServerInfo)(nil),              // 27: openhane.v1.ServerInfo
 }
 var file_openhane_v1_admin_proto_depIdxs = []int32{
-	19, // 0: openhane.v1.GetSettingsResult.values:type_name -> openhane.v1.GetSettingsResult.ValuesEntry
-	20, // 1: openhane.v1.UpdateSettings.patch:type_name -> openhane.v1.UpdateSettings.PatchEntry
-	21, // 2: openhane.v1.UpdateSettingsResult.values:type_name -> openhane.v1.UpdateSettingsResult.ValuesEntry
-	22, // 3: openhane.v1.TokenInfo.role:type_name -> openhane.v1.Role
-	22, // 4: openhane.v1.CreateToken.role:type_name -> openhane.v1.Role
+	23, // 0: openhane.v1.GetSettingsResult.values:type_name -> openhane.v1.GetSettingsResult.ValuesEntry
+	24, // 1: openhane.v1.UpdateSettings.patch:type_name -> openhane.v1.UpdateSettings.PatchEntry
+	25, // 2: openhane.v1.UpdateSettingsResult.values:type_name -> openhane.v1.UpdateSettingsResult.ValuesEntry
+	26, // 3: openhane.v1.TokenInfo.role:type_name -> openhane.v1.Role
+	26, // 4: openhane.v1.CreateToken.role:type_name -> openhane.v1.Role
 	5,  // 5: openhane.v1.CreateTokenResult.info:type_name -> openhane.v1.TokenInfo
 	5,  // 6: openhane.v1.ListTokensResult.tokens:type_name -> openhane.v1.TokenInfo
-	22, // 7: openhane.v1.SetRole.role:type_name -> openhane.v1.Role
-	22, // 8: openhane.v1.Identity.role:type_name -> openhane.v1.Role
-	22, // 9: openhane.v1.ListIdentities.role:type_name -> openhane.v1.Role
+	26, // 7: openhane.v1.SetRole.role:type_name -> openhane.v1.Role
+	26, // 8: openhane.v1.Identity.role:type_name -> openhane.v1.Role
+	26, // 9: openhane.v1.ListIdentities.role:type_name -> openhane.v1.Role
 	14, // 10: openhane.v1.ListIdentitiesResult.identities:type_name -> openhane.v1.Identity
-	23, // 11: openhane.v1.ServerInfoUpdated.info:type_name -> openhane.v1.ServerInfo
+	27, // 11: openhane.v1.ServerInfoUpdated.info:type_name -> openhane.v1.ServerInfo
 	0,  // 12: openhane.v1.ServerNotice.kind:type_name -> openhane.v1.ServerNotice.Kind
 	13, // [13:13] is the sub-list for method output_type
 	13, // [13:13] is the sub-list for method input_type
@@ -1172,7 +1419,7 @@ func file_openhane_v1_admin_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_openhane_v1_admin_proto_rawDesc), len(file_openhane_v1_admin_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   21,
+			NumMessages:   25,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

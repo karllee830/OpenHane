@@ -3,6 +3,7 @@ import Foundation
 public typealias Participant = Openhane_V1_Participant
 public typealias Room = Openhane_V1_Room
 public typealias ChatMessage = Openhane_V1_ChatMessage
+public typealias ChatImage = Openhane_V1_ChatImage
 public typealias ServerInfo = Openhane_V1_ServerInfo
 public typealias MediaPolicy = Openhane_V1_MediaPolicy
 public typealias Role = Openhane_V1_Role
@@ -49,7 +50,7 @@ public struct SessionState: Equatable, Sendable {
     /// 应用 Welcome（完整快照）。恢复会话时保留已加载的聊天。
     public mutating func apply(welcome w: Openhane_V1_Welcome, mediaURL: URL) {
         let keepChat = w.resumed
-        serverInfo = w.snapshot.info
+        serverInfo = w.snapshot.info.withCleanName()
         rooms = Dictionary(w.snapshot.rooms.map { ($0.id, $0) }, uniquingKeysWith: { $1 })
         participants = Dictionary(w.snapshot.participants.map { ($0.sessionID, $0) }, uniquingKeysWith: { $1 })
         me = SelfInfo(sessionID: w.sessionID, uid: w.uid, nickname: w.nickname, role: w.role)
@@ -75,13 +76,14 @@ public struct SessionState: Equatable, Sendable {
         case let .roomCreated(e): rooms[e.room.id] = e.room
         case let .roomUpdated(e): rooms[e.room.id] = e.room
         case let .roomClosed(e): rooms[e.roomID] = nil
-        case let .chatMessage(m): mergeChat(room: m.roomID, [m])
+        // 加密的消息由 ServerSession 解密后再放进来
+        case let .chatMessage(m): if !m.hasEncrypted { mergeChat(room: m.roomID, [m]) }
         case let .roleChanged(e):
             if me?.uid == e.uid { me?.role = e.role }
         case let .policyUpdated(e):
             if media?.roomID == e.roomID { media?.policy = e.policy }
         case let .shareStateChanged(e): rooms[e.roomID]?.shares = e.shares
-        case let .serverInfoUpdated(e): serverInfo = e.info
+        case let .serverInfoUpdated(e): serverInfo = e.info.withCleanName()
         // 被移动时的媒体切换由 ServerSession 处理（需要服务器地址）；处置提示和密钥包不改变共享状态
         case .youWereMoved, .moderationNotice, .keyPackage, .serverNotice, .none: break
         }
@@ -95,10 +97,14 @@ public struct SessionState: Equatable, Sendable {
         }
     }
 
-    /// 按 id 合并聊天消息（去重、升序、截断）
+    /// 按 id 合并聊天消息（去重、升序、截断）。新到的消息清洗正文和发送者名称：服务端的数据不可信
     public mutating func mergeChat(room: String, _ incoming: [ChatMessage]) {
         var byID = Dictionary((chat[room] ?? []).map { ($0.id, $0) }, uniquingKeysWith: { $1 })
-        for m in incoming { byID[m.id] = m }
+        for var m in incoming {
+            m.text = DisplayName.cleanChat(m.text)
+            m.senderName = DisplayName.clean(m.senderName)
+            byID[m.id] = m
+        }
         var all = byID.values.sorted { $0.id < $1.id }
         if all.count > Self.chatKeep { all.removeFirst(all.count - Self.chatKeep) }
         chat[room] = all

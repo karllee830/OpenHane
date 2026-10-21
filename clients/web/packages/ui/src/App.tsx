@@ -4,6 +4,7 @@ import { DesktopIntegration } from './components/DesktopIntegration';
 import { TofuWarning } from './components/TofuWarning';
 import { I18nContext, pickLocale, translator } from './i18n';
 import { ConnectPage } from './pages/ConnectPage';
+import { HomePage } from './pages/HomePage';
 import { ServicesContext, useClient, useServices, type AppServices } from './services';
 
 // 会议页（侧栏、对话框、共享视图等）按需加载：首屏只有连接页，减小首屏 JS（gzip 后 ≤ 300 KB）
@@ -59,8 +60,6 @@ function Router({ defaultAddress, invite }: { defaultAddress?: string; invite?: 
 
   return (
     <>
-      {/* 桌面版隐藏了系统标题栏：连接页顶部这一条透明区域用来拖动窗口（会议页由各栏的标题行兼任） */}
-      {!inMeeting && platform.kind === 'electron' && <div className="app-drag fixed inset-x-0 top-0 z-10 h-[var(--wco-height)]" aria-hidden />}
       <TofuWarning />
       <DesktopIntegration />
       {inMeeting ? (
@@ -68,7 +67,12 @@ function Router({ defaultAddress, invite }: { defaultAddress?: string; invite?: 
           <MeetingPage pendingToken={link?.token} onTokenHandled={() => setLink((l) => (l ? { address: l.address } : l))} />
         </Suspense>
       ) : (
-        <ConnectPage key={link?.address ?? ''} defaultAddress={defaultAddress} linkAddress={link?.address} invite={link?.invite ?? invite} landing={!link && !!invite} />
+        // 网页由服务器提供时只能连这一台（加入页）；桌面版和单独部署的网页显示服务器列表
+        defaultAddress ? (
+          <ConnectPage address={defaultAddress} invite={link?.invite ?? invite} landing={!link && !!invite} />
+        ) : (
+          <HomePage key={link?.address ?? ''} linkAddress={link?.address} invite={link?.invite ?? invite} />
+        )
       )}
     </>
   );

@@ -1,7 +1,8 @@
 // 苹果端 ⇄ Web 端端到端加密互通。需要先构建 macOS 应用，用 HANE_MAC_APP 指定可执行文件：
 //   HANE_MAC_APP=${OPENHANE_CACHE:-$HOME/Library/Caches/openhane}/DerivedData/Build/Products/Debug/OpenHane.app/Contents/MacOS/OpenHane \
 //   HANE_SKIP_DESKTOP_BUILD=1 pnpm exec playwright test interop-macos
-// 未设置时跳过。检查：双方互相拿到密钥、安全码一致；Web 能解码 Mac 加密后的屏幕共享（合成画面），Mac 能解密 Web 的声音。
+// 未设置时跳过。检查：双方互相拿到密钥、安全码一致；Web 能解码 Mac 加密后的屏幕共享（合成画面），Mac 能解密 Web 的声音；
+// 加密的聊天双向都能解开（Web 的消息在 Mac 进来之前发出，Mac 从历史里解开）。
 import { chromium, expect, test } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -35,6 +36,8 @@ test('E2EE interop: macOS app and web exchange keys, agree on the safety code an
     // 主会议开启端到端加密
     await web.evaluate(() => (window as any).__hane.client.updateRoom('main', { overrides: { e2ee: true } }));
     await expect.poll(() => web.evaluate(() => (window as any).__hane.media.state.getState().e2ee?.enabled ?? false), { timeout: 20_000 }).toBe(true);
+    // Mac 进来之前发一条加密的聊天
+    await web.evaluate(() => (window as any).__hane.client.sendChat('from-web'));
     // 记录解密错误
     await web.evaluate(() => {
       (window as any).__encErrors = 0;
@@ -48,6 +51,7 @@ test('E2EE interop: macOS app and web exchange keys, agree on the safety code an
         HANE_AUTOCONNECT: `127.0.0.1:${server.port}|Mac`,
         HANE_SNAPSHOT_DIR: dir,
         HANE_SNAPSHOT_SHARE: '1',
+        HANE_SNAPSHOT_CHAT: 'from-mac',
         HANE_SNAPSHOT_WAIT: '12',
         HANE_E2E: '1',
         HANE_SEED_BYTE: '77',
@@ -81,7 +85,7 @@ test('E2EE interop: macOS app and web exchange keys, agree on the safety code an
         { timeout: 20_000 },
       )
       .toBeGreaterThan(10);
-    const webCode = (await e2ee()).safetyCode;
+    const webCode = ((await e2ee()).safetyCode as number[]).join(',');
     expect(await web.evaluate(() => (window as any).__encErrors)).toBe(0);
 
     // Mac：状态文件
@@ -98,6 +102,11 @@ test('E2EE interop: macOS app and web exchange keys, agree on the safety code an
     expect(Number(status.remoteOK)).toBeGreaterThan(0);
     expect(status.decryptFailed).toBe('0');
     expect(readFileSync(join(dir, 'status.txt'), 'utf8')).toContain(`safetyCode=${webCode}`);
+    expect(status.chat?.split(',')).toEqual(['from-web', 'from-mac']);
+    // Mac 的流量优先级在运行（本机网络没有拥堵）
+    expect(status.traffic?.split(',').slice(2)).toEqual(['false', 'false']);
+    const webChat = await web.evaluate(() => ((window as any).__hane.client.store.getState().chat.main ?? []).map((m: any) => m.text));
+    expect(webChat).toEqual(['from-web', 'from-mac']);
   } finally {
     await browser.close();
     await server.stop();

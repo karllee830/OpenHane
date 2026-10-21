@@ -6,13 +6,14 @@
 import { realpathSync } from 'node:fs';
 import { join, normalize, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { BrowserWindow, app, ipcMain, nativeTheme, net, protocol, session, shell, type TitleBarOverlayOptions } from 'electron';
+import { BrowserWindow, app, ipcMain, nativeTheme, net, protocol, screen, session, shell, type TitleBarOverlayOptions } from 'electron';
 import { IPC, type AppInfo, type TrayActionMsg, type TrayStateMsg } from '../shared/ipc';
 import { PushToTalkHost } from './hotkeys';
 import { loadOrCreateSeed } from './identity';
 import { SharePicker } from './share';
 import { PinStore, Tofu } from './tofu';
 import { AppTray } from './tray';
+import { WindowSizes } from './window-size';
 import { setupUpdater } from './updater';
 
 const APP_ORIGIN = 'app://openhane';
@@ -120,12 +121,12 @@ function handleZoomKeys(w: BrowserWindow) {
   });
 }
 
+/** 主窗口的大小：主页和会议页各一套，见 window-size.ts */
+let sizes: WindowSizes;
+
 function createWindow() {
   win = new BrowserWindow({
-    width: 1200,
-    height: 800,
-    minWidth: 360,
-    minHeight: 500,
+    ...sizes.initial(screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workAreaSize),
     show: false,
     title: 'OpenHane',
     // 任务栏和窗口图标（Windows 打包后取 exe 里的图标；开发运行和 Linux 用这张）
@@ -148,6 +149,7 @@ function createWindow() {
   // 没有菜单栏（Windows / Linux 上按 Alt 也不会出现）；顺带去掉了刷新快捷键，免得误按后掉出会议
   if (!MAC) win.removeMenu();
   handleZoomKeys(win);
+  sizes.attach(win);
   win.once('ready-to-show', () => win?.show());
   // 通话中关闭窗口时留在托盘；未连接时直接退出
   win.on('close', (e) => {
@@ -167,13 +169,14 @@ nativeTheme.on('updated', () => {
   win.setBackgroundColor(themeColors().bg);
 });
 
-let trayState: TrayStateMsg = { connected: false, muted: false, deafened: false };
+let trayState: TrayStateMsg = { connected: false, meeting: false, muted: false, deafened: false };
 
 app.whenReady().then(() => {
   registerAppProtocol();
   hardenSession();
 
   const userData = app.getPath('userData');
+  sizes = new WindowSizes(join(userData, 'window.json'));
   const tofu = new Tofu(session.defaultSession, new PinStore(join(userData, 'pins.json')), (host, expected, actual) => {
     log(`certificate fingerprint mismatch for ${host}`);
     send(IPC.tofuMismatch, { host, expected, actual });
@@ -208,6 +211,8 @@ app.whenReady().then(() => {
   ipcMain.on(IPC.trayState, (_e, s: TrayStateMsg) => {
     trayState = s;
     tray?.setState(s);
+    // 进入会议时窗口换成会议页的大小（更大），离开时换回主页的大小
+    if (win) sizes.apply(win, s.meeting ? 'meeting' : 'home', screen.getDisplayMatching(win.getBounds()).workArea);
   });
   ipcMain.handle(IPC.deepLinkReady, () => {
     const l = pendingLink;

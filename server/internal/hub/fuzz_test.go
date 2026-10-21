@@ -96,7 +96,7 @@ func adminOnly(r *pb.Request) bool {
 	case *pb.Request_GetSettings, *pb.Request_UpdateSettings, *pb.Request_CreateToken, *pb.Request_ListTokens,
 		*pb.Request_RevokeToken, *pb.Request_SetRole, *pb.Request_ListIdentities, *pb.Request_ListBans,
 		*pb.Request_AddBan, *pb.Request_RemoveBan, *pb.Request_GetAuditLog, *pb.Request_CreateInvite,
-		*pb.Request_ListInvites, *pb.Request_RevokeInvite:
+		*pb.Request_ListInvites, *pb.Request_RevokeInvite, *pb.Request_GetSessionInfo, *pb.Request_DownloadIpv6GeoDb:
 		return true
 	}
 	return false

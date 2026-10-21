@@ -80,6 +80,7 @@ func describe(_ err: HaneError) -> String {
     case .connectionLost: return String(localized: "与服务器的连接已断开。")
     case .protocolViolation: return String(localized: "服务器返回了无法识别的数据，请确认地址指向的是羽见服务器。")
     case .fingerprintChanged: return String(localized: "服务器证书与上次记住的不一致，已停止连接。")
+    case .e2eeNotReady: return String(localized: "端到端加密还没准备好，请稍等几秒再发送。")
     case let .server(code, message, detail):
         switch code {
         case .protocolVersionUnsupported: return String(localized: "服务器与客户端版本不兼容，请更新。")

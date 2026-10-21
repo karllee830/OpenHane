@@ -42,7 +42,7 @@ type Server struct {
 	TLS   SPKISource
 	Log   *slog.Logger
 
-	// 限流：单 IP 每分钟的新连接数（HANE_CONN_PER_MINUTE，nil 表示不限）；5 分钟内 10 次鉴权失败封锁 15 分钟。
+	// 限流：单 IP（IPv6 按 /64）每分钟的新连接数（HANE_CONN_PER_MINUTE，nil 表示不限）；5 分钟内 10 次鉴权失败封锁 15 分钟。
 	ConnLimit *ratelimit.Window
 	AuthBlock *ratelimit.Blocker
 
@@ -77,7 +77,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := newConn(ws, log)
 	defer func() { <-c.Done() }()
 
-	key := ip.String()
+	key := ratelimit.IPKey(ip)
 	if d := s.AuthBlock.Blocked(key); d > 0 {
 		c.Close(&pb.Error{Code: pb.ErrorCode_ERROR_CODE_RATE_LIMITED, RetryAfterMs: uint32(d.Milliseconds())}, false)
 		return

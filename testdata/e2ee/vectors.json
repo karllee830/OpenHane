@@ -39,7 +39,16 @@
           "publicKey": "ecc1b58727f3f12b3194881a9ecb9de0b28ce7b207230d8e930fe1bce75e256c"
         }
       ],
-      "code": "12182 52286 48365 29063 18134 09400"
+      "code": [
+        54,
+        7,
+        0,
+        58,
+        14,
+        6,
+        28,
+        17
+      ]
     },
     {
       "members": [
@@ -52,7 +61,16 @@
           "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
         }
       ],
-      "code": "12182 52286 48365 29063 18134 09400"
+      "code": [
+        54,
+        7,
+        0,
+        58,
+        14,
+        6,
+        28,
+        17
+      ]
     },
     {
       "members": [
@@ -69,7 +87,16 @@
           "publicKey": "26b1c72849b93ca53664ca8240643c514c471ca0a4a424e24cf2ccc80a39933e"
         }
       ],
-      "code": "77870 43063 14301 13079 56351 47727"
+      "code": [
+        19,
+        28,
+        60,
+        9,
+        55,
+        39,
+        26,
+        13
+      ]
     },
     {
       "members": [
@@ -86,7 +113,16 @@
           "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
         }
       ],
-      "code": "12182 52286 48365 29063 18134 09400"
+      "code": [
+        54,
+        7,
+        0,
+        58,
+        14,
+        6,
+        28,
+        17
+      ]
     },
     {
       "members": [
@@ -95,7 +131,51 @@
           "publicKey": "d5bf4a3fcce717b0388bcc2749ebc148ad9969b23f45ee1b605fd58778576ac4"
         }
       ],
-      "code": "98685 99559 31267 37218 30035 08626"
+      "code": [
+        63,
+        4,
+        42,
+        41,
+        31,
+        41,
+        41,
+        16
+      ]
+    }
+  ],
+  "chat": [
+    {
+      "mediaKey": "7ed5a43aa411d4cd36f30eada7b35be6f503be2e17148075b2737cdfef98f90d",
+      "roomId": "main",
+      "fromSessionId": "4qy8nkgc2b",
+      "keyIndex": 0,
+      "chatKey": "6bb469717c35af33e18027ed8de116ec6a117736884b0cd59747779d8b6b9ca1",
+      "aad": "4f70656e48616e652d436861742d7631006d61696e00347179386e6b676332620000000000",
+      "nonce": "cd6026372c1f8df31675a3b1",
+      "plaintext": "0a0be4bda0e5a5bd20f09f918b",
+      "ciphertext": "6fdb9e3efe5d048056331359ef319657ddd62237d1d3ec187f51dfdf16",
+      "text": "你好 👋"
+    },
+    {
+      "mediaKey": "b3add9a39afb7725d9400c597ee6898c2dc46abadf2a74e84c76179a195d1295",
+      "roomId": "r_abc123",
+      "fromSessionId": "s_alice",
+      "keyIndex": 7,
+      "chatKey": "223dc81b90543000bb21b7209df3ae3680bbf10518c2985dbd41e6b1543a227e",
+      "aad": "4f70656e48616e652d436861742d763100725f61626331323300735f616c6963650000000007",
+      "nonce": "3a4aa450bbdf6da65dcadf4b",
+      "plaintext": "12550a20433047d9fcf90db2305c6e0f75f8c5788be645569485271287cefd933f75b09912204f1a5c9547cccd8054b622955e3beee6228c554d28698325d56dfe4001f4fef21a09696d6167652f706e6720800528e003",
+      "ciphertext": "98ee90ff244978ea11ad925847e99930b1b96342c268f5db4c54c0582a19322d783e56432dfae736aba0c5da2b76e7709a9ffac2fef462b588da489d5f3be93d2ff3faea2a8358af68c4f3fe5c23ddb7e6b5024203b277ec370aed02b2969771143b41de892af2",
+      "text": ""
+    }
+  ],
+  "chatImage": [
+    {
+      "key": "433047d9fcf90db2305c6e0f75f8c5788be645569485271287cefd933f75b099",
+      "nonce": "75a569a1af0e84f388a8a6d3",
+      "image": "89504e470d0a1a0a20e4b88de698afe79c9fe79a84e59bbee78987efbc8ce58faae794a8e69da5e6b58be8af95e58aa0e5af86",
+      "file": "484e453175a569a1af0e84f388a8a6d31d1db2a0a313de5624e6b953ca92e5bf2a4ec2f1a8e285df2ca712fe606f8fbc40525af3e0739d391a7dc5931e025da1eaa0d4901e13afe1e4f43fed35b920f95392d8",
+      "digest": "4f1a5c9547cccd8054b622955e3beee6228c554d28698325d56dfe4001f4fef2"
     }
   ]
 }

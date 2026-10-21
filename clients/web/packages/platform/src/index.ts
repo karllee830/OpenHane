@@ -71,7 +71,7 @@ export type TrayAction = 'toggle-mute' | 'toggle-deafen' | 'leave';
 
 /** 托盘 / 菜单栏图标（Electron）。 */
 export interface TrayService {
-  setState(state: { connected: boolean; muted: boolean; deafened: boolean; serverName?: string }): void;
+  setState(state: { connected: boolean; meeting: boolean; muted: boolean; deafened: boolean; serverName?: string }): void;
   onAction(cb: (a: TrayAction) => void): () => void;
 }
 

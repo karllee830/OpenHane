@@ -7,7 +7,8 @@ import HaneCore
 /// 端到端加密的密钥管理—— 与 Web 版 packages/media/src/e2ee.ts 逐项对应：发送者密钥模型。
 /// - 进入加密房间：生成密钥（索引 0）发给所有人；之后有人进来，把当前密钥发给他；
 /// - 有人离开：轮换自己的密钥（索引 +1）并重新分发，约 1 秒后切换到新密钥发送；
-/// - 收到别人的密钥包：解开后交给帧解密器（HKDF，与 Web 互通，S9 已验证）。
+/// - 收到别人的密钥包：解开后交给帧解密器（HKDF，与 Web 互通）；
+/// - 聊天：用发送者媒体密钥派生的聊天密钥加解密（ChatCipher），收到新密钥后让 ServerSession 重试还解不开的消息。
 @MainActor
 @Observable
 public final class E2EEKeys {
@@ -18,8 +19,8 @@ public final class E2EEKeys {
     }
 
     public private(set) var enabled = false
-    /// 安全码（所有人相同即说明大家看到的成员列表一致）
-    public private(set) var safetyCode: String?
+    /// 安全码：8 个 emoji 的序号（SafetyEmoji.all）。所有人相同即说明大家看到的成员列表一致；计算中为 nil
+    public private(set) var safetyCode: [Int]?
     /// 自己当前发送使用的密钥索引
     public private(set) var keyIndex: Int32 = 0
     /// 还没收到其密钥的成员（session id）
@@ -55,8 +56,13 @@ public final class E2EEKeys {
     @ObservationIgnored private var verified: [String: Bool] = [:]
     @ObservationIgnored private var eventsTask: Task<Void, Never>?
     @ObservationIgnored private var cancelSink: (() -> Void)?
+    @ObservationIgnored private var cancelCipher: (() -> Void)?
+    /// 聊天密钥：发送者 session id → 密钥索引 → 密钥（包括自己的）。离开的人的也留着，已收到的历史消息还要用
+    @ObservationIgnored private var chatKeys: [String: [UInt32: SymmetricKey]] = [:]
     @ObservationIgnored private var switchTask: Task<Void, Never>?
     @ObservationIgnored private var stopped = false
+    /// 当前安全码对应的成员（safetyDigest）：成员没变就不重新计算
+    @ObservationIgnored private var safetyInput = Data()
 
     init(session: ServerSession) {
         self.session = session
@@ -79,8 +85,10 @@ public final class E2EEKeys {
         myKey = E2EECrypto.newMediaKey()
         setKey(myKey, localIdentity, 0)
         await room.e2eeManager?.setLocalKeyIndex(0)
+        chatKeys[selfID, default: [:]][0] = E2EECrypto.chatKey(mediaKey: myKey)
         members = currentMembers()
         enabled = true
+        cancelCipher = session.setChatCipher(self)
         // 进入房间前（媒体连接建立期间）到达的密钥包由控制连接暂存，这里一并取出
         cancelSink = session.setKeyPackageSink(room: roomID) { [weak self] k in self?.onKeyPackage(k) }
         eventsTask = Task { [weak self] in
@@ -101,8 +109,10 @@ public final class E2EEKeys {
         stopped = true
         eventsTask?.cancel()
         cancelSink?()
+        cancelCipher?()
         switchTask?.cancel()
         enabled = false
+        safetyInput = Data()
         safetyCode = nil
         missing = []
     }
@@ -131,6 +141,7 @@ public final class E2EEKeys {
         let key = E2EECrypto.newMediaKey()
         myIndex = index
         myKey = key
+        chatKeys[selfID, default: [:]][UInt32(index)] = E2EECrypto.chatKey(mediaKey: key)
         let started = ContinuousClock.now
         lastRotation = Rotation(startedAt: started, switchedAt: nil, index: index)
         for id in members { await sendTo(id) }
@@ -177,6 +188,8 @@ public final class E2EEKeys {
         setKey(key, from.mediaIdentity, Int32(k.keyIndex))
         // setKey 会改动全局的「当前索引」：恢复为自己的发送索引（数据包加密使用它）
         provider.setCurrentKeyIndex(keyIndex)
+        chatKeys[k.fromSessionID, default: [:]][k.keyIndex] = E2EECrypto.chatKey(mediaKey: key)
+        session.retryEncryptedChat()
         // 第一次收到对方的密钥：回发一次自己的当前密钥。对方进入房间时我们发的包可能在它开始监听之前就到了（被丢弃）
         let first = haveKeyFrom.insert(k.fromSessionID).inserted
         refresh()
@@ -187,9 +200,42 @@ public final class E2EEKeys {
         tracks[sid] = TrackState(identity: identity, remote: remote, state: state)
     }
 
+    /// 更新「还没收到密钥」的成员；成员变了时在后台重新计算安全码（要算零点几秒，期间显示为计算中）
     private func refresh() {
-        let room = session.state.participants.values.filter { $0.roomID == roomID }
-        safetyCode = E2EECrypto.safetyCode(members: room.map { ($0.uid, $0.publicKey) })
         missing = members.subtracting(haveKeyFrom)
+        let room = session.state.participants.values.filter { $0.roomID == roomID }
+        let digest = E2EECrypto.safetyDigest(members: room.map { ($0.uid, $0.publicKey) })
+        guard digest != safetyInput, !stopped else { return }
+        safetyInput = digest
+        safetyCode = nil
+        Task {
+            let code = await Task.detached(priority: .userInitiated) { E2EECrypto.safetyCode(digest: digest) }.value
+            // 计算期间成员又变了：以后一次为准
+            if digest == self.safetyInput, !self.stopped { self.safetyCode = code }
+        }
+    }
+}
+
+extension E2EEKeys: ChatCipher {
+    public var chatRoomID: String { roomID }
+
+    /// 用自己当前发送用的密钥（与媒体帧相同的索引）加密聊天
+    public func sealChat(_ plaintext: Data) -> Openhane_V1_EncryptedChat? {
+        let index = UInt32(keyIndex)
+        guard !stopped, let key = chatKeys[selfID]?[index],
+              let sealed = try? E2EECrypto.sealChat(plaintext, key: key, aad: E2EECrypto.chatAAD(room: roomID, from: selfID, keyIndex: index))
+        else { return nil }
+        return .with {
+            $0.keyIndex = index
+            $0.nonce = sealed.nonce
+            $0.ciphertext = sealed.ciphertext
+        }
+    }
+
+    public func openChat(_ m: Openhane_V1_ChatMessage) -> Data? {
+        let e = m.encrypted
+        guard m.hasEncrypted, let key = chatKeys[m.senderSessionID]?[e.keyIndex] else { return nil }
+        return try? E2EECrypto.openChat(nonce: e.nonce, ciphertext: e.ciphertext, key: key,
+                                        aad: E2EECrypto.chatAAD(room: m.roomID, from: m.senderSessionID, keyIndex: e.keyIndex))
     }
 }

@@ -36,6 +36,7 @@ jobs:
           cache-dependency-path: server/go.sum
       - name: gofmt
         run: test -z "$(gofmt -l .)" || (gofmt -l . && exit 1)
+      - run: ./scripts/fetch-geoip.sh
       - run: go vet ./...
       - name: LiveKit replace 指令一致
         run: ./scripts/check-livekit-replace.sh

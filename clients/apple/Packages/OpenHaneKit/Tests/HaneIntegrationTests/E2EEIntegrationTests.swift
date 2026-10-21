@@ -33,9 +33,20 @@ import Testing
         try await eventually(20) { [am, bm, cm].allSatisfy { $0.liveRoom?.name == room.id && $0.e2ee?.enabled == true } }
         try await eventually(10) { [am, bm, cm].allSatisfy { $0.e2ee?.missing.isEmpty == true && $0.e2ee?.safetyCode != nil } }
         let code = try #require(am.e2ee?.safetyCode)
-        #expect(code.wholeMatch(of: /\d{5}( \d{5}){5}/) != nil)
+        #expect(code.count == 8 && code.allSatisfy { (0 ..< 64).contains($0) })
         #expect(bm.e2ee?.safetyCode == code)
         #expect(cm.e2ee?.safetyCode == code)
+
+        // 聊天：服务端转来的是密文，Bob、Carol 解开后显示；图片加密上传，解密后是原来的 PNG，宽高来自加密的正文
+        try await alice.sendChat("机密消息")
+        try await eventually(5) { [bob, carol].allSatisfy { $0.state.chat[room.id]?.last?.text == "机密消息" } }
+        #expect(bob.state.chat[room.id]?.last?.hasEncrypted == true)
+        let png = try #require(Data(base64Encoded: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="))
+        let imageID = try await alice.uploadChatImage(png, png: true, width: 1, height: 1)
+        try await alice.sendChat("", imageID: imageID)
+        try await eventually(5) { bob.state.chat[room.id]?.last?.image.id == imageID }
+        #expect(bob.state.chat[room.id]?.last?.image.width == 1)
+        #expect(try await bob.loadChatImage(room: room.id, id: imageID) == png)
 
         // 帧确实是加密的，并且能解开：Alice 那里 Bob 的麦克风轨道的解密器状态为 ok
         let bobIdentity = try #require(bm.liveRoom?.localParticipant.identity?.stringValue)
@@ -53,7 +64,7 @@ import Testing
             #expect(r.index == 1 && m.e2ee?.keyIndex == 1)
             #expect(ms.seconds < 2)
         }
-        try await eventually(5) { am.e2ee?.safetyCode != code && am.e2ee?.safetyCode == bm.e2ee?.safetyCode }
+        try await eventually(5) { am.e2ee?.safetyCode.map { $0 != code } == true && am.e2ee?.safetyCode == bm.e2ee?.safetyCode }
         // 切换后一段时间内没有解密失败
         try await Task.sleep(for: .seconds(1.5))
         #expect(am.e2ee?.tracks.values.contains { $0.remote && $0.state == .decryption_failed } == false)

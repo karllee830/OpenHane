@@ -40,9 +40,14 @@ final class AppModel {
     /// 邀请链接（openhane://…?invite=、https://host/j/<码>）带来的邀请码：连接时携带，免服务器密码、可附带角色
     var linkInvite: String?
 
+    /// 默认昵称：最近一次连接时用的昵称，新服务器默认用它
     var nickname: String { didSet { defaults.set(nickname, forKey: "nickname") } }
-    /// 最近连接的服务器（连接页），最新的在前
+    /// 主页的服务器列表（收藏的和最近连接的），最新的在前
     var recentServers: [RecentServer] { didSet { RecentServers.save(recentServers, to: defaults) } }
+    /// 列表里每台服务器的延迟和在线人数（按地址；还没测完的没有）
+    var serverStatus: [String: ServerStatus] = [:]
+    /// 服务器图标（按地址；服务器设置了图标才有），缓存在本地，见 ServerLogos.swift
+    var serverLogos: [String: Data] = [:]
     /// 屏幕共享「自定义」档上次用的参数
     var shareCustom: CustomShare { didSet { defaults.set(try? JSONEncoder().encode(shareCustom), forKey: "shareCustom") } }
     var voiceMode: VoiceMode {
@@ -62,6 +67,31 @@ final class AppModel {
         }
     }
     #endif
+    #if os(macOS)
+    /// 选中的输入 / 输出设备（空表示系统默认）。重启后由系统默认重新选择，这里只记住 ID 供设置和会议里的菜单显示
+    var inputDeviceID: String { didSet { defaults.set(inputDeviceID, forKey: "inputDevice") } }
+    var outputDeviceID: String { didSet { defaults.set(outputDeviceID, forKey: "outputDevice") } }
+    /// 设置里选的摄像头（AVCaptureDevice.uniqueID）；空表示系统默认
+    var cameraID: String {
+        didSet {
+            defaults.set(cameraID, forKey: "cameraDevice")
+            Task { await media.setPreferredCamera(cameraID.isEmpty ? nil : cameraID) }
+        }
+    }
+    #endif
+    /// 麦克风音量和所有人声音的总音量（0–2，1 为原始音量）
+    var inputVolume: Double {
+        didSet {
+            defaults.set(inputVolume, forKey: "inputVolume")
+            media.inputVolume = inputVolume
+        }
+    }
+    var outputVolume: Double {
+        didSet {
+            defaults.set(outputVolume, forKey: "outputVolume")
+            media.outputVolume = outputVolume
+        }
+    }
     var manualThreshold: Double? {
         didSet {
             defaults.set(manualThreshold, forKey: "manualThreshold")
@@ -73,6 +103,9 @@ final class AppModel {
         didSet {
             defaults.set(echoProcessing.rawValue, forKey: "echoProcessing")
             media.echoProcessing = echoProcessing
+        #if os(macOS)
+        media.preferredCameraID = cameraID.isEmpty ? nil : cameraID
+        #endif
         }
     }
     /// 降噪档位：默认 AI 降噪
@@ -123,17 +156,26 @@ final class AppModel {
         )
         media = MediaSession(session: session)
         nickname = defaults.string(forKey: "nickname") ?? Self.defaultNickname
-        recentServers = RecentServers.load(defaults)
+        let recent = RecentServers.load(defaults)
+        recentServers = recent
+        serverLogos = Dictionary(uniqueKeysWithValues: recent.compactMap { r in ServerLogoCache.data(for: r.address).map { (r.address, $0) } })
         shareCustom = defaults.data(forKey: "shareCustom").flatMap { try? JSONDecoder().decode(CustomShare.self, from: $0) } ?? .default
         voiceMode = VoiceMode(rawValue: defaults.string(forKey: "voiceMode") ?? "") ?? .voice
         #if os(macOS)
         pttBinding = (defaults.data(forKey: "pttBinding")).flatMap { try? JSONDecoder().decode(HotkeyBinding.self, from: $0) } ?? .defaultBinding
+        cameraID = defaults.string(forKey: "cameraDevice") ?? ""
+        inputDeviceID = defaults.string(forKey: "inputDevice") ?? ""
+        outputDeviceID = defaults.string(forKey: "outputDevice") ?? ""
         #endif
         manualThreshold = defaults.object(forKey: "manualThreshold") as? Double
+        inputVolume = defaults.object(forKey: "inputVolume") as? Double ?? 1
+        outputVolume = defaults.object(forKey: "outputVolume") as? Double ?? 1
         noiseSuppression = NoiseSuppression(rawValue: defaults.string(forKey: "noiseSuppression") ?? "") ?? .ai
         echoProcessing = EchoProcessing(rawValue: defaults.string(forKey: "echoProcessing") ?? "") ?? .platformDefault
         media.mode = voiceMode
         media.manualThresholdDb = manualThreshold
+        media.inputVolume = inputVolume
+        media.outputVolume = outputVolume
         media.noiseSuppression = noiseSuppression
         media.echoProcessing = echoProcessing
         #if os(macOS)
@@ -164,14 +206,17 @@ final class AppModel {
 
     // MARK: 连接
 
-    func connect(address: String, password: String) async {
+    /// 连接一台服务器。nickname 为 nil 时用这台服务器记住的昵称，没有就用默认昵称
+    func connect(address: String, password: String, nickname nick: String? = nil) async {
         connectError = nil
+        let nick = (nick ?? nickname(for: address)).trimmingCharacters(in: .whitespaces)
         do {
-            try await session.connect(address: address, nickname: nickname, password: password, inviteCode: linkInvite)
+            try await session.connect(address: address, nickname: nick, password: password, inviteCode: linkInvite)
             let info = session.state.serverInfo
-            // 默认名称与应用同名，记下来没有意义：列表里改为显示地址
+            nickname = nick
+            // 默认名称与应用同名，记下来没有意义：列表里改为显示地址。每台服务器记住自己用的昵称
             recentServers = RecentServers.remember(
-                RecentServer(address: address, name: info.name == "OpenHane" ? "" : info.name, lastUsed: Date(), needsPassword: info.requiresPassword),
+                RecentServer(address: address, name: DisplayName.serverName(info.name), lastUsed: Date(), needsPassword: info.requiresPassword, nickname: nick),
                 in: recentServers)
             didEnterMeeting()
         } catch let HaneError.fingerprintChanged(m) {
@@ -185,6 +230,42 @@ final class AppModel {
 
     func forget(_ server: RecentServer) {
         recentServers.removeAll { $0.address == server.address }
+        ServerLogoCache.remove(server.address)
+        serverLogos[server.address] = nil
+    }
+
+    /// 在这台服务器上用的昵称：记住的昵称，没有就用默认昵称
+    func nickname(for address: String) -> String {
+        let n = RecentServers.find(address, in: recentServers)?.nickname ?? ""
+        return n.isEmpty ? nickname : n
+    }
+
+    func toggleFavorite(_ server: RecentServer) {
+        recentServers = RecentServers.update(server.address, in: recentServers) { $0.favorite.toggle() }
+    }
+
+    /// 修改备注和在这台服务器上用的昵称
+    func edit(_ server: RecentServer, note: String, nickname: String) {
+        recentServers = RecentServers.update(server.address, in: recentServers) {
+            $0.note = note.trimmingCharacters(in: .whitespaces)
+            $0.nickname = nickname.trimmingCharacters(in: .whitespaces)
+        }
+    }
+
+    /// 主页显示期间定期测一遍列表里的服务器（延迟和在线人数）；视图消失时随任务取消
+    func watchServerStatus() async {
+        while !Task.isCancelled {
+            await withTaskGroup(of: Void.self) { group in
+                for address in recentServers.map(\.address) {
+                    group.addTask { [trust = session.trust] in
+                        let s = await ServerProbe.probe(address, trust: trust)
+                        await MainActor.run { self.serverStatus[address] = s }
+                        await self.updateFromProbe(address, status: s)
+                    }
+                }
+            }
+            try? await Task.sleep(for: .seconds(30))
+        }
     }
 
     func acceptFingerprint() async {

@@ -29,6 +29,8 @@ final class VoiceProcessor: NSObject, AudioCustomProcessingDelegate, @unchecked 
     private let lock = NSLock()
     private var gate: VoiceGate
     private var gain: Float = 0
+    /// 麦克风音量（1 为原始音量）
+    private var inputGain: Float = 1
     private var frames = 0
     private var passthrough = false
     private var deepFilter: DeepFilter?
@@ -52,6 +54,10 @@ final class VoiceProcessor: NSObject, AudioCustomProcessingDelegate, @unchecked 
 
     func setPushToTalk(_ pressed: Bool) {
         lock.withLock { gate.pttPressed = pressed }
+    }
+
+    func setInputGain(_ g: Float) {
+        lock.withLock { inputGain = max(0, g) }
     }
 
     /// 共享声音时关闭门控：共享的声音混在同一条轨道里，不能被发言门控截断
@@ -79,7 +85,14 @@ final class VoiceProcessor: NSObject, AudioCustomProcessingDelegate, @unchecked 
         // WebRTC 的音频缓冲是 16 位 PCM 数值范围的浮点数
         let ch0 = audioBuffer.rawBuffer(forChannel: 0)
         // 取出强引用后在锁外处理：主线程同时停用 AI 降噪也不会释放正在使用的实例
-        let (df, rate, isolation, bypass) = lock.withLock { (deepFilter, sampleRate, voiceIsolation, passthrough) }
+        let (df, rate, isolation, bypass, boost) = lock.withLock { (deepFilter, sampleRate, voiceIsolation, passthrough, inputGain) }
+        // 麦克风音量：先于降噪和电平计算，放大时限制在 16 位 PCM 的范围内
+        if boost != 1 {
+            for c in 0 ..< audioBuffer.channels {
+                let buf = audioBuffer.rawBuffer(forChannel: c)
+                for i in 0 ..< n { buf[i] = min(32767, max(-32768, buf[i] * boost)) }
+            }
+        }
         var vad: Double?
         var ai: AIFrame?
         if let df {
