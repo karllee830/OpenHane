@@ -1,11 +1,11 @@
-// 性能预算：网页版首屏 JS（index.html 直接引用的脚本，gzip 后）≤ 300 KB。
+// 性能预算：网页版首屏 JS（index.html 直接引用的脚本，gzip 后）≤ 250 KB。
 // 用法：npm run build && npm run budget
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
-const LIMIT_KB = 300;
+const LIMIT_KB = 250;
 const dist = join(dirname(fileURLToPath(import.meta.url)), '../apps/web/dist');
 const html = readFileSync(join(dist, 'index.html'), 'utf8');
 const scripts = [...html.matchAll(/<script[^>]+src="\.?\/?([^"]+\.js)"/g), ...html.matchAll(/<link[^>]+rel="modulepreload"[^>]+href="\.?\/?([^"]+\.js)"/g)].map((m) => m[1]);

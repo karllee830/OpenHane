@@ -80,7 +80,7 @@ jobs:
         env:
           HANE_SERVER_BIN: ${{ runner.temp }}/openhane
           HANE_REQUIRE_DFN: '1' # 没有 AI 降噪的 WASM 时测试失败而不是跳过
-      - name: 首屏 JS（gzip）≤ 300 KB
+      - name: 首屏 JS（gzip）≤ 250 KB
         run: npm run build && npm run budget
       - run: npx playwright install --with-deps chromium
       - name: 下载 Electron（首次启动时下载会让端到端测试超时）

@@ -1,4 +1,5 @@
 import { parseAddress } from '@hane/core';
+import { MediaSession } from '@hane/media';
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 import { DesktopIntegration } from './components/DesktopIntegration';
 import { TofuWarning } from './components/TofuWarning';
@@ -7,11 +8,15 @@ import { ConnectPage } from './pages/ConnectPage';
 import { HomePage } from './pages/HomePage';
 import { ServicesContext, useClient, useServices, type AppServices } from './services';
 
-// 会议页（侧栏、对话框、共享视图等）按需加载：首屏只有连接页，减小首屏 JS（gzip 后 ≤ 300 KB）
+// 会议页（侧栏、对话框、共享视图等）按需加载：首屏只有连接页，减小首屏 JS（gzip 后 ≤ 250 KB）
 const loadMeetingPage = () => import('./pages/MeetingPage').then((m) => ({ default: m.MeetingPage }));
 const MeetingPage = lazy(loadMeetingPage);
-// 首屏渲染完后空闲时预先下载，点「连接」时不用再等
-if (typeof window !== 'undefined') (window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 1500)))(() => void loadMeetingPage());
+// 首屏渲染完后空闲时预先下载会议页和媒体连接部分（livekit-client），点「连接」时不用再等
+if (typeof window !== 'undefined')
+  (window.requestIdleCallback ?? ((f: () => void) => setTimeout(f, 1500)))(() => {
+    void loadMeetingPage();
+    void MediaSession.preload();
+  });
 
 function Router({ defaultAddress, invite }: { defaultAddress?: string; invite?: string }) {
   const { client, media } = useServices();
