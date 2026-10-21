@@ -15,6 +15,7 @@ const bridge: DesktopBridge = {
   onTofuMismatch: (cb: (m: TofuMismatchMsg) => void) => subscribe(IPC.tofuMismatch, cb),
   acceptFingerprint: (host: string, fp: string) => ipcRenderer.invoke(IPC.tofuAccept, host, fp),
   beforeConnect: (hostPort: string) => ipcRenderer.invoke(IPC.tofuBefore, hostPort),
+  checkFingerprint: (hostPort: string) => ipcRenderer.invoke(IPC.tofuCheck, hostPort),
   registerPtt: (code: string) => ipcRenderer.invoke(IPC.pttRegister, code),
   onPtt: (cb: (pressed: boolean) => void) => subscribe(IPC.pttChange, cb),
   setTrayState: (s: TrayStateMsg) => ipcRenderer.send(IPC.trayState, s),

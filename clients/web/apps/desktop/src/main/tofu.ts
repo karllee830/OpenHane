@@ -133,6 +133,15 @@ export class Tofu {
     return { allowed: false, expected: pinned, actual: fp };
   }
 
+  /** 只检查、不记录也不提示（服务器列表的探测）：指纹与记住的不一致时返回 false */
+  async check(hostPort: string): Promise<boolean> {
+    const { host: rawHost, port } = splitHostPort(hostPort);
+    const cert = await this.probe(rawHost, port);
+    if (!cert || cert.authorized) return true;
+    const pinned = this.pins.get(rawHost);
+    return !pinned || pinned === formatFingerprint(cert.spki);
+  }
+
   seenSpki(hostPort: string): Buffer | null {
     return this.seen.get(splitHostPort(hostPort).host.toLowerCase()) ?? null;
   }

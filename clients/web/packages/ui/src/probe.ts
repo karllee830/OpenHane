@@ -3,6 +3,7 @@
 import { candidateAddresses, hostPort, parseAddress, readLimited, type ServerAddress } from '@hane/core';
 import { useEffect, useState } from 'react';
 import { cleanServerName } from './recent';
+import { useServices } from './services';
 
 export { readLimited };
 
@@ -63,15 +64,22 @@ async function probeUrl(url: string): Promise<ServerStatus> {
   };
 }
 
-/** 测一台服务器。地址里没写端口时与连接时一样同时尝试几个候选端口，用最先响应的 */
-export async function probeServer(address: string): Promise<ServerStatus> {
-  let urls: string[];
+/**
+ * 测一台服务器。地址里没写端口时与连接时一样同时尝试几个候选端口，用最先响应的。
+ * checkCert（桌面版）：证书指纹和记住的不一致时不发请求，按连不上显示；警告留到用户点「连接」时再弹
+ */
+export async function probeServer(address: string, checkCert?: (hostPort: string) => Promise<boolean>): Promise<ServerStatus> {
+  let candidates: ServerAddress[];
   try {
-    urls = candidateAddresses(parseAddress(address)).map((a) => `${a.secure ? 'https' : 'http'}://${hostPort(a)}/api/v1/info`);
+    candidates = candidateAddresses(parseAddress(address));
   } catch {
     return { ms: null };
   }
-  return Promise.any(urls.map(probeUrl)).catch(() => ({ ms: null }));
+  const probeOne = async (a: ServerAddress) => {
+    if (a.secure && checkCert && !(await checkCert(hostPort(a)))) throw new Error('certificate fingerprint changed');
+    return probeUrl(`${a.secure ? 'https' : 'http'}://${hostPort(a)}/api/v1/info`);
+  };
+  return Promise.any(candidates.map(probeOne)).catch(() => ({ ms: null }));
 }
 
 /** 信号格数（1–4）；0 表示连不上 */
@@ -82,12 +90,14 @@ export function signalBars(ms: number | null): number {
 
 /** 列表里每台服务器的状态（undefined = 还在测），定期刷新 */
 export function useServerStatus(addresses: readonly string[]): Record<string, ServerStatus | undefined> {
+  const trust = useServices().platform.trust;
   const [status, setStatus] = useState<Record<string, ServerStatus | undefined>>({});
   const key = addresses.join('\n');
   useEffect(() => {
     let alive = true;
+    const checkCert = trust?.check?.bind(trust);
     const run = () => {
-      for (const a of addresses) void probeServer(a).then((s) => alive && setStatus((prev) => ({ ...prev, [a]: s })));
+      for (const a of addresses) void probeServer(a, checkCert).then((s) => alive && setStatus((prev) => ({ ...prev, [a]: s })));
     };
     run();
     const timer = setInterval(() => {

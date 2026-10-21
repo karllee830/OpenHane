@@ -293,6 +293,6 @@ test('network switch: media recovers after the path dies (relay allocations drop
   const sw = await recovery(t0);
   console.log('path change: audio back after', sw, 'ms; media status', await alice.evaluate(() => (window as any).__hane.media.state.getState().status));
   if (process.env.HANE_NETEM_DEBUG) console.log((await alice.evaluate(() => (window as any).__haneLog)).join('\n'));
-  // 路径悄无声息地失效（最坏情况）：浏览器 3–8 秒后才发现 ICE 断开，之后 2 秒内由看门狗触发 ICE 重启（session.ts watchIce）
+  // 路径悄无声息地失效（最坏情况）：浏览器 3–8 秒后才发现 ICE 断开，之后 2 秒内由看门狗触发 ICE 重启（live.ts watchIce）
   expect(sw).toBeLessThan(20_000);
 });

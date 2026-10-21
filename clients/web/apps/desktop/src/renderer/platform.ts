@@ -23,6 +23,7 @@ export function createDesktopPlatform(bridge: DesktopBridge): PlatformServices {
       onMismatch: (cb) => bridge.onTofuMismatch(cb),
       acceptFingerprint: (host, fp) => bridge.acceptFingerprint(host, fp),
       beforeConnect: (hostPort) => bridge.beforeConnect(hostPort),
+      check: (hostPort) => bridge.checkFingerprint(hostPort),
     },
     hotkeys: {
       unavailableReason: bridge.info.hotkeyUnavailable,

@@ -191,6 +191,7 @@ app.whenReady().then(() => {
   });
   ipcMain.handle(IPC.tofuAccept, (_e, host: string, fp: string) => tofu.accept(String(host), String(fp)));
   ipcMain.handle(IPC.tofuBefore, async (_e, hostPort: string) => (await tofu.beforeConnect(String(hostPort))).allowed);
+  ipcMain.handle(IPC.tofuCheck, (_e, hostPort: string) => tofu.check(String(hostPort)));
 
   const picker = new SharePicker(session.defaultSession, log);
   picker.install();

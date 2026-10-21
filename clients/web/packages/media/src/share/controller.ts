@@ -5,6 +5,7 @@ import { LocalAudioTrack, LocalVideoTrack, RoomEvent, Track, TrackEvent, type Ro
 import { ChangeAnalyzer } from './analyzer';
 import { chooseShareCodec, detectEncodeCaps, type CodecChoice, type EncodeCaps } from './codec';
 import { ScreenShareEngine, customMode, type CustomShare, type EngineCodec, type EngineIntent, type QualityLimitation, type ShareParams } from './engine';
+import { ShareCancelled, ShareUnsupported, canEncodeScreenShare } from './support';
 
 export type ShareIntentName = 'smart' | 'clarity' | 'smoothness' | 'custom';
 
@@ -23,17 +24,6 @@ export interface ShareStatus {
   signals?: { changedAreaRatio: number; changeFps: number; uplinkKbps: number; qualityLimitation: string };
   /** 实际发送的分辨率和帧率（来自发送统计） */
   sent?: { width: number; height: number; fps: number; kbps: number };
-}
-
-export class ShareCancelled extends Error {}
-
-/** 本机不能编码屏幕共享可用的任何编码器（连 H.264 都没有，例如没有 OpenH264 插件的 Firefox） */
-export class ShareUnsupported extends Error {}
-
-/** 屏幕共享用硬件 AV1 / H.265，或者 H.264 兜底（唯一允许软件编码的）：不能编码 H.264 的浏览器不能共享 */
-export function canEncodeScreenShare(): boolean {
-  const caps = RTCRtpSender.getCapabilities?.('video')?.codecs ?? [];
-  return caps.some((c) => c.mimeType.toLowerCase() === 'video/h264');
 }
 
 const INTENT: Record<ShareIntentName, { proto: ShareIntent; engine: EngineIntent }> = {
