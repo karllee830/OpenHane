@@ -18,7 +18,7 @@ jobs:
       version: ${{ steps.v.outputs.version }}
       build: ${{ steps.v.outputs.build }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0 # 构建号按提交数计算
       - id: v
@@ -35,9 +35,9 @@ jobs:
     name: AI 降噪（WASM）
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - run: clients/deepfilter/build.sh web
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: deepfilter-web
           path: clients/web/packages/audio-dsp/dfn/
@@ -57,17 +57,17 @@ jobs:
           - { target: darwin/amd64, os: macos-latest }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: clients/web/package-lock.json
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: deepfilter-web
           path: clients/web/packages/audio-dsp/dfn
@@ -82,7 +82,7 @@ jobs:
         run: echo "name=binaries-${TARGET/\//-}" >> "$GITHUB_OUTPUT"
         env:
           TARGET: ${{ matrix.target }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ steps.artifact.outputs.name }}
           path: server/dist/openhane_*
@@ -95,19 +95,19 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           name: deepfilter-web
           path: clients/web/packages/audio-dsp/dfn
-      - uses: docker/setup-qemu-action@v3
-      - uses: docker/setup-buildx-action@v3
-      - uses: docker/login-action@v3
+      - uses: docker/setup-qemu-action@v4
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/login-action@v3
+      - uses: docker/login-action@v4
         if: vars.DOCKERHUB_IMAGE != ''
         with:
           username: ${{ vars.DOCKERHUB_USERNAME }}
@@ -129,7 +129,7 @@ jobs:
             fi
           done
           echo "tags=$(IFS=,; echo "${tags[*]}")" >> "$GITHUB_OUTPUT"
-      - uses: docker/build-push-action@v6
+      - uses: docker/build-push-action@v7
         env:
           DOCKER_BUILD_RECORD_UPLOAD: false # 不上传构建记录（.dockerbuild），否则最后一步下载全部产物时解压失败
         with:
@@ -157,7 +157,7 @@ jobs:
       run:
         working-directory: clients/apple
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 选择最新的 Xcode
         run: |
           xcode=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
@@ -221,11 +221,11 @@ jobs:
           mkdir -p "$RUNNER_TEMP/sparkle"
           printf '{"version":"%s","build":"%s","length":"%s","signature":"%s"}\n' \
             "$version" "$build" "$length" "$signature" > "$RUNNER_TEMP/sparkle/sparkle.json"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: apple-${{ matrix.platform }}
           path: clients/apple/dist/*
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.platform == 'macos'
         with:
           name: sparkle
@@ -248,14 +248,14 @@ jobs:
         shell: bash # Windows 默认的 PowerShell 会把 -c.npmRebuild=false 拆成配置文件路径
         working-directory: clients/web
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: clients/web/package-lock.json
       - run: npm ci --no-audit --no-fund
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: deepfilter-web
           path: clients/web/packages/audio-dsp/dfn
@@ -276,7 +276,7 @@ jobs:
         env:
           version: ${{ needs.version.outputs.version }}
           BUILD_NUMBER: ${{ needs.version.outputs.build }} # Windows 文件版本的第四段
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: desktop-${{ matrix.os }}
           path: |
@@ -287,7 +287,7 @@ jobs:
             clients/web/apps/desktop/release/latest*.yml
             clients/web/apps/desktop/release/beta*.yml
       # 商店包手动上传到 Partner Center，不放进 GitHub Release
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Windows' && !contains(needs.version.outputs.version, '-')
         with:
           name: store-appx
@@ -301,18 +301,18 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/download-artifact@v4
+      - uses: actions/checkout@v7
+      - uses: actions/download-artifact@v8
         with:
           pattern: binaries-*
           path: artifacts
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: apple-*
           path: artifacts
           merge-multiple: true
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: desktop-*
           path: artifacts
@@ -350,7 +350,7 @@ jobs:
           flags=()
           [[ "$GITHUB_REF_NAME" == *-* ]] && flags+=(--prerelease)
           gh release create "$GITHUB_REF_NAME" artifacts/* --title "OpenHane ${GITHUB_REF_NAME#v}" --notes-file notes.md --generate-notes "${flags[@]}"
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: sparkle
           path: sparkle
