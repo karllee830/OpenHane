@@ -6,6 +6,7 @@ export const IPC = {
   tofuMismatch: 'tofu:mismatch',
   tofuAccept: 'tofu:accept',
   tofuBefore: 'tofu:before',
+  tofuCheck: 'tofu:check',
   pttRegister: 'ptt:register',
   pttChange: 'ptt:change',
   hotkeyStatus: 'hotkeys:status',
@@ -65,6 +66,8 @@ export interface DesktopBridge {
   acceptFingerprint(host: string, fingerprint: string): Promise<void>;
   /** 建立连接前的证书预检；false 表示指纹不一致、已拦下（同时会收到 onTofuMismatch） */
   beforeConnect(hostPort: string): Promise<boolean>;
+  /** 只检查证书指纹，不提示、不记录（服务器列表的探测）；false 表示与记住的不一致 */
+  checkFingerprint(hostPort: string): Promise<boolean>;
   /** 注册按键说话热键（KeyboardEvent.code 或 Mouse4 / Mouse5）；空字符串表示取消 */
   registerPtt(code: string): Promise<void>;
   onPtt(cb: (pressed: boolean) => void): () => void;

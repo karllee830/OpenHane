@@ -25,6 +25,11 @@ export interface TrustStore {
    * 客户端不应继续连接。
    */
   beforeConnect?(hostPort: string): Promise<boolean>;
+  /**
+   * 不连接、不提示的证书检查（服务器列表的探测用）：指纹与记住的不一致时返回 false，调用方不要向这台服务器发请求——
+   * Chromium 会缓存校验失败的结果，用户随后确认新指纹也连不上。没有记住指纹时也不会记下。
+   */
+  check?(hostPort: string): Promise<boolean>;
 }
 
 /** 小型键值存储（书签、个人设置）。读写失败时静默降级。 */

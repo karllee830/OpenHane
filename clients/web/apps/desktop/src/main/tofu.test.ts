@@ -43,4 +43,19 @@ describe('TOFU preflight', () => {
     expect(pins.get('valid.example')).toBeUndefined();
     expect(await tofu.beforeConnect('down:9800')).toEqual({ allowed: true });
   });
+
+  it('check reports a changed key without pinning or warning', async () => {
+    const pins = new PinStore(join(mkdtempSync(join(tmpdir(), 'hane-pins-')), 'pins.json'));
+    let current = spkiA;
+    const mismatches: string[] = [];
+    const tofu = new Tofu({} as never, pins, (h) => mismatches.push(h), async () => ({ spki: current, authorized: false }));
+
+    expect(await tofu.check('Server.Local:9800')).toBe(true);
+    expect(pins.get('server.local')).toBeUndefined();
+    pins.set('server.local', formatFingerprint(spkiA));
+    expect(await tofu.check('Server.Local:9800')).toBe(true);
+    current = spkiB;
+    expect(await tofu.check('server.local:9800')).toBe(false);
+    expect(mismatches).toHaveLength(0);
+  });
 });
