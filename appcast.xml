@@ -3,6 +3,15 @@
   <channel>
     <title>OpenHane</title>
     <item>
+      <title>OpenHane 0.2.0-beta.4</title>
+      <pubDate>Fri, 23 Oct 2026 01:43:02 GMT</pubDate>
+      <link>https://github.com/karllee830/OpenHane/releases/tag/v0.2.0-beta.4</link>
+      <sparkle:version>361</sparkle:version>
+      <sparkle:shortVersionString>0.2.0-beta.4</sparkle:shortVersionString>
+      <sparkle:channel>beta</sparkle:channel>
+      <enclosure url="https://github.com/karllee830/OpenHane/releases/download/v0.2.0-beta.4/OpenHane-0.2.0-beta.4-macOS.zip" length="40212139" type="application/octet-stream" sparkle:edSignature="8jYKQZar5p85n/9Vh4/jP8JarYFaHYYQrK7PmLCAWBV69UUEWdgsLYTeQ3+fIwyWPXxmOjtSvxBM26BWNFy5Dw==" />
+    </item>
+    <item>
       <title>OpenHane 0.2.0-beta.3</title>
       <pubDate>Wed, 21 Oct 2026 12:39:36 GMT</pubDate>
       <link>https://github.com/karllee830/OpenHane/releases/tag/v0.2.0-beta.3</link>
