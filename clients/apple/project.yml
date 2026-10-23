@@ -125,6 +125,9 @@ targets:
         # 广播扩展与主应用通过应用组中的套接字传帧（LiveKit SDK）
         RTCAppGroupIdentifier: group.com.0http.openhane
         RTCScreenSharingExtension: com.0http.openhane.broadcast
+        # 出口合规：只用标准加密算法（WebRTC 自带的 BoringSSL、CryptoKit），不含自有算法，也不在法国上架，
+        # 无需提交加密文稿。以后要在法国上架时改为 YES，并加上 App Store Connect 给出的 ITSEncryptionExportComplianceCode
+        ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: App-iOS/OpenHane.entitlements
       properties:
