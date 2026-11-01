@@ -8,7 +8,7 @@
     "@hane/platform": "*",
     "@hane/protocol": "*",
     "@hpke/core": "1.9.0",
-    "zustand": "5.0.15"
+    "zustand": "5.0.16"
   },
   "license": "AGPL-3.0-only"
 }
