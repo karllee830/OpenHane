@@ -13,8 +13,8 @@ jobs:
     name: 协议（lint + 生成结果一致）
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
@@ -29,8 +29,8 @@ jobs:
       run:
         working-directory: server
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
         with:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
@@ -49,20 +49,20 @@ jobs:
       run:
         working-directory: clients/web
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
           cache-dependency-path: clients/web/package-lock.json
-      - uses: actions/setup-go@v6 # 集成测试会编译并启动真实的服务端
+      - uses: actions/setup-go@v7 # 集成测试会编译并启动真实的服务端
         with:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
       - run: npm ci --no-audit --no-fund
       - run: npm run typecheck
       # AI 降噪（DeepFilterNet3）的 WASM 从源码编译；Rust 依赖和编译结果缓存起来
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -90,7 +90,7 @@ jobs:
         env:
           # GitHub 的 Ubuntu 镜像限制了非特权用户命名空间，Electron 的 SUID 沙盒无法启动
           ELECTRON_DISABLE_SANDBOX: '1'
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-results
@@ -103,12 +103,12 @@ jobs:
       run:
         working-directory: clients/apple
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: 选择最新的 Xcode
         run: |
           sudo xcode-select -s "$(ls -d /Applications/Xcode*.app | sort -V | tail -1)"
           xcodebuild -version
-      - uses: actions/setup-go@v6 # 集成测试会编译并启动真实的服务端
+      - uses: actions/setup-go@v7 # 集成测试会编译并启动真实的服务端
         with:
           go-version-file: server/go.mod
           cache-dependency-path: server/go.sum
@@ -116,7 +116,7 @@ jobs:
         run: |
           command -v rustup >/dev/null || curl -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain none
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
@@ -139,9 +139,9 @@ jobs:
     name: 镜像构建与体积
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       # 网页版带上 AI 降噪的 WASM 和模型（构建上下文里有就会打进镜像），体积检查才符合实际
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: |
             ~/.cargo/registry
